@@ -4,18 +4,11 @@
 
 TEMPLATE = lib
 CONFIG += dll
-QT += core widgets gui-private
-QTPLUGIN += qwindows
+QT += qml quick widgets
+
 TARGET = vsttest
 INCLUDEPATH += .
 VERSION = 1.0.0
 
 SOURCES += vsttest.cpp
-SOURCES += TestWidget.cpp
-SOURCES += vsttest_plugin_import.cpp
-SOURCES += qt-solutions/qtwinmigrate/src/qwinwidget.cpp
-SOURCES += qt-solutions/qtwinmigrate/src/qmfcapp.cpp
 HEADERS += aeffectx.h
-HEADERS += TestWidget.h
-HEADERS += qt-solutions/qtwinmigrate/src/qwinwidget.h
-HEADERS += qt-solutions/qtwinmigrate/src/qmfcapp.h

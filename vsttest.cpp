@@ -3,8 +3,9 @@
 #include <string.h>
 #include <QtGlobal>
 #include <QApplication>
+#include <QQuickView>
+#include <QQmlError>
 #include "aeffectx.h"
-#include "TestWidget.h"
 
 static FILE *logfp;
 
@@ -53,13 +54,18 @@ static struct {
 
 static void printDispatcher(AEffect *aeffect, int op, int intarg, intptr_t intptrarg, void *ptrarg, float floatarg)
 {
-    for (int i = 0; dispatcherOps[i].name; i++) {
+    int i;
+
+    for (i = 0; dispatcherOps[i].name; i++) {
         if (op == dispatcherOps[i].op) {
-            fprintf(logfp, "dispatch aeffect %p op %s\n", aeffect, dispatcherOps[i].name);
-            return;
+            fprintf(logfp, "dispatch aeffect %p op %s ", aeffect, dispatcherOps[i].name);
+            break;
         }
     }
-    fprintf(logfp, "dispatch aeffect %p op %#x\n", aeffect, op);
+    if (!dispatcherOps[i].name) {
+        fprintf(logfp, "dispatch aeffect %p op %#x ", aeffect, op);
+    }
+    fprintf(logfp, "%#08x %p %p %f\n", intarg, (void*)intptrarg, ptrarg, floatarg);
 }
 
 extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t intptrarg, void *ptrarg, float floatarg)
@@ -100,21 +106,22 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
 
     case effEditOpen:
     {
-        if (!qApp) {
-            int argc = 0;
-            new QApplication(argc, NULL);
-        }
+        /* HWND ptrarg */
+        QQuickView *view = new QQuickView;
+        view->setSource(QUrl::fromLocalFile("Z:\\home\\stefanha\\vsttest\\application.qml"));
+        view->show();
 
-        TestWidget *w = new TestWidget((HWND)ptrarg);
-        w->move(0, 0);
-        w->adjustSize();
-        w->setMinimumSize(480, 60);
-        w->show();
+        QList<QQmlError> errors = view->errors();
+        for (int i = 0; i < errors.size(); i++) {
+            fprintf(logfp, "Error: %s\n", errors.at(i).toString().toUtf8().constData());
+        }
+        fprintf(logfp, "Done printing errors\n");
+
         return 1;
     }
 
     case effEditIdle:
-        QApplication::processEvents();
+        QGuiApplication::processEvents();
         qApp->sendPostedEvents(0, -1);
         return 0;
 
@@ -131,26 +138,57 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
 
 extern "C" void process(AEffect *aeffect, float **inbuf, float **outbuf, int ns)
 {
+    Q_UNUSED(aeffect);
+    Q_UNUSED(inbuf);
+    Q_UNUSED(outbuf);
+    Q_UNUSED(ns);
     /* TODO */
 }
 
 extern "C" void processReplacing(AEffect *aeffect, float **inbuf, float **outbuf, int ns)
 {
+    Q_UNUSED(aeffect);
+    Q_UNUSED(inbuf);
+    Q_UNUSED(outbuf);
+    Q_UNUSED(ns);
     /* TODO */
 }
 
-static AEffect aeffect = {
-    .magic              = kEffectMagic,
-    .dispatcher         = dispatcher,
-    .process            = process,
-    .numInputs          = 2,
-    .numOutputs         = 2,
-    .flags              = effFlagsHasEditor | effFlagsCanReplacing,
-    .processReplacing   = processReplacing;
-};
-
 extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback amc)
 {
+    static AEffect aeffect = {
+        .magic              = kEffectMagic,
+        .dispatcher         = dispatcher,
+        .process            = process,
+        .setParameter       = NULL,
+        .getParameter       = NULL,
+        .numPrograms        = 0,
+        .numParams          = 0,
+        .numInputs          = 2,
+        .numOutputs         = 2,
+        .flags              = effFlagsHasEditor | effFlagsCanReplacing,
+        .ptr1               = NULL,
+        .ptr2               = NULL,
+        .empty3             = {},
+        .unkown_float       = 0.f,
+        .ptr3               = NULL,
+        .user               = NULL,
+        .uniqueID           = ('J' << 24) | ('N' << 16) | ('E' << 8) | 'T',
+        .unknown1           = {},
+        .processReplacing   = processReplacing,
+    };
+
+    Q_UNUSED(amc);
+
+    if (!qApp) {
+        /* This must be mutable and live longer than QApplication */
+        static char progname[] = {'v', 's', 't', 't', 'e', 's', 't', '\0'};
+        static char *argv = progname;
+        static int argc = 1;
+
+        new QApplication(argc, &argv); /* Qt manages singleton instance via qApp */
+    }
+
     if (!logfp) {
         logfp = fopen("/tmp/vst.log", "w");
     }
