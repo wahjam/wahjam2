@@ -107,7 +107,9 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
     case effEditOpen:
     {
         /* HWND ptrarg */
-        QQuickView *view = new QQuickView;
+        QWindow *parent = QWindow::fromWinId((WId)(uintptr_t)ptrarg);
+        fprintf(logfp, "parent %p\n", parent);
+        QQuickView *view = new QQuickView(parent);
         view->setSource(QUrl::fromLocalFile("Z:\\home\\stefanha\\vsttest\\application.qml"));
         view->show();
 
