@@ -5,7 +5,9 @@
 #include <QApplication>
 #include <QQuickView>
 #include <QQmlError>
+
 #include "aeffectx.h"
+#include "Ticker.h"
 
 static FILE *logfp;
 
@@ -189,6 +191,8 @@ extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback amc)
         static int argc = 1;
 
         new QApplication(argc, &argv); /* Qt manages singleton instance via qApp */
+
+        qmlRegisterType<Ticker>("com.aucalic.qml", 1, 0, "Ticker");
     }
 
     if (!logfp) {
