@@ -29,23 +29,7 @@ ColumnLayout {
         Item {
             id: sessionTab
 
-            ColumnLayout {
-                Text {
-                    text: ticker.value
-                }
-                Button {
-                    text: qsTr("Start")
-                    onClicked: {
-                        ticker.start()
-                    }
-                }
-                Button {
-                    text: qsTr("Stop")
-                    onClicked: {
-                        ticker.stop()
-                    }
-                }
-            }
+            Text { text: qsTr("Session") }
         }
         Item {
             id: browserTab
@@ -57,9 +41,5 @@ ColumnLayout {
 
             Text { text: qsTr("Setup...") }
         }
-    }
-
-    Ticker {
-        id: ticker
     }
 }

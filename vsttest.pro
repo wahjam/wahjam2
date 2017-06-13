@@ -11,6 +11,4 @@ INCLUDEPATH += .
 VERSION = 1.0.0
 
 SOURCES += vsttest.cpp
-SOURCES += Ticker.cpp
 HEADERS += aeffectx.h
-HEADERS += Ticker.h
