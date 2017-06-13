@@ -10,5 +10,7 @@ TARGET = vsttest
 INCLUDEPATH += .
 VERSION = 1.0.0
 
-SOURCES += vsttest.cpp
 HEADERS += aeffectx.h
+SOURCES += vsttest.cpp
+HEADERS += SessionListModel.h
+SOURCES += SessionListModel.cpp

@@ -1,7 +1,7 @@
 import QtQuick 2.3
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
-import com.aucalic.qml 1.0
+import com.aucalic.client 1.0
 
 ColumnLayout {
     width: parent.width
@@ -34,7 +34,16 @@ ColumnLayout {
         Item {
             id: browserTab
 
-            Text { text: qsTr("Browser") }
+            ListView {
+                model: SessionListModel {}
+                delegate: Column {
+                    Text { text: server }
+                    Text { text: topic }
+                    Text { text: tempo }
+                    Text { text: slots }
+                    Text { text: users }
+                }
+            }
         }
         Item {
             id: setupTab
