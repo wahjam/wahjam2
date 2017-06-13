@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <QtGlobal>
-#include <QApplication>
+#include <QGuiApplication>
 #include <QQuickView>
 #include <QQmlError>
 
@@ -111,8 +111,11 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
         /* HWND ptrarg */
         QWindow *parent = QWindow::fromWinId((WId)(uintptr_t)ptrarg);
         fprintf(logfp, "parent %p\n", parent);
+
         QQuickView *view = new QQuickView(parent);
-        view->setSource(QUrl::fromLocalFile("Z:\\home\\stefanha\\vsttest\\application.qml"));
+        view->setResizeMode(QQuickView::SizeRootObjectToView);
+        view->resize(parent->size());
+        view->setSource(QUrl::fromLocalFile("application.qml"));
         view->show();
 
         QList<QQmlError> errors = view->errors();
@@ -190,7 +193,7 @@ extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback amc)
         static char *argv = progname;
         static int argc = 1;
 
-        new QApplication(argc, &argv); /* Qt manages singleton instance via qApp */
+        new QGuiApplication(argc, &argv); /* Qt manages singleton instance via qApp */
 
         qmlRegisterType<Ticker>("com.aucalic.qml", 1, 0, "Ticker");
     }

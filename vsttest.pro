@@ -4,7 +4,7 @@
 
 TEMPLATE = lib
 CONFIG += dll
-QT += qml quick widgets
+QT += qml quick
 
 TARGET = vsttest
 INCLUDEPATH += .
