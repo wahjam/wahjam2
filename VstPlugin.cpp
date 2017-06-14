@@ -1,29 +1,65 @@
-#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <QtGlobal>
-#include <QGuiApplication>
-#include <QQuickView>
 #include <QQmlError>
+#include <QGuiApplication>
 
-#include "aeffectx.h"
-#include "SessionListModel.h"
+#include "global.h"
+#include "VstPlugin.h"
 
-static FILE *logfp;
+VstPlugin *VstPlugin::fromAEffect(AEffect *aeffect)
+{
+    if (aeffect) {
+        return static_cast<VstPlugin*>(aeffect->user);
+    } else {
+        return nullptr;
+    }
+}
 
-struct MyRect {
-    short top;
-    short left;
-    short bottom;
-    short right;
-};
+int VstPlugin::editOpen(WId parentId)
+{
+    if (view) {
+        view->show();
+        return 1;
+    }
 
-static MyRect myrect = {
-    .top = 0,
-    .left = 0,
-    .bottom = 600,
-    .right = 800,
-};
+    QWindow *parent = QWindow::fromWinId(parentId);
+    fprintf(logfp, "parent %p\n", parent);
+
+    view = new QQuickView{parent};
+    view->setResizeMode(QQuickView::SizeRootObjectToView);
+    view->resize(parent->size());
+    view->setSource(QUrl::fromLocalFile("application.qml"));
+    view->show();
+
+    QList<QQmlError> errors = view->errors();
+    for (int i = 0; i < errors.size(); i++) {
+        fprintf(logfp, "Error: %s\n", errors.at(i).toString().toUtf8().constData());
+    }
+    fprintf(logfp, "Done printing errors\n");
+    if (errors.size()) {
+        delete view;
+        view = nullptr;
+        return 0;
+    }
+
+    return 1;
+}
+
+void VstPlugin::editClose()
+{
+    if (view) {
+        view->deleteLater();
+        view = nullptr;
+    }
+}
+
+void VstPlugin::editIdle()
+{
+    if (view) {
+        view->update();
+    }
+}
 
 static struct {
     int op;
@@ -74,17 +110,23 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
 {
     printDispatcher(aeffect, op, intarg, intptrarg, ptrarg, floatarg);
 
+    VstPlugin *plugin = VstPlugin::fromAEffect(aeffect);
+    if (!plugin) {
+        fprintf(logfp, "invalid aeffect, cannot get plugin instance\n");
+        return 0;
+    }
+
     switch (op) {
     case effGetEffectName:
-        snprintf((char *)ptrarg, 32, "vsttest");
+        snprintf((char *)ptrarg, 32, "Wahjam2");
         return 1;
 
     case effGetVendorString:
-        snprintf((char *)ptrarg, 32, "vendor");
+        snprintf((char *)ptrarg, 32, "The Wahjam Project");
         return 1;
 
     case effGetProductString:
-        snprintf((char *)ptrarg, 32, "product");
+        snprintf((char *)ptrarg, 32, "Wahjam2");
         return 1;
 
     case effGetVstVersion:
@@ -94,45 +136,31 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
         return 0; /* do nothing */
 
     case effClose:
-        return 0; /* do nothing */
+        delete plugin;
+        globalCleanup();
+        return 0;
 
     case effCanDo:
         fprintf(logfp, "%s\n", (char *)ptrarg);
         return 0;
 
     case effEditGetRect:
-    {
-        *(struct MyRect **)ptrarg = &myrect;
+        *static_cast<VstPlugin::MyRect**>(ptrarg) = &plugin->viewRect;
         return 1;
-    }
 
     case effEditOpen:
-    {
-        /* HWND ptrarg */
-        QWindow *parent = QWindow::fromWinId((WId)(uintptr_t)ptrarg);
-        fprintf(logfp, "parent %p\n", parent);
+        return plugin->editOpen((WId)(uintptr_t)ptrarg);
 
-        QQuickView *view = new QQuickView(parent);
-        view->setResizeMode(QQuickView::SizeRootObjectToView);
-        view->resize(parent->size());
-        view->setSource(QUrl::fromLocalFile("application.qml"));
-        view->show();
-
-        QList<QQmlError> errors = view->errors();
-        for (int i = 0; i < errors.size(); i++) {
-            fprintf(logfp, "Error: %s\n", errors.at(i).toString().toUtf8().constData());
-        }
-        fprintf(logfp, "Done printing errors\n");
-
-        return 1;
-    }
+    case effEditClose:
+        plugin->editClose();
+        return 0;
 
     case effEditIdle:
+        plugin->editIdle();
         QGuiApplication::processEvents();
         qApp->sendPostedEvents(0, -1);
         return 0;
 
-    case effEditClose:
     case effEditTop:
     case effSetSampleRate:
     case effSetBlockSize:
@@ -161,9 +189,10 @@ extern "C" void processReplacing(AEffect *aeffect, float **inbuf, float **outbuf
     /* TODO */
 }
 
-extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback amc)
+VstPlugin::VstPlugin()
+    : view{nullptr}
 {
-    static AEffect aeffect = {
+    aeffect = {
         .magic              = kEffectMagic,
         .dispatcher         = dispatcher,
         .process            = process,
@@ -179,30 +208,39 @@ extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback amc)
         .empty3             = {},
         .unkown_float       = 0.f,
         .ptr3               = NULL,
-        .user               = NULL,
-        .uniqueID           = ('J' << 24) | ('N' << 16) | ('E' << 8) | 'T',
+        .user               = static_cast<void*>(this),
+        .uniqueID           = ('A' << 24) | ('U' << 16) | ('C' << 8) | 'A',
         .unknown1           = {},
         .processReplacing   = processReplacing,
     };
 
+    viewRect = {
+        .top = 0,
+        .left = 0,
+        .bottom = 600,
+        .right = 800,
+    };
+}
+
+VstPlugin::~VstPlugin()
+{
+    editClose();
+
+    // Run event loop on final time
+    QGuiApplication::processEvents();
+    qApp->sendPostedEvents(0, -1);
+}
+
+extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback amc)
+{
     Q_UNUSED(amc);
 
-    if (!qApp) {
-        /* This must be mutable and live longer than QApplication */
-        static char progname[] = {'v', 's', 't', 't', 'e', 's', 't', '\0'};
-        static char *argv = progname;
-        static int argc = 1;
-
-        new QGuiApplication(argc, &argv); /* Qt manages singleton instance via qApp */
-
-        qmlRegisterType<SessionListModel>("com.aucalic.client", 1, 0, "SessionListModel");
-    }
-
-    if (!logfp) {
-        logfp = fopen("/tmp/vst.log", "w");
+    if (!globalInit()) {
+        return nullptr;
     }
 
     fprintf(logfp, "%s\n", __func__);
 
-    return &aeffect;
+    VstPlugin *plugin = new VstPlugin;
+    return &plugin->aeffect;
 }

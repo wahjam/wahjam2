@@ -11,6 +11,9 @@ INCLUDEPATH += .
 VERSION = 1.0.0
 
 HEADERS += aeffectx.h
-SOURCES += vsttest.cpp
+HEADERS += global.h
+SOURCES += global.cpp
+HEADERS += VstPlugin.h
+SOURCES += VstPlugin.cpp
 HEADERS += SessionListModel.h
 SOURCES += SessionListModel.cpp
