@@ -3,6 +3,8 @@
 #include <QtGlobal>
 #include <QQmlError>
 #include <QGuiApplication>
+#include <QThread>
+#include <QMutexLocker>
 
 #include "global.h"
 #include "VstPlugin.h"
@@ -16,32 +18,43 @@ VstPlugin *VstPlugin::fromAEffect(AEffect *aeffect)
     }
 }
 
-int VstPlugin::editOpen(WId parentId)
+int VstPlugin::editOpen(void *ptrarg)
 {
-    if (view) {
-        view->show();
-        return 1;
+    qDebug("%s threadID %p", __func__, QThread::currentThreadId());
+
+    if (!view) {
+        QWindow *parent = QWindow::fromWinId((WId)(uintptr_t)ptrarg);
+        qDebug("parent %p", parent);
+
+        view = new QQuickView{parent};
+        qDebug("view %p", view);
+        view->setResizeMode(QQuickView::SizeRootObjectToView);
+        view->resize(parent->size());
+        view->setSource(QUrl::fromLocalFile("Z:\\home\\stefanha\\vsttest\\application.qml"));
+
+        QList<QQmlError> errors = view->errors();
+        for (int i = 0; i < errors.size(); i++) {
+            qDebug("Error: %s", errors.at(i).toString().toUtf8().constData());
+        }
+        qDebug("Done printing errors");
+        if (errors.size()) {
+            delete view;
+            view = nullptr;
+            return 0;
+        }
     }
 
-    QWindow *parent = QWindow::fromWinId(parentId);
-    fprintf(logfp, "parent %p\n", parent);
-
-    view = new QQuickView{parent};
-    view->setResizeMode(QQuickView::SizeRootObjectToView);
-    view->resize(parent->size());
-    view->setSource(QUrl::fromLocalFile("application.qml"));
-    view->show();
-
-    QList<QQmlError> errors = view->errors();
-    for (int i = 0; i < errors.size(); i++) {
-        fprintf(logfp, "Error: %s\n", errors.at(i).toString().toUtf8().constData());
-    }
-    fprintf(logfp, "Done printing errors\n");
-    if (errors.size()) {
-        delete view;
-        view = nullptr;
-        return 0;
-    }
+    /*
+     * Consider the following:
+     * 1. Host GUI thread calls dispatcher(effEditOpen).
+     * 2. dispatcher() calls blocking QMetaObject::invokeMethod(plugin, "editOpen").
+     * 3. view->show() calls CreateWindowEx().
+     * 4. CreateWindowEx() calls SendMessage() to the parent HWND in host GUI thread.
+     * 5. Host GUI thread is blocked waiting for editOpen() to return - deadlock!
+     *
+     * Schedule view->show() for later so dispatcher() can return first.
+     */
+    QMetaObject::invokeMethod(view, "show", Qt::QueuedConnection);
 
     return 1;
 }
@@ -87,34 +100,48 @@ static struct {
     {51, "effCanDo"},
     {56, "effGetParameterProperties"},
     {58, "effGetVstVersion"},
-    {-1, NULL},
+    {-1, nullptr},
 };
 
 static void printDispatcher(AEffect *aeffect, int op, int intarg, intptr_t intptrarg, void *ptrarg, float floatarg)
 {
+    const char *name = "unknown";
     int i;
 
     for (i = 0; dispatcherOps[i].name; i++) {
         if (op == dispatcherOps[i].op) {
-            fprintf(logfp, "dispatch aeffect %p op %s ", aeffect, dispatcherOps[i].name);
+            name = dispatcherOps[i].name;
             break;
         }
     }
-    if (!dispatcherOps[i].name) {
-        fprintf(logfp, "dispatch aeffect %p op %#x ", aeffect, op);
-    }
-    fprintf(logfp, "%#08x %p %p %f\n", intarg, (void*)intptrarg, ptrarg, floatarg);
+    qDebug("vst op %s (%#x) aeffect %p %#08x %p %p %f threadId %p",
+           name, op, aeffect, intarg,
+           (void*)intptrarg, ptrarg, floatarg,
+           QThread::currentThreadId());
 }
 
 extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t intptrarg, void *ptrarg, float floatarg)
 {
     printDispatcher(aeffect, op, intarg, intptrarg, ptrarg, floatarg);
 
+    /*
+     * dispatcher() may be invoked from the host GUI thread.  The Qt GUI runs
+     * in our Qt thread and must not be called directly from dispatcher().
+     * QMetaObject::invoke() is used to synchronize with the Qt thread.
+     *
+     * Take care when using Qt::BlockingQueuedConnection because the host GUI
+     * thread is unable to process Windows messages until dispatcher() returns.
+     * Any SendMessage() from the Qt thread to the host GUI thread during
+     * QMetaObject::invoke(Qt::BlockingQueuedConnection) causes deadlock.
+     */
     VstPlugin *plugin = VstPlugin::fromAEffect(aeffect);
     if (!plugin) {
-        fprintf(logfp, "invalid aeffect, cannot get plugin instance\n");
+        qDebug("invalid aeffect, cannot get plugin instance");
         return 0;
     }
+
+    // Prevent re-entrancy and make deadlocks obvious.
+    QMutexLocker locker{&plugin->dispatcherMutex};
 
     switch (op) {
     case effGetEffectName:
@@ -136,12 +163,13 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
         return 0; /* do nothing */
 
     case effClose:
-        delete plugin;
+        locker.unlock(); // can't leave mutex locked while plugin is deleted!
+        QMetaObject::invokeMethod(plugin, "deleteLater", Qt::QueuedConnection);
         globalCleanup();
         return 0;
 
     case effCanDo:
-        fprintf(logfp, "%s\n", (char *)ptrarg);
+        qDebug("%s", (char *)ptrarg);
         return 0;
 
     case effEditGetRect:
@@ -149,16 +177,29 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
         return 1;
 
     case effEditOpen:
-        return plugin->editOpen((WId)(uintptr_t)ptrarg);
+    {
+        int ret = 0;
+        if (!QMetaObject::invokeMethod(plugin, "editOpen",
+                                       Qt::BlockingQueuedConnection,
+                                       Q_RETURN_ARG(int, ret),
+                                       Q_ARG(void*, ptrarg))) {
+            qDebug("invokeMethod editOpen failed");
+        }
+        return ret;
+    }
 
     case effEditClose:
-        plugin->editClose();
+        if (!QMetaObject::invokeMethod(plugin, "editClose",
+                                       Qt::QueuedConnection)) {
+            qDebug("invokeMethod editClose failed");
+        }
         return 0;
 
     case effEditIdle:
-        plugin->editIdle();
-        QGuiApplication::processEvents();
-        qApp->sendPostedEvents(0, -1);
+        if (!QMetaObject::invokeMethod(plugin, "editIdle",
+                                       Qt::QueuedConnection)) {
+            qDebug("invokeMethod editIdle failed");
+        }
         return 0;
 
     case effEditTop:
@@ -169,15 +210,6 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
         /* TODO */
         return 0;
     }
-}
-
-extern "C" void process(AEffect *aeffect, float **inbuf, float **outbuf, int ns)
-{
-    Q_UNUSED(aeffect);
-    Q_UNUSED(inbuf);
-    Q_UNUSED(outbuf);
-    Q_UNUSED(ns);
-    /* TODO */
 }
 
 extern "C" void processReplacing(AEffect *aeffect, float **inbuf, float **outbuf, int ns)
@@ -195,21 +227,21 @@ VstPlugin::VstPlugin()
     aeffect = {
         .magic              = kEffectMagic,
         .dispatcher         = dispatcher,
-        .process            = process,
-        .setParameter       = NULL,
-        .getParameter       = NULL,
+        .process            = nullptr,
+        .setParameter       = nullptr,
+        .getParameter       = nullptr,
         .numPrograms        = 0,
         .numParams          = 0,
         .numInputs          = 2,
         .numOutputs         = 2,
         .flags              = effFlagsHasEditor | effFlagsCanReplacing,
-        .ptr1               = NULL,
-        .ptr2               = NULL,
+        .ptr1               = nullptr,
+        .ptr2               = nullptr,
         .empty3             = {},
         .unkown_float       = 0.f,
-        .ptr3               = NULL,
+        .ptr3               = nullptr,
         .user               = static_cast<void*>(this),
-        .uniqueID           = ('A' << 24) | ('U' << 16) | ('C' << 8) | 'A',
+        .uniqueID           = ('W' << 24) | ('J' << 16) | ('A' << 8) | 'M',
         .unknown1           = {},
         .processReplacing   = processReplacing,
     };
@@ -224,23 +256,20 @@ VstPlugin::VstPlugin()
 
 VstPlugin::~VstPlugin()
 {
+    qDebug("%s", __func__);
     editClose();
-
-    // Run event loop on final time
-    QGuiApplication::processEvents();
-    qApp->sendPostedEvents(0, -1);
 }
 
 extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback amc)
 {
     Q_UNUSED(amc);
 
-    if (!globalInit()) {
-        return nullptr;
-    }
+    globalInit();
 
-    fprintf(logfp, "%s\n", __func__);
+    qDebug("%s threadId %p", __func__, QThread::currentThreadId());
 
     VstPlugin *plugin = new VstPlugin;
+    plugin->moveToThread(qGuiApp->thread());
+
     return &plugin->aeffect;
 }

@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = lib
-CONFIG += dll
+CONFIG += dll c++11
 QT += qml quick
 
 TARGET = vsttest

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QQuickView>
+#include <QMutex>
 
 #include "aeffectx.h"
 
@@ -18,12 +19,15 @@ public:
 
     AEffect aeffect;
     MyRect viewRect;
+    QMutex dispatcherMutex;
+
     static VstPlugin *fromAEffect(AEffect *aeffect);
 
     VstPlugin();
     ~VstPlugin();
 
-    int editOpen(WId parentId);
+public slots:
+    int editOpen(void *ptrarg);
     void editClose();
     void editIdle();
 

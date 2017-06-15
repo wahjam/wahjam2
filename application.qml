@@ -4,9 +4,6 @@ import QtQuick.Controls 2.2
 import com.aucalic.client 1.0
 
 ColumnLayout {
-    width: parent.width
-    height: parent.height
-
     TabBar {
         id: bar
         width: parent.width
