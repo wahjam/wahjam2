@@ -7,6 +7,7 @@ ColumnLayout {
     TabBar {
         id: bar
         width: parent.width
+        currentIndex: 1
         TabButton {
             enabled: false
             text: qsTr("Session")
