@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QNetworkAccessManager>
 #include <QAbstractListModel>
 
 class SessionListModel : public QAbstractListModel
@@ -8,6 +9,7 @@ class SessionListModel : public QAbstractListModel
 
 public:
     SessionListModel(QObject *parent = nullptr);
+    ~SessionListModel();
 
     int rowCount(const QModelIndex &parent) const Q_DECL_OVERRIDE;
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
@@ -26,6 +28,11 @@ private:
     };
 
     QList<SessionItem> items;
+    QNetworkReply *reply;
 
-    void updateItems(QList<SessionItem> newItems);
+    void sendNetworkRequest(QNetworkAccessManager *netManager, const QUrl &apiUrl);
+    void updateItems(const QList<SessionItem> &newItems);
+
+private slots:
+    void replyFinished();
 };
