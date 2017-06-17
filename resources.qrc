@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>application.qml</file>
+    <file>LoginScreen.qml</file>
+    <file>MainScreen.qml</file>
+</qresource>
+</RCC>

@@ -17,3 +17,5 @@ HEADERS += VstPlugin.h
 SOURCES += VstPlugin.cpp
 HEADERS += SessionListModel.h
 SOURCES += SessionListModel.cpp
+
+RESOURCES += resources.qrc
