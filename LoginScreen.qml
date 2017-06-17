@@ -20,6 +20,11 @@ Pane {
         Text {
             text: '<a href="https://aucalic.com/accounts/register/">' + qsTr("Click here") + '</a> ' + qsTr("to create a new account")
             onLinkActivated: Qt.openUrlExternally(link)
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.Arrowcursor;
+                acceptedButtons: Qt.NoButton
+            }
         }
     }
 }
