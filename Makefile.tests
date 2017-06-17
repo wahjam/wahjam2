@@ -1,0 +1,25 @@
+# This makefile builds plain C++ test cases that do not use Qt
+
+CXXFLAGS := -g -std=c++11 -Wall
+LDFLAGS := -lpthread
+
+ifeq ($(VALGRIND),1)
+VALGRIND := valgrind
+else
+ifeq ($(VALGRIND),2)
+VALGRIND := valgrind --leak-check=full
+endif
+endif
+
+tests := test-rcu
+run-targets := $(patsubst %,run-%,$(tests))
+.PHONY: run-%
+
+all: $(run-targets)
+
+run-%: %
+	@echo -n "$<..."
+	@$(VALGRIND) ./$<
+
+rcu.o: rcu.h
+test-rcu: rcu.o
