@@ -39,9 +39,13 @@ static void qtMessageHandler(QtMsgType type,
 
 static void qtThreadRun(std::promise<void> ready)
 {
-    char progname[] = {'V', 'S', 'T', '\0'};
-    char *argv = progname;
-    int argc = 1;
+    /*
+     * Qt relies on this data remaining accessible across subsequent
+     * QCoreApplication singleton instances so make it static.
+     */
+    static char progname[] = {'V', 'S', 'T', '\0'};
+    static char *argv = progname;
+    static int argc = 1;
 
     qInstallMessageHandler(qtMessageHandler);
 
