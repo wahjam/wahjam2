@@ -73,7 +73,16 @@ void VstPlugin::editClose()
 void VstPlugin::editIdle()
 {
     if (view) {
-        view->update();
+        QSize parentSize{parent->size()};
+        QSize viewSize{view->size()};
+        if (view->size() != parentSize) {
+            qDebug("view->size() %ux%u parent->size() %ux%u",
+                   viewSize.width(), viewSize.height(),
+                   parentSize.width(), parentSize.height());
+            view->resize(parentSize);
+        } else {
+            view->update();
+        }
     }
 }
 
