@@ -268,9 +268,10 @@ VstPlugin::~VstPlugin()
     qDebug("%s", __func__);
 
     if (view) {
-        editClose();
-        view->deleteLater();
+        delete view;
         view = nullptr;
+        delete parent;
+        parent = nullptr;
     }
 }
 
