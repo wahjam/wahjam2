@@ -11,7 +11,7 @@ VALGRIND := valgrind --leak-check=full
 endif
 endif
 
-tests := test-rcu
+tests := test-rcu test-ringbuffer
 run-targets := $(patsubst %,run-%,$(tests))
 .PHONY: run-%
 
