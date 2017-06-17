@@ -27,10 +27,14 @@ public:
     ~VstPlugin();
 
 public slots:
-    int editOpen(void *ptrarg);
+    void editOpen(void *ptrarg);
     void editClose();
     void editIdle();
 
 private:
     QQuickView *view;
+    QWindow *parent;        // foreign window in host application
+
+private slots:
+    void viewStatusChanged(QQuickView::Status status);
 };

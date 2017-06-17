@@ -18,53 +18,56 @@ VstPlugin *VstPlugin::fromAEffect(AEffect *aeffect)
     }
 }
 
-int VstPlugin::editOpen(void *ptrarg)
+void VstPlugin::viewStatusChanged(QQuickView::Status status)
 {
-    qDebug("%s threadID %p", __func__, QThread::currentThreadId());
+    Q_UNUSED(status);
 
-    if (!view) {
-        QWindow *parent = QWindow::fromWinId((WId)(uintptr_t)ptrarg);
-        qDebug("parent %p", parent);
+    for (const QQmlError &error : view->errors()) {
+        qDebug("QML error: %s", error.toString().toUtf8().constData());
+    }
+}
 
-        view = new QQuickView{parent};
-        qDebug("view %p", view);
-        view->setResizeMode(QQuickView::SizeRootObjectToView);
-        view->resize(parent->size());
-        view->setSource(QUrl::fromLocalFile("Z:\\home\\stefanha\\vsttest\\application.qml"));
-
-        QList<QQmlError> errors = view->errors();
-        for (int i = 0; i < errors.size(); i++) {
-            qDebug("Error: %s", errors.at(i).toString().toUtf8().constData());
-        }
-        qDebug("Done printing errors");
-        if (errors.size()) {
-            delete view;
-            view = nullptr;
-            return 0;
-        }
+void VstPlugin::editOpen(void *ptrarg)
+{
+    if (parent) {
+        qDebug("%s called with editor already open", __func__);
+        return;
     }
 
-    /*
-     * Consider the following:
-     * 1. Host GUI thread calls dispatcher(effEditOpen).
-     * 2. dispatcher() calls blocking QMetaObject::invokeMethod(plugin, "editOpen").
-     * 3. view->show() calls CreateWindowEx().
-     * 4. CreateWindowEx() calls SendMessage() to the parent HWND in host GUI thread.
-     * 5. Host GUI thread is blocked waiting for editOpen() to return - deadlock!
-     *
-     * Schedule view->show() for later so dispatcher() can return first.
-     */
-    QMetaObject::invokeMethod(view, "show", Qt::QueuedConnection);
+    if (!view) {
+        view = new QQuickView{QUrl{"qrc:/application.qml"}};
+        connect(view, SIGNAL(statusChanged(QQuickView::Status)),
+                this, SLOT(viewStatusChanged(QQuickView::Status)));
+    }
 
-    return 1;
+    parent = QWindow::fromWinId((WId)(uintptr_t)ptrarg);
+
+    qDebug("%s parent %p threadID %p", __func__, parent, QThread::currentThreadId());
+
+    if (parent) {
+        view->setParent(parent);
+        view->resize(parent->size());
+        view->show();
+    }
 }
 
 void VstPlugin::editClose()
 {
-    if (view) {
-        view->deleteLater();
-        view = nullptr;
+    qDebug("%s view %p parent %p", __func__, view, parent);
+
+    if (!view) {
+        qDebug("%s called with editor already deleted", __func__);
+        return;
     }
+
+    if (!parent) {
+        return;
+    }
+
+    view->hide();
+    view->setParent(nullptr);
+    parent->deleteLater();
+    parent = nullptr;
 }
 
 void VstPlugin::editIdle()
@@ -125,14 +128,16 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
     printDispatcher(aeffect, op, intarg, intptrarg, ptrarg, floatarg);
 
     /*
-     * dispatcher() may be invoked from the host GUI thread.  The Qt GUI runs
-     * in our Qt thread and must not be called directly from dispatcher().
-     * QMetaObject::invoke() is used to synchronize with the Qt thread.
+     * dispatcher() is typically invoked from the host GUI thread.  The Qt GUI
+     * runs in our Qt thread.  QMetaObject::invoke() is used to synchronize
+     * with the Qt thread.
      *
-     * Take care when using Qt::BlockingQueuedConnection because the host GUI
-     * thread is unable to process Windows messages until dispatcher() returns.
-     * Any SendMessage() from the Qt thread to the host GUI thread during
-     * QMetaObject::invoke(Qt::BlockingQueuedConnection) causes deadlock.
+     * The host GUI thread is unable to process Windows messages until
+     * dispatcher() returns.  Do not make blocking calls from dispatcher() to
+     * the Qt thread with
+     * QMetaObject::invokeMethod(Qt::BlockingQueuedConnection) or similar
+     * because any SendMessage() calls from the Qt thread to the host GUI
+     * thread will then deadlock!
      */
     VstPlugin *plugin = VstPlugin::fromAEffect(aeffect);
     if (!plugin) {
@@ -177,16 +182,12 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
         return 1;
 
     case effEditOpen:
-    {
-        int ret = 0;
         if (!QMetaObject::invokeMethod(plugin, "editOpen",
-                                       Qt::BlockingQueuedConnection,
-                                       Q_RETURN_ARG(int, ret),
+                                       Qt::QueuedConnection,
                                        Q_ARG(void*, ptrarg))) {
             qDebug("invokeMethod editOpen failed");
         }
-        return ret;
-    }
+        return 1;
 
     case effEditClose:
         if (!QMetaObject::invokeMethod(plugin, "editClose",
@@ -222,7 +223,7 @@ extern "C" void processReplacing(AEffect *aeffect, float **inbuf, float **outbuf
 }
 
 VstPlugin::VstPlugin()
-    : view{nullptr}
+    : view{nullptr}, parent{nullptr}
 {
     aeffect = {
         .magic              = kEffectMagic,
@@ -257,7 +258,12 @@ VstPlugin::VstPlugin()
 VstPlugin::~VstPlugin()
 {
     qDebug("%s", __func__);
-    editClose();
+
+    if (view) {
+        editClose();
+        view->deleteLater();
+        view = nullptr;
+    }
 }
 
 extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback amc)
