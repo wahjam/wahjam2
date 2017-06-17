@@ -38,6 +38,14 @@ void VstPlugin::editOpen(void *ptrarg)
         view = new QQuickView{QUrl{"qrc:/application.qml"}};
         connect(view, SIGNAL(statusChanged(QQuickView::Status)),
                 this, SLOT(viewStatusChanged(QQuickView::Status)));
+
+        /*
+         * Calling setParent(nullptr) adds a window frame.  Frame margins are
+         * not reset again by QWindow when reparenting to a real parent.  This
+         * causes incorrect geometry calculations since non-existent margins
+         * will be included.  Turn off the window frame.
+         */
+        view->setFlags(view->flags() | Qt::FramelessWindowHint);
     }
 
     parent = QWindow::fromWinId((WId)(uintptr_t)ptrarg);
@@ -46,7 +54,7 @@ void VstPlugin::editOpen(void *ptrarg)
 
     if (parent) {
         view->setParent(parent);
-        view->resize(parent->size());
+        view->resize(viewRect.right, viewRect.bottom);
         view->show();
     }
 }
@@ -73,16 +81,7 @@ void VstPlugin::editClose()
 void VstPlugin::editIdle()
 {
     if (view) {
-        QSize parentSize{parent->size()};
-        QSize viewSize{view->size()};
-        if (view->size() != parentSize) {
-            qDebug("view->size() %ux%u parent->size() %ux%u",
-                   viewSize.width(), viewSize.height(),
-                   parentSize.width(), parentSize.height());
-            view->resize(parentSize);
-        } else {
-            view->update();
-        }
+        view->update();
     }
 }
 
