@@ -3,6 +3,8 @@
 #include <QGuiApplication>
 #include <QQmlEngine>
 #include <QThread>
+#include <QDir>
+#include <QStandardPaths>
 
 #include "global.h"
 #include "SessionListModel.h"
@@ -19,7 +21,7 @@ static unsigned int initCount;
  */
 static std::thread *qtThread;
 
-static FILE *logfp;
+static FILE *logfp = stderr;
 
 static void qtMessageHandler(QtMsgType type,
                              const QMessageLogContext &context,
@@ -29,9 +31,7 @@ static void qtMessageHandler(QtMsgType type,
 
     Q_UNUSED(context);
 
-    if (logfp) {
-        fprintf(logfp, "%s\n", localMsg.constData());
-    }
+    fprintf(logfp, "%s\n", localMsg.constData());
     if (type == QtFatalMsg) {
         abort();
     }
@@ -46,6 +46,18 @@ static void qtThreadRun(std::promise<void> ready)
     qInstallMessageHandler(qtMessageHandler);
 
     QGuiApplication app{argc, &argv};
+
+    QCoreApplication::setOrganizationName("The Wahjam Project");
+    QCoreApplication::setOrganizationDomain("wahjam.org");
+    QCoreApplication::setApplicationName("Wahjam2");
+
+    const QDir documents{QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)};
+    const QString log_txt{documents.filePath("log.txt")};
+    logfp = fopen(log_txt.toLocal8Bit().constData(), "w");
+    if (!logfp) {
+        logfp = stderr;
+    }
+
     app.setQuitOnLastWindowClosed(false);
     QObject::connect(&app, &QGuiApplication::aboutToQuit,
                      []() { qDebug("qtThreadRun done"); });
@@ -80,10 +92,6 @@ static void qtThreadStart()
 
 void globalInit()
 {
-    if (!logfp) {
-        logfp = fopen("/tmp/vst.log", "w");
-    }
-
     if (!qGuiApp) {
         qtThreadStart();
         qmlRegisterType<SessionListModel>("com.aucalic.client", 1, 0, "SessionListModel");
@@ -105,8 +113,8 @@ void globalCleanup()
     qtThreadJoin();
     qDebug("%s done joining Qt thread", __func__);
 
-    if (logfp) {
+    if (logfp != stderr) {
         fclose(logfp);
-        logfp = nullptr;
+        logfp = stderr;
     }
 }
