@@ -131,7 +131,7 @@ static void printDispatcher(AEffect *aeffect, int op, int intarg, intptr_t intpt
            QThread::currentThreadId());
 }
 
-extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t intptrarg, void *ptrarg, float floatarg)
+static intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t intptrarg, void *ptrarg, float floatarg)
 {
     printDispatcher(aeffect, op, intarg, intptrarg, ptrarg, floatarg);
 
@@ -221,7 +221,7 @@ extern "C" intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t in
     }
 }
 
-extern "C" void processReplacing(AEffect *aeffect, float **inbuf, float **outbuf, int ns)
+static void processReplacing(AEffect *aeffect, float **inbuf, float **outbuf, int ns)
 {
     Q_UNUSED(aeffect);
     Q_UNUSED(inbuf);
