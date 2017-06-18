@@ -12,7 +12,7 @@
 VstPlugin *VstPlugin::fromAEffect(AEffect *aeffect)
 {
     if (aeffect) {
-        return static_cast<VstPlugin*>(aeffect->user);
+        return static_cast<VstPlugin*>(aeffect->ptr3);
     } else {
         return nullptr;
     }
@@ -233,27 +233,15 @@ extern "C" void processReplacing(AEffect *aeffect, float **inbuf, float **outbuf
 VstPlugin::VstPlugin()
     : view{nullptr}, parent{nullptr}
 {
-    aeffect = {
-        .magic              = kEffectMagic,
-        .dispatcher         = dispatcher,
-        .process            = nullptr,
-        .setParameter       = nullptr,
-        .getParameter       = nullptr,
-        .numPrograms        = 0,
-        .numParams          = 0,
-        .numInputs          = 2,
-        .numOutputs         = 2,
-        .flags              = effFlagsHasEditor | effFlagsCanReplacing,
-        .ptr1               = nullptr,
-        .ptr2               = nullptr,
-        .empty3             = {},
-        .unkown_float       = 0.f,
-        .ptr3               = nullptr,
-        .user               = static_cast<void*>(this),
-        .uniqueID           = ('W' << 24) | ('J' << 16) | ('A' << 8) | 'M',
-        .unknown1           = {},
-        .processReplacing   = processReplacing,
-    };
+    memset(&aeffect, 0, sizeof(aeffect));
+    aeffect.magic               = kEffectMagic;
+    aeffect.dispatcher          = dispatcher;
+    aeffect.numInputs           = 2;
+    aeffect.numOutputs          = 2;
+    aeffect.flags               = effFlagsHasEditor | effFlagsCanReplacing;
+    aeffect.ptr3                = static_cast<void*>(this);
+    aeffect.uniqueID            = ('W' << 24) | ('J' << 16) | ('A' << 8) | 'M';
+    aeffect.processReplacing    = processReplacingCallback;
 
     viewRect = {
         .top = 0,
