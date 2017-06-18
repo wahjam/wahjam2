@@ -11,7 +11,7 @@ VALGRIND := valgrind --leak-check=full
 endif
 endif
 
-tests := test-rcu test-ringbuffer
+tests := test-rcu test-ringbuffer test-audiostream
 run-targets := $(patsubst %,run-%,$(tests))
 .PHONY: run-%
 
@@ -23,3 +23,6 @@ run-%: %
 
 rcu.o: rcu.h
 test-rcu: rcu.o
+
+AudioStream.o: AudioStream.h RingBuffer.h
+test-audiostream: AudioStream.o
