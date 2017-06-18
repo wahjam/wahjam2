@@ -17,5 +17,12 @@ HEADERS += VstPlugin.h
 SOURCES += VstPlugin.cpp
 HEADERS += SessionListModel.h
 SOURCES += SessionListModel.cpp
+HEADERS += rcu.h
+SOURCES += rcu.cpp
+HEADERS += RingBuffer.h
+HEADERS += AudioStream.h
+SOURCES += AudioStream.cpp
+HEADERS += AudioProcessor.h
+SOURCES += AudioProcessor.cpp
 
 RESOURCES += resources.qrc
