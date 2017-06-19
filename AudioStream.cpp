@@ -28,6 +28,16 @@ void AudioStream::setSampleBufferSize(size_t nsamples)
     samplesQueued.store(0);
 }
 
+size_t AudioStream::numSamplesWritable() const
+{
+    return sampleBufferSize - samplesQueued.load();
+}
+
+size_t AudioStream::numSamplesReadable() const
+{
+    return samplesQueued.load();
+}
+
 size_t AudioStream::write(SampleTime now, const float *samples, size_t nsamples)
 {
     size_t nwritten = 0;

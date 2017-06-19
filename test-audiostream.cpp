@@ -58,11 +58,51 @@ void testWrapBuffer()
     assert(memcmp(samples, pattern, sizeof(samples)) == 0);
 }
 
+void testNumSamplesWritable()
+{
+    AudioStream stream{4 * blockSize};
+    float samples[blockSize] = {};
+
+    assert(stream.numSamplesWritable() == 4 * blockSize);
+    assert(stream.numSamplesReadable() == 0);
+
+    assert(stream.write(0, samples, blockSize) == blockSize);
+    assert(stream.numSamplesWritable() == 3 * blockSize);
+    assert(stream.numSamplesReadable() == blockSize);
+
+    assert(stream.write(blockSize, samples, blockSize) == blockSize);
+    assert(stream.numSamplesWritable() == 2 * blockSize);
+    assert(stream.numSamplesReadable() == 2 * blockSize);
+
+    assert(stream.read(0, samples, blockSize) == blockSize);
+    assert(stream.numSamplesWritable() == 3 * blockSize);
+    assert(stream.numSamplesReadable() == blockSize);
+
+    assert(stream.read(blockSize, samples, blockSize) == blockSize);
+    assert(stream.numSamplesWritable() == 4 * blockSize);
+    assert(stream.numSamplesReadable() == 0);
+
+    assert(stream.write(2 * blockSize, samples, blockSize) == blockSize);
+    assert(stream.write(3 * blockSize, samples, blockSize) == blockSize);
+    assert(stream.write(4 * blockSize, samples, blockSize) == blockSize);
+    assert(stream.write(5 * blockSize, samples, blockSize) == blockSize);
+    assert(stream.numSamplesWritable() == 0);
+    assert(stream.numSamplesReadable() == 4 * blockSize);
+
+    assert(stream.read(2 * blockSize, samples, blockSize) == blockSize);
+    assert(stream.read(3 * blockSize, samples, blockSize) == blockSize);
+    assert(stream.read(4 * blockSize, samples, blockSize) == blockSize);
+    assert(stream.read(5 * blockSize, samples, blockSize) == blockSize);
+    assert(stream.numSamplesWritable() == 4 * blockSize);
+    assert(stream.numSamplesReadable() == 0);
+}
+
 int main(int argc, char **argv)
 {
     testWriteFull();
     testReadEmpty();
     testWrapBuffer();
+    testNumSamplesWritable();
 
     printf("ok\n");
     return 0;

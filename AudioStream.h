@@ -48,6 +48,12 @@ public:
     // Call from non-real-time thread, discards queued data
     void setSampleBufferSize(size_t nsamples);
 
+    // Returns the number of samples that there is space for
+    realtime size_t numSamplesWritable() const;
+
+    // Returns the number of samples available for reading
+    realtime size_t numSamplesReadable() const;
+
     // Returns number of samples written (e.g. before buffer was full)
     realtime size_t write(SampleTime now, const float *samples,
                           size_t nsamples);
