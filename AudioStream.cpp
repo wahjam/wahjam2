@@ -28,17 +28,19 @@ void AudioStream::setSampleBufferSize(size_t nsamples)
     samplesQueued.store(0);
 }
 
-bool AudioStream::write(SampleTime now, const float *samples, size_t nsamples)
+size_t AudioStream::write(SampleTime now, const float *samples, size_t nsamples)
 {
+    size_t nwritten = 0;
+
     // Writes may cross the end of the sample buffer...
     while (nsamples > 0) {
         if (!ring.canWrite()) {
-            return false;
+            return nwritten;
         }
 
         size_t n = std::min(sampleBufferSize - writeIndex, nsamples);
         if (samplesQueued.load() + n > sampleBufferSize) {
-            return false;
+            return nwritten;
         }
 
         AudioDescriptor desc{
@@ -58,20 +60,24 @@ bool AudioStream::write(SampleTime now, const float *samples, size_t nsamples)
 
         ring.writeCurrent() = desc;
         ring.writeNext();
+
+        nwritten += n;
     }
-    return true;
+    return nwritten;
 }
 
-bool AudioStream::readInternal(SampleTime now, float *samples,
-                               size_t nsamples, bool mix, float mixVol)
+size_t AudioStream::readInternal(SampleTime now, float *samples,
+                                 size_t nsamples, bool mix, float mixVol)
 {
+    size_t nread = 0;
+
     // Reads may seek ahead or cross the end of the sample buffer...
     while (nsamples > 0) {
         while (!ring.canRead()) {
-            return false;
+            return nread;
         }
 
-        const AudioDescriptor &desc = ring.readCurrent();
+        AudioDescriptor &desc = ring.readCurrent();
 
         // Seek if necessary
         size_t seek = now - desc.time;
@@ -93,24 +99,30 @@ bool AudioStream::readInternal(SampleTime now, float *samples,
         size_t end = seek + n;
         if (end == desc.nsamples) {
             ring.readNext();
-            samplesQueued.fetch_sub(end);
+        } else {
+            desc.nsamples -= end;
+            desc.samples += end;
+            desc.time += end;
         }
+
+        samplesQueued.fetch_sub(end);
 
         now += n;
         samples += n;
         nsamples -= n;
+        nread += n;
     }
 
-    return true;
+    return nread;
 }
 
-bool AudioStream::read(SampleTime now, float *samples, size_t nsamples)
+size_t AudioStream::read(SampleTime now, float *samples, size_t nsamples)
 {
     return readInternal(now, samples, nsamples, false, 0.f);
 }
 
-bool AudioStream::readMix(SampleTime now, float *samples,
-                          size_t nsamples, float mixVol)
+size_t AudioStream::readMix(SampleTime now, float *samples,
+                            size_t nsamples, float mixVol)
 {
     return readInternal(now, samples, nsamples, true, mixVol);
 }

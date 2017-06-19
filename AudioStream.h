@@ -48,12 +48,14 @@ public:
     // Call from non-real-time thread, discards queued data
     void setSampleBufferSize(size_t nsamples);
 
-    // Returns true on success, false on overrun
-    realtime bool write(SampleTime now, const float *samples, size_t nsamples);
+    // Returns number of samples written (e.g. before buffer was full)
+    realtime size_t write(SampleTime now, const float *samples,
+                          size_t nsamples);
 
-    // Returns true on success, false on underrun
-    realtime bool read(SampleTime now, float *samples, size_t nsamples);
-    realtime bool readMix(SampleTime now, float *samples, size_t nsamples, float mixVol);
+    // Returns number of samples read (e.g. before buffer was empty)
+    realtime size_t read(SampleTime now, float *samples, size_t nsamples);
+    realtime size_t readMix(SampleTime now, float *samples, size_t nsamples,
+                            float mixVol);
 
     realtime float getPan() const;
     realtime void setPan(float pan_);
@@ -81,7 +83,8 @@ private:
     std::atomic<float> pan; // -1 - left, 0 - center,  1 - right
     std::atomic<bool> monitor; // mix into output?
 
-    realtime bool readInternal(SampleTime now, float *samples, size_t nsamples, bool mix, float mixVol);
+    realtime size_t readInternal(SampleTime now, float *samples,
+                                 size_t nsamples, bool mix, float mixVol);
 };
 
 #undef realtime

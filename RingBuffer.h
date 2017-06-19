@@ -36,7 +36,7 @@ public:
         return reader.load() != writer.load();
     }
 
-    const T &readCurrent() const
+    T &readCurrent()
     {
         return ring[reader.load() % nelems];
     }
