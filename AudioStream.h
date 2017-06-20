@@ -7,6 +7,12 @@
 // A time value, counted in audio samples
 typedef uint64_t SampleTime;
 
+enum {
+    CHANNEL_LEFT = 0,
+    CHANNEL_RIGHT = 1,
+    CHANNELS_STEREO = 2, // channels
+};
+
 enum
 {
     // How many milliseconds of buffer space to preallocate

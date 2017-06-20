@@ -3,12 +3,6 @@
 #include "rcu.h"
 #include "AudioStream.h"
 
-enum {
-    CHANNEL_LEFT = 0,
-    CHANNEL_RIGHT = 1,
-    CHANNELS_STEREO = 2, // channels
-};
-
 // Mark a method safe to call from real-time code
 #define realtime
 
