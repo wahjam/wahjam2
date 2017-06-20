@@ -75,13 +75,7 @@ void AudioProcessor::mixPlaybackStreams(float *inOutSamples[CHANNELS_STEREO], si
             continue;
         }
 
-        // TODO use -4.5 dB pan law instead of linear panning?
-        const float pan = stream->getPan();
-        const float volLeft = (1.f - pan) / 2;
-        const float volRight = (pan + 1.f) / 2;
-
-        stream->readMix(now, inOutSamples[CHANNEL_LEFT], nsamples, volLeft);
-        stream->readMix(now, inOutSamples[CHANNEL_RIGHT], nsamples, volRight);
+        stream->readMixStereo(now, inOutSamples, nsamples);
     }
 }
 

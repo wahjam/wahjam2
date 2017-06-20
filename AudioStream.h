@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <functional>
 #include "RingBuffer.h"
 
 // A time value, counted in audio samples
@@ -66,8 +67,9 @@ public:
 
     // Returns number of samples read (e.g. before buffer was empty)
     realtime size_t read(SampleTime now, float *samples, size_t nsamples);
-    realtime size_t readMix(SampleTime now, float *samples, size_t nsamples,
-                            float mixVol);
+    realtime size_t readMixStereo(SampleTime now,
+                                  float *samples[CHANNELS_STEREO],
+                                  size_t nsamples);
 
     realtime float getPan() const;
     realtime void setPan(float pan_);
@@ -95,8 +97,12 @@ private:
     std::atomic<float> pan; // -1 - left, 0 - center,  1 - right
     std::atomic<bool> monitor; // mix into output?
 
-    realtime size_t readInternal(SampleTime now, float *samples,
-                                 size_t nsamples, bool mix, float mixVol);
+    // Read n samples from input[] with offset from beginning of the read operation
+    typedef void ReadFn(size_t offset, const float *input, size_t n);
+
+    realtime size_t readInternal(SampleTime now,
+                                 std::function<ReadFn> fn,
+                                 size_t nsamples);
 };
 
 #undef realtime

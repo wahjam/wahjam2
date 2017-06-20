@@ -1,5 +1,6 @@
 #include <string.h>
 #include <algorithm>
+#include <QtGlobal>
 #include "AudioStream.h"
 
 enum
@@ -42,14 +43,18 @@ size_t AudioStream::write(SampleTime now, const float *samples, size_t nsamples)
 {
     size_t nwritten = 0;
 
+//    qDebug("%s stream %p now %llu nsamples %zu", __func__, this, now, nsamples);
+
     // Writes may cross the end of the sample buffer...
     while (nsamples > 0) {
         if (!ring.canWrite()) {
+//            qDebug("%s stream %p ring full", __func__, this);
             return nwritten;
         }
 
         size_t n = std::min(sampleBufferSize - writeIndex, nsamples);
         if (samplesQueued.load() + n > sampleBufferSize) {
+//            qDebug("%s stream %p buffer space exhausted", __func__, this);
             return nwritten;
         }
 
@@ -76,14 +81,16 @@ size_t AudioStream::write(SampleTime now, const float *samples, size_t nsamples)
     return nwritten;
 }
 
-size_t AudioStream::readInternal(SampleTime now, float *samples,
-                                 size_t nsamples, bool mix, float mixVol)
+size_t AudioStream::readInternal(SampleTime now,
+                                 std::function<ReadFn> fn,
+                                 size_t nsamples)
 {
     size_t nread = 0;
 
     // Reads may seek ahead or cross the end of the sample buffer...
     while (nsamples > 0) {
         while (!ring.canRead()) {
+//            qDebug("%s stream %p reached end of ring", __func__, this);
             return nread;
         }
 
@@ -95,15 +102,13 @@ size_t AudioStream::readInternal(SampleTime now, float *samples,
             size_t dequeued = desc.nsamples;
             ring.readNext();
             samplesQueued.fetch_sub(dequeued);
+//            qDebug("%s stream %p seeking to time %llu, dropping %zu samples", __func__, this, now, dequeued);
             continue;
         }
 
         size_t n = std::min(desc.nsamples - seek, nsamples);
-        if (mix) {
-            mixSamples(&desc.samples[seek], samples, n, mixVol);
-        } else {
-            memcpy(samples, &desc.samples[seek], n * sizeof(float));
-        }
+//        qDebug("%s stream %p processing %zu samples", __func__, this, n);
+        fn(nread, &desc.samples[seek], n);
 
         // Complete a descriptor
         size_t end = seek + n;
@@ -118,23 +123,38 @@ size_t AudioStream::readInternal(SampleTime now, float *samples,
         samplesQueued.fetch_sub(end);
 
         now += n;
-        samples += n;
         nsamples -= n;
         nread += n;
     }
 
+//    qDebug("%s stream %p nread %zu", __func__, this, nread);
     return nread;
 }
 
 size_t AudioStream::read(SampleTime now, float *samples, size_t nsamples)
 {
-    return readInternal(now, samples, nsamples, false, 0.f);
+    return readInternal(now,
+        [samples](size_t offset, const float *input, size_t n) {
+            memcpy(&samples[offset], input, n * sizeof(float));
+        },
+        nsamples);
 }
 
-size_t AudioStream::readMix(SampleTime now, float *samples,
-                            size_t nsamples, float mixVol)
+size_t AudioStream::readMixStereo(SampleTime now,
+                                  float *samples[CHANNELS_STEREO],
+                                  size_t nsamples)
 {
-    return readInternal(now, samples, nsamples, true, mixVol);
+    // TODO use -4.5 dB pan law instead of linear panning?
+    const float pan = getPan();
+    const float volLeft = (1.f - pan) / 2;
+    const float volRight = (pan + 1.f) / 2;
+
+    return readInternal(now,
+        [samples, volLeft, volRight](size_t offset, const float *input, size_t n) {
+            mixSamples(input, &samples[CHANNEL_LEFT][offset], n, volLeft);
+            mixSamples(input, &samples[CHANNEL_RIGHT][offset], n, volRight);
+        },
+        nsamples);
 }
 
 float AudioStream::getPan() const
