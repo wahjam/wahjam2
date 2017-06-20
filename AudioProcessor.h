@@ -41,7 +41,7 @@ public:
     void setRunning(bool enabled);
 
     // The heart of the real-time audio processing
-    realtime void process(float *inOutSamples[CHANNELS_STEREO], size_t nsamples, SampleTime time);
+    realtime void process(float *inOutSamples[CHANNELS_STEREO], size_t nsamples, SampleTime now);
 
 private:
     RCUContext rcu;

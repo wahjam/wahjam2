@@ -80,7 +80,9 @@ void AudioProcessor::mixPlaybackStreams(float *inOutSamples[CHANNELS_STEREO], si
     }
 }
 
-void AudioProcessor::process(float *inOutSamples[CHANNELS_STEREO], size_t nsamples, SampleTime time)
+void AudioProcessor::process(float *inOutSamples[CHANNELS_STEREO],
+                             size_t nsamples,
+                             SampleTime now)
 {
     RCUReadLocker readLocker{&rcu};
 
@@ -92,8 +94,8 @@ void AudioProcessor::process(float *inOutSamples[CHANNELS_STEREO], size_t nsampl
         return;
     }
 
-    processInputs(inOutSamples, nsamples, time);
-    mixPlaybackStreams(inOutSamples, nsamples, time);
+    processInputs(inOutSamples, nsamples, now);
+    mixPlaybackStreams(inOutSamples, nsamples, now);
 }
 
 int AudioProcessor::getSampleRate() const
