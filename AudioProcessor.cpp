@@ -86,8 +86,7 @@ void AudioProcessor::process(float *inOutSamples[CHANNELS_STEREO],
 {
     RCUReadLocker readLocker{&rcu};
 
-    if (!running.load())
-    {
+    if (!isRunning()) {
         for (int ch = 0; ch < CHANNELS_STEREO; ch++) {
             memset(inOutSamples[ch], 0, nsamples * sizeof(float));
         }
@@ -137,4 +136,9 @@ void AudioProcessor::setRunning(bool enabled)
     if (!enabled) {
         setSampleBufferSize(0);
     }
+}
+
+bool AudioProcessor::isRunning() const
+{
+    return running.load();
 }

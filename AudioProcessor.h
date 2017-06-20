@@ -39,6 +39,7 @@ public:
 
     // Enable/disable processing
     void setRunning(bool enabled);
+    bool isRunning() const;
 
     // The heart of the real-time audio processing
     realtime void process(float *inOutSamples[CHANNELS_STEREO], size_t nsamples, SampleTime now);
