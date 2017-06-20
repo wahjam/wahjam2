@@ -33,6 +33,7 @@ public:
 
     bool canRead() const
     {
+//        qDebug("%s ring %p reader %zu writer %zu", __func__, this, reader.load(), writer.load());
         return reader.load() != writer.load();
     }
 
@@ -48,6 +49,7 @@ public:
 
     bool canWrite() const
     {
+//        qDebug("%s ring %p reader %zu writer %zu", __func__, this, reader.load(), writer.load());
         return (writer.load() - reader.load()) < nelems;
     }
 
