@@ -41,4 +41,4 @@ else:
             print(line)
             continue
         pretty = resolve(pc)
-        print('{0} {1} {2}'.format(frame, addr, pretty))
+        print('{0} {1}'.format(frame, pretty))
