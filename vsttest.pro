@@ -24,5 +24,7 @@ HEADERS += AudioStream.h
 SOURCES += AudioStream.cpp
 HEADERS += AudioProcessor.h
 SOURCES += AudioProcessor.cpp
+HEADERS += Metronome.h
+SOURCES += Metronome.cpp
 
 RESOURCES += resources.qrc

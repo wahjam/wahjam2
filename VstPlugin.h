@@ -6,6 +6,7 @@
 
 #include "aeffectx.h"
 #include "AudioProcessor.h"
+#include "Metronome.h"
 
 class VstPlugin : public QObject
 {
@@ -60,10 +61,12 @@ private:
 
     QTimer *periodicTimer;
 
+    Metronome *metronome;
+
 private slots:
-    void initializeInQtThread();
-    void viewStatusChanged(QQuickView::Status status);
+    void initializeFromQtThread();
     void periodicTick();
     void startPeriodicTick();
     void stopPeriodicTick();
+    void viewStatusChanged(QQuickView::Status status);
 };

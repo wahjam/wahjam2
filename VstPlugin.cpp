@@ -335,9 +335,21 @@ static void processReplacingCallback(AEffect *aeffect, float **inbuf, float **ou
     plugin->processReplacing(inbuf, outbuf, ns);
 }
 
+void VstPlugin::initializeFromQtThread()
+{
+    // TODO move the metronome elsewhere
+    metronome = new Metronome{&processor};
+
+    connect(this, SIGNAL(processAudioStreams()),
+            metronome, SLOT(processAudioStreams()));
+
+    metronome->start();
+}
+
 VstPlugin::VstPlugin(audioMasterCallback masterCallback_)
     : masterCallback{masterCallback_}, view{nullptr},
-      parent{nullptr}, periodicTimer{nullptr}
+      parent{nullptr}, periodicTimer{nullptr},
+      metronome{nullptr}
 {
     memset(&aeffect, 0, sizeof(aeffect));
     aeffect.magic               = kEffectMagic;
@@ -361,6 +373,8 @@ VstPlugin::~VstPlugin()
 {
     qDebug("%s", __func__);
 
+    delete metronome;
+
     if (view) {
         delete view;
         view = nullptr;
@@ -383,10 +397,7 @@ extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback masterCallba
     VstPlugin *plugin = new VstPlugin{masterCallback};
     plugin->moveToThread(qGuiApp->thread());
 
-    if (!QMetaObject::invokeMethod(plugin, "initializeInQtThread",
-                                   Qt::QueuedConnection)) {
-        qDebug("invokeMethod initializeInQtThread failed");
-    }
+    QMetaObject::invokeMethod(plugin, "initializeFromQtThread", Qt::QueuedConnection);
 
     return &plugin->aeffect;
 }

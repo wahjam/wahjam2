@@ -3,5 +3,6 @@
     <file>application.qml</file>
     <file>LoginScreen.qml</file>
     <file>MainScreen.qml</file>
+    <file>click.raw</file>
 </qresource>
 </RCC>
