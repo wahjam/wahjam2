@@ -21,12 +21,20 @@ AudioStream::~AudioStream()
 
 void AudioStream::setSampleBufferSize(size_t nsamples)
 {
+    wasReset = true;
     ring.setSize((nsamples + SMALL_BLOCK_SIZE - 1) / SMALL_BLOCK_SIZE);
     delete [] sampleBuffer;
     sampleBuffer = new float[nsamples];
     sampleBufferSize = nsamples;
     writeIndex = 0;
     samplesQueued.store(0);
+}
+
+bool AudioStream::checkResetAndClear()
+{
+    bool reset = wasReset;
+    wasReset = false;
+    return reset;
 }
 
 size_t AudioStream::numSamplesWritable() const

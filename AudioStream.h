@@ -55,6 +55,10 @@ public:
     // Call from non-real-time thread, discards queued data
     void setSampleBufferSize(size_t nsamples);
 
+    // Returns true if stream has been reset (time has restarted from zero and
+    // the sample rate may have changed).  Call from non-real-time thread.
+    bool checkResetAndClear();
+
     // Returns the number of samples that there is space for
     realtime size_t numSamplesWritable() const;
 
@@ -97,6 +101,7 @@ private:
     std::atomic<size_t> samplesQueued;
     std::atomic<float> pan; // -1 - left, 0 - center,  1 - right
     std::atomic<bool> monitor; // mix into output?
+    bool wasReset;
 
     // Read n samples from input[] with offset from beginning of the read operation
     typedef void ReadFn(size_t offset, const float *input, size_t n);
