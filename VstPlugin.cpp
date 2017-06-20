@@ -305,8 +305,8 @@ void VstPlugin::processReplacing(float **inbuf, float **outbuf, int ns)
     }
 
     // Fetch current sample time from host
-    intptr_t result = audioMasterCallback(&aeffect, audioMasterGetTime,
-                                          0, 0, nullptr, 0.f);
+    intptr_t result = masterCallback(&aeffect, audioMasterGetTime,
+                                     0, 0, nullptr, 0.f);
     VstTimeInfo *info = reinterpret_cast<VstTimeInfo*>(result);
     if (info) {
         if (info->samplePos != now) {
@@ -331,8 +331,9 @@ static void processReplacingCallback(AEffect *aeffect, float **inbuf, float **ou
     plugin->processReplacing(inbuf, outbuf, ns);
 }
 
-VstPlugin::VstPlugin()
-    : view{nullptr}, parent{nullptr}, periodicTimer{nullptr}
+VstPlugin::VstPlugin(audioMasterCallback masterCallback_)
+    : masterCallback{masterCallback_}, view{nullptr},
+      parent{nullptr}, periodicTimer{nullptr}
 {
     memset(&aeffect, 0, sizeof(aeffect));
     aeffect.magic               = kEffectMagic;
@@ -369,15 +370,13 @@ VstPlugin::~VstPlugin()
     }
 }
 
-extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback amc)
+extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback masterCallback)
 {
-    Q_UNUSED(amc);
-
     globalInit();
 
     qDebug("%s threadId %p", __func__, QThread::currentThreadId());
 
-    VstPlugin *plugin = new VstPlugin;
+    VstPlugin *plugin = new VstPlugin{masterCallback};
     plugin->moveToThread(qGuiApp->thread());
 
     if (!QMetaObject::invokeMethod(plugin, "initializeInQtThread",

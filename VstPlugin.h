@@ -26,12 +26,11 @@ public:
 
     // Internals - only call from VST dispatcher
     static VstPlugin *fromAEffect(AEffect *aeffect);
-
-    VstPlugin();
-    ~VstPlugin();
-
     void setSampleRate(float sampleRate);
     void setRunning(bool enabled);
+
+    VstPlugin(audioMasterCallback audioMasterCallback);
+    ~VstPlugin();
 
     // This is called from the real-time thread
     void processReplacing(float **inbuf, float **outbuf, int ns);
@@ -47,7 +46,7 @@ public slots:
     void editIdle();
 
 private:
-    audioMasterCallback audioMasterCallback;
+    audioMasterCallback masterCallback;
     QQuickView *view;
     QWindow *parent;        // foreign window in host application
     AudioProcessor processor;
