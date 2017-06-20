@@ -72,6 +72,7 @@ void AudioProcessor::mixPlaybackStreams(float *inOutSamples[CHANNELS_STEREO], si
         AudioStream *stream = streamPointer.load();
 
         if (!stream->monitorEnabled()) {
+            stream->readDiscard(now, nsamples);
             continue;
         }
 

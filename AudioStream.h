@@ -70,6 +70,7 @@ public:
     realtime size_t readMixStereo(SampleTime now,
                                   float *samples[CHANNELS_STEREO],
                                   size_t nsamples);
+    realtime size_t readDiscard(SampleTime now, size_t nsamples);
 
     realtime float getPan() const;
     realtime void setPan(float pan_);

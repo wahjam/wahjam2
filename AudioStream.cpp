@@ -131,6 +131,11 @@ size_t AudioStream::readInternal(SampleTime now,
     return nread;
 }
 
+size_t AudioStream::readDiscard(SampleTime now, size_t nsamples)
+{
+    return readInternal(now, [](size_t, const float*, size_t) {}, nsamples);
+}
+
 size_t AudioStream::read(SampleTime now, float *samples, size_t nsamples)
 {
     return readInternal(now,
