@@ -23,24 +23,51 @@ void VstPlugin::setSampleRate(float sampleRate)
     processor.setSampleRate(sampleRate);
 }
 
-// Initialization that was deferred until we're in the Qt Thread
-void VstPlugin::initializeInQtThread()
+// Called by an interval timer for Qt thread housekeeping
+void VstPlugin::periodicTick()
 {
+    if (!processor.isRunning()) {
+        return;
+    }
+
+    QMutexLocker locker{&processorWriteLock};
+
+    emit processAudioStreams();
+
+    processor.tick();
+}
+
+// Called from Qt thread
+void VstPlugin::startPeriodicTick()
+{
+    if (periodicTimer) {
+        return;
+    }
+
+    // setRunning(false) may have been called before our slot was invoked
+    if (!processor.isRunning()) {
+        return;
+    }
+
+    // Invoke immediately to minimize latency
+    periodicTick();
+
     periodicTimer = new QTimer{this};
     connect(periodicTimer, SIGNAL(timeout()),
             this, SLOT(periodicTick()));
     periodicTimer->start(50);
 }
 
-// Called by an interval timer for Qt thread housekeeping
-void VstPlugin::periodicTick()
+// Called from Qt thread
+void VstPlugin::stopPeriodicTick()
 {
-    QMutexLocker locker{&processorWriteLock};
+    // setRunning(true) may have been called before our slot was invoked
+    if (processor.isRunning()) {
+        return;
+    }
 
-    // TODO process capture streams
-    // TODO update playback streams
-
-    processor.tick();
+    delete periodicTimer;
+    periodicTimer = nullptr;
 }
 
 void VstPlugin::setRunning(bool enabled)
@@ -49,6 +76,10 @@ void VstPlugin::setRunning(bool enabled)
 
     now = 0;
     processor.setRunning(enabled);
+
+    QMetaObject::invokeMethod(this,
+            enabled ? "startPeriodicTick" : "stopPeriodicTick",
+            Qt::QueuedConnection);
 }
 
 void VstPlugin::viewStatusChanged(QQuickView::Status status)

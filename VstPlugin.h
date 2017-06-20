@@ -19,10 +19,12 @@ public:
         short right;
     };
 
+    // Internals - only access from VST dispatcher
     AEffect aeffect;
     MyRect viewRect;
     QMutex dispatcherMutex;
 
+    // Internals - only call from VST dispatcher
     static VstPlugin *fromAEffect(AEffect *aeffect);
 
     VstPlugin();
@@ -33,6 +35,11 @@ public:
 
     // This is called from the real-time thread
     void processReplacing(float **inbuf, float **outbuf, int ns);
+
+signals:
+    // Emitted periodically to allow draining capture streams and refilling
+    // playback streams.
+    void processAudioStreams();
 
 public slots:
     void editOpen(void *ptrarg);
@@ -58,4 +65,6 @@ private slots:
     void initializeInQtThread();
     void viewStatusChanged(QQuickView::Status status);
     void periodicTick();
+    void startPeriodicTick();
+    void stopPeriodicTick();
 };
