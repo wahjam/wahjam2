@@ -41,6 +41,9 @@ public:
     void setRunning(bool enabled);
     bool isRunning() const;
 
+    // Get next expected sample time, may be called from any thread
+    realtime SampleTime getNextSampleTime() const;
+
     // The heart of the real-time audio processing
     realtime void process(float *inOutSamples[CHANNELS_STEREO], size_t nsamples, SampleTime now);
 
@@ -54,6 +57,7 @@ private:
 
     std::atomic<int> sampleRate;
     std::atomic<bool> running;
+    std::atomic<SampleTime> nextSampleTime;
 
     void setSampleBufferSize(size_t nsamples);
     void processInputs(float *inOutSamples[CHANNELS_STEREO],

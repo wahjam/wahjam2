@@ -5,7 +5,8 @@ AudioProcessor::AudioProcessor()
     : rcu{},
       playbackStreams{&rcu, new PlaybackStreams},
       sampleRate{44100},
-      running{false}
+      running{false},
+      nextSampleTime{0}
 {
 }
 
@@ -53,6 +54,11 @@ void AudioProcessor::tick()
     rcu.reclaim();
 }
 
+SampleTime AudioProcessor::getNextSampleTime() const
+{
+    return nextSampleTime.load();
+}
+
 void AudioProcessor::processInputs(float *inOutSamples[CHANNELS_STEREO], size_t nsamples, SampleTime now)
 {
     for (int ch = 0; ch < CHANNELS_STEREO; ch++) {
@@ -85,6 +91,8 @@ void AudioProcessor::process(float *inOutSamples[CHANNELS_STEREO],
                              SampleTime now)
 {
     RCUReadLocker readLocker{&rcu};
+
+    nextSampleTime.store(now + nsamples);
 
     if (!isRunning()) {
         for (int ch = 0; ch < CHANNELS_STEREO; ch++) {
