@@ -121,30 +121,31 @@ void VstPlugin::editIdle()
 static struct {
     int op;
     const char *name;
+    bool print;
 } dispatcherOps[] = {
-    {0, "effOpen"},
-    {1, "effClose"},
-    {2, "effSetProgram"},
-    {3, "effGetProgram"},
-    {5, "effGetProgramName"},
-    {8, "effGetParamName"},
-    {10, "effSetSampleRate"},
-    {11, "effSetBlockSize"},
-    {12, "effMainsChanged"},
-    {13, "effEditGetRect"},
-    {14, "effEditOpen"},
-    {15, "effEditClose"},
-    {19, "effEditIdle"},
-    {20, "effEditTop"},
-    {25, "effProcessEvents"},
-    {45, "effGetEffectName"},
-    {47, "effGetVendorString"},
-    {48, "effGetProductString"},
-    {49, "effGetVendorVersion"},
-    {51, "effCanDo"},
-    {56, "effGetParameterProperties"},
-    {58, "effGetVstVersion"},
-    {-1, nullptr},
+    {0, "effOpen", true},
+    {1, "effClose", true},
+    {2, "effSetProgram", true},
+    {3, "effGetProgram", true},
+    {5, "effGetProgramName", true},
+    {8, "effGetParamName", true},
+    {10, "effSetSampleRate", true},
+    {11, "effSetBlockSize", true},
+    {12, "effMainsChanged", true},
+    {13, "effEditGetRect", true},
+    {14, "effEditOpen", true},
+    {15, "effEditClose", true},
+    {19, "effEditIdle", false},
+    {20, "effEditTop", true},
+    {25, "effProcessEvents", true},
+    {45, "effGetEffectName", true},
+    {47, "effGetVendorString", true},
+    {48, "effGetProductString", true},
+    {49, "effGetVendorVersion", true},
+    {51, "effCanDo", true},
+    {56, "effGetParameterProperties", true},
+    {58, "effGetVstVersion", true},
+    {-1, nullptr, false},
 };
 
 static void printDispatcher(AEffect *aeffect, int op, int intarg, intptr_t intptrarg, void *ptrarg, float floatarg)
@@ -154,6 +155,9 @@ static void printDispatcher(AEffect *aeffect, int op, int intarg, intptr_t intpt
 
     for (i = 0; dispatcherOps[i].name; i++) {
         if (op == dispatcherOps[i].op) {
+            if (!dispatcherOps[i].print) {
+                return;
+            }
             name = dispatcherOps[i].name;
             break;
         }
