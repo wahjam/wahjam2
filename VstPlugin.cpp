@@ -309,11 +309,15 @@ void VstPlugin::processReplacing(float **inbuf, float **outbuf, int ns)
                                      0, 0, nullptr, 0.f);
     VstTimeInfo *info = reinterpret_cast<VstTimeInfo*>(result);
     if (info) {
-        if (info->samplePos != now) {
-            qDebug("jump in samplePos.  expected %llu", now);
+        SampleTime samplePos = info->samplePos + 0.5;
+        if (samplePos != now) {
+            qDebug("jump in samplePos.  expected %llu, got %llu (info->samplePos %f %#llx)",
+                   (long long unsigned)now,
+                   (long long unsigned)samplePos,
+                   info->samplePos,
+                   *(long long unsigned*)&info->samplePos);
         }
-        now = info->samplePos;
-        qDebug("samplePos %g", info->samplePos);
+        now = samplePos;
     }
 
     processor.process(outbuf, ns, now);
