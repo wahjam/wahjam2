@@ -26,5 +26,7 @@ HEADERS += AudioProcessor.h
 SOURCES += AudioProcessor.cpp
 HEADERS += Metronome.h
 SOURCES += Metronome.cpp
+HEADERS += JamApiManager.h
+SOURCES += JamApiManager.cpp
 
 RESOURCES += resources.qrc
