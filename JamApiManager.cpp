@@ -12,7 +12,7 @@ JamApiManager::JamApiManager(QObject *parent)
 
 void JamApiManager::login()
 {
-    QUrl url{QString("tokens/%1").arg(username_)};
+    QUrl url{QString("tokens/%1/").arg(username_)};
 
     /* Generate unique 20-byte token */
     hexToken_ = QCryptographicHash::hash(QUuid::createUuid().toRfc4122(),
