@@ -4,6 +4,13 @@ import QtQuick.Controls 2.2
 import com.aucalic.client 1.0
 
 ColumnLayout {
+    id: column
+    property JamApiManager jamApiManager
+
+    function refreshSessionList() {
+        sessionListModel.refresh()
+    }
+
     TabBar {
         id: bar
         width: parent.width
@@ -33,7 +40,10 @@ ColumnLayout {
             id: browserTab
 
             ListView {
-                model: SessionListModel {}
+                model: SessionListModel {
+                    id: sessionListModel
+                    jamApiManager: column.jamApiManager
+                }
                 delegate: Column {
                     Text { text: server }
                     Text { text: topic }
