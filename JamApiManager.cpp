@@ -52,6 +52,12 @@ void JamApiManager::loginRequestFinished()
     }
 
     loggedIn = loginError_.isNull();
+    if (loggedIn) {
+        qDebug("%s success", __func__);
+    } else {
+        qDebug("%s error \"%s\"", __func__, loginError_.toLatin1().constData());
+    }
+
     emit loginFinished();
 }
 
