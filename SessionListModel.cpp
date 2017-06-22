@@ -15,9 +15,8 @@ enum {
 };
 
 SessionListModel::SessionListModel(QObject *parent)
-    : QAbstractListModel{parent}, reply{nullptr}
+    : QAbstractListModel{parent}, jamApiManager_{nullptr}, reply{nullptr}
 {
-    sendNetworkRequest(new QNetworkAccessManager{this}, QUrl{"https://jammr.net/api/"});
 }
 
 SessionListModel::~SessionListModel()
@@ -68,6 +67,17 @@ QHash<int, QByteArray> SessionListModel::roleNames() const
     return names;
 }
 
+JamApiManager *SessionListModel::jamApiManager() const
+{
+    return jamApiManager_;
+}
+
+void SessionListModel::setJamApiManager(JamApiManager *jamApiManager)
+{
+    jamApiManager_ = jamApiManager;
+    emit jamApiManagerChanged();
+}
+
 void SessionListModel::updateItems(const QList<SessionItem> &newItems)
 {
     /*
@@ -81,19 +91,13 @@ void SessionListModel::updateItems(const QList<SessionItem> &newItems)
     endResetModel();
 }
 
-void SessionListModel::sendNetworkRequest(QNetworkAccessManager *netManager, const QUrl &apiUrl)
+void SessionListModel::refresh()
 {
-    if (reply) {
+    if (!jamApiManager_ || reply) {
         return;
     }
 
-    QUrl livejamsUrl{apiUrl};
-    livejamsUrl.setPath(apiUrl.path() + "livejams/");
-
-    QNetworkRequest request{livejamsUrl};
-    request.setRawHeader("Referer", livejamsUrl.toString(QUrl::RemoveUserInfo).toLatin1().data());
-
-    reply = netManager->get(request);
+    reply = jamApiManager_->get(QUrl("livejams/"));
     connect(reply, SIGNAL(finished()),
             this, SLOT(replyFinished()));
     connect(reply, SIGNAL(finished()),
@@ -160,6 +164,7 @@ void SessionListModel::replyFinished()
             .slots_ = QString{"%1/%2"}.arg(numUsers).arg(maxUsers),
             .users = users.join(", "),
         });
+        qDebug("Got server %s", server.toLatin1().constData());
     }
 
     updateItems(newItems);

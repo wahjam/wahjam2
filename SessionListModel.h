@@ -2,10 +2,12 @@
 
 #include <QNetworkAccessManager>
 #include <QAbstractListModel>
+#include "JamApiManager.h"
 
 class SessionListModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(JamApiManager *jamApiManager READ jamApiManager WRITE setJamApiManager NOTIFY jamApiManagerChanged)
 
 public:
     SessionListModel(QObject *parent = nullptr);
@@ -15,8 +17,15 @@ public:
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
     QHash<int, QByteArray> roleNames() const Q_DECL_OVERRIDE;
 
+    JamApiManager *jamApiManager() const;
+    void setJamApiManager(JamApiManager *jamApiManager);
+
 signals:
     void dataReady();
+    void jamApiManagerChanged();
+
+public slots:
+    void refresh();
 
 private:
     struct SessionItem {
@@ -28,9 +37,9 @@ private:
     };
 
     QList<SessionItem> items;
+    JamApiManager *jamApiManager_;
     QNetworkReply *reply;
 
-    void sendNetworkRequest(QNetworkAccessManager *netManager, const QUrl &apiUrl);
     void updateItems(const QList<SessionItem> &newItems);
 
 private slots:
