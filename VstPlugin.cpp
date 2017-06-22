@@ -110,6 +110,8 @@ void VstPlugin::editOpen(void *ptrarg)
          * will be included.  Turn off the window frame.
          */
         view->setFlags(view->flags() | Qt::FramelessWindowHint);
+
+        view->setResizeMode(QQuickView::SizeRootObjectToView);
     }
 
     parent = QWindow::fromWinId((WId)(uintptr_t)ptrarg);
