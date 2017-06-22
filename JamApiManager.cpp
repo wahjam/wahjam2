@@ -32,7 +32,13 @@ void JamApiManager::loginRequestFinished()
     loginError_ = QString{};
     switch (reply->error()) {
     case QNetworkReply::NoError:
+    {
+        QVariant redirect = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+        if (redirect.isValid()) {
+            loginError_ = tr("Unexpected redirect to \"%1\".  Please report this error.").arg(redirect.toUrl().toString());
+        }
         break;
+    }
     case QNetworkReply::AuthenticationRequiredError:
         if (username_.contains('@')) {
             loginError_ = tr("Invalid username/password.  Please check that you are using the username you registered with and not your email address.");
