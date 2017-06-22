@@ -8,6 +8,7 @@
 
 #include "global.h"
 #include "SessionListModel.h"
+#include "JamApiManager.h"
 
 // How many instances have initialized us?
 static unsigned int initCount;
@@ -99,6 +100,7 @@ void globalInit()
     if (!qGuiApp) {
         qtThreadStart();
         qmlRegisterType<SessionListModel>("com.aucalic.client", 1, 0, "SessionListModel");
+        qmlRegisterType<JamApiManager>("com.aucalic.client", 1, 0, "JamApiManager");
     }
 
     initCount++;
