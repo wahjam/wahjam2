@@ -47,7 +47,7 @@ void JamApiManager::loginRequestFinished()
         }
         break;
     default:
-        loginError_ = tr("Unable to connect.  Please check your internet connection and try again.  If this problem persists, please report error number %1").arg(reply->error());
+        loginError_ = tr("Unable to connect.  Please check your internet connection and try again.  If this problem persists, please report error number %1.").arg(reply->error());
         break;
     }
 
