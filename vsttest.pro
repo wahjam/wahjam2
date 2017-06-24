@@ -28,5 +28,7 @@ HEADERS += Metronome.h
 SOURCES += Metronome.cpp
 HEADERS += JamApiManager.h
 SOURCES += JamApiManager.cpp
+HEADERS += JamConnection.h
+SOURCES += JamConnection.cpp
 
 RESOURCES += resources.qrc
