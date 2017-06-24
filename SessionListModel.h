@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QNetworkAccessManager>
 #include <QAbstractListModel>
 #include "JamApiManager.h"
 
