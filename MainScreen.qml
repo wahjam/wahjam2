@@ -40,16 +40,24 @@ ColumnLayout {
             id: browserTab
 
             ListView {
+                anchors.fill: parent
                 model: SessionListModel {
                     id: sessionListModel
                     jamApiManager: column.jamApiManager
                 }
-                delegate: Column {
-                    Text { text: server }
-                    Text { text: topic }
-                    Text { text: tempo }
-                    Text { text: slots }
-                    Text { text: users }
+                delegate: Item {
+                    width: container.width
+                    height: childrenRect.height
+                    Column {
+                        Text { text: topic }
+                        Text { text: tempo }
+                        Text { text: slots }
+                        Text { text: users }
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: parent.ListView.view.currentIndex = index
+                    }
                 }
             }
         }
