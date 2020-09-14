@@ -1,6 +1,5 @@
 #include <string.h>
 #include <algorithm>
-#include <QtGlobal>
 #include "AudioStream.h"
 
 enum
@@ -51,18 +50,14 @@ size_t AudioStream::write(SampleTime now, const float *samples, size_t nsamples)
 {
     size_t nwritten = 0;
 
-//    qDebug("%s stream %p now %llu nsamples %zu", __func__, this, now, nsamples);
-
     // Writes may cross the end of the sample buffer...
     while (nsamples > 0) {
         if (!ring.canWrite()) {
-//            qDebug("%s stream %p ring full", __func__, this);
             return nwritten;
         }
 
         size_t n = std::min(sampleBufferSize - writeIndex, nsamples);
         if (samplesQueued.load() + n > sampleBufferSize) {
-//            qDebug("%s stream %p buffer space exhausted", __func__, this);
             return nwritten;
         }
 
@@ -98,7 +93,6 @@ size_t AudioStream::readInternal(SampleTime now,
     // Reads may seek ahead or cross the end of the sample buffer...
     while (nsamples > 0) {
         while (!ring.canRead()) {
-//            qDebug("%s stream %p reached end of ring", __func__, this);
             return nread;
         }
 
@@ -110,12 +104,10 @@ size_t AudioStream::readInternal(SampleTime now,
             size_t dequeued = desc.nsamples;
             ring.readNext();
             samplesQueued.fetch_sub(dequeued);
-//            qDebug("%s stream %p seeking to time %llu, dropping %zu samples", __func__, this, now, dequeued);
             continue;
         }
 
         size_t n = std::min(desc.nsamples - seek, nsamples);
-//        qDebug("%s stream %p processing %zu samples", __func__, this, n);
         fn(nread, &desc.samples[seek], n);
 
         // Complete a descriptor
@@ -135,7 +127,6 @@ size_t AudioStream::readInternal(SampleTime now,
         nread += n;
     }
 
-//    qDebug("%s stream %p nread %zu", __func__, this, nread);
     return nread;
 }
 
