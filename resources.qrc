@@ -1,8 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file>application.qml</file>
-    <file>LoginScreen.qml</file>
-    <file>MainScreen.qml</file>
+    <file>qml/application.qml</file>
+    <file>qml/LoginScreen.qml</file>
+    <file>qml/MainScreen.qml</file>
     <file>click.raw</file>
 </qresource>
 </RCC>

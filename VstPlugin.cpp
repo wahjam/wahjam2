@@ -99,7 +99,7 @@ void VstPlugin::editOpen(void *ptrarg)
     }
 
     if (!view) {
-        view = new QQuickView{QUrl{"qrc:/application.qml"}};
+        view = new QQuickView{QUrl{"qrc:/qml/application.qml"}};
         connect(view, SIGNAL(statusChanged(QQuickView::Status)),
                 this, SLOT(viewStatusChanged(QQuickView::Status)));
 
