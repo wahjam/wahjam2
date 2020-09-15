@@ -113,8 +113,8 @@ static void qtThreadStop()
 // TODO how to unregister types?
 static void registerQmlTypes()
 {
-    qmlRegisterType<SessionListModel>("com.aucalic.client", 1, 0, "SessionListModel");
-    qmlRegisterType<JamApiManager>("com.aucalic.client", 1, 0, "JamApiManager");
+    qmlRegisterType<SessionListModel>("org.wahjam.client", 1, 0, "SessionListModel");
+    qmlRegisterType<JamApiManager>("org.wahjam.client", 1, 0, "JamApiManager");
 }
 
 void globalInit()

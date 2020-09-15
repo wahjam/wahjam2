@@ -1,5 +1,5 @@
 import QtQuick.Layouts 1.3
-import com.aucalic.client 1.0
+import org.wahjam.client 1.0
 
 StackLayout {
     id: stack

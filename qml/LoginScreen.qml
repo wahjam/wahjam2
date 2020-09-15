@@ -1,7 +1,7 @@
 import QtQuick 2.3
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
-import com.aucalic.client 1.0
+import org.wahjam.client 1.0
 
 Pane {
     id: pane
@@ -44,7 +44,7 @@ Pane {
             }
         }
         Text {
-            text: '<a href="https://aucalic.com/accounts/register/">' + qsTr("Click here") + '</a> ' + qsTr("to create a new account")
+            text: '<a href="https://jammr.net/accounts/register/">' + qsTr("Click here") + '</a> ' + qsTr("to create a new account")
             onLinkActivated: Qt.openUrlExternally(link)
             MouseArea {
                 anchors.fill: parent

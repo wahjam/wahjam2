@@ -1,7 +1,7 @@
 import QtQuick 2.3
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
-import com.aucalic.client 1.0
+import org.wahjam.client 1.0
 
 ColumnLayout {
     id: column
