@@ -15,10 +15,13 @@ static unsigned int initCount;
 
 /*
  * VST plugins have no periodic callback suitable for Qt event loop
- * integration.  effEditIdle is only called while the editor GUI is open and
- * therefore cannot be used.
+ * integration. effEditIdle is only called while the editor GUI is open and
+ * therefore cannot be used for the Qt event loop.
  *
- * It is necessary to run a dedicated Qt GUI thread.
+ * If qGuiApp has already been initialized then we can use the existing Qt event loop.
+ *
+ * If it hasn't been initialized then its our responsibility to create the Qt
+ * event loop. Spawn a new thread to run the event loop.
  */
 static std::thread *qtThread;
 
@@ -85,7 +88,7 @@ static void qtThreadJoin()
 
 static void qtThreadStart()
 {
-    if (qtThread) {
+    if (qGuiApp || qtThread) {
         return;
     }
 
@@ -95,15 +98,32 @@ static void qtThreadStart()
     readyFuture.wait();
 }
 
-void globalInit()
+static void qtThreadStop()
 {
-    if (!qGuiApp) {
-        qtThreadStart();
-        qmlRegisterType<SessionListModel>("com.aucalic.client", 1, 0, "SessionListModel");
-        qmlRegisterType<JamApiManager>("com.aucalic.client", 1, 0, "JamApiManager");
+    if (!qtThread) {
+        return;
     }
 
-    initCount++;
+    QMetaObject::invokeMethod(qGuiApp, "quit", Qt::QueuedConnection);
+    qDebug("%s joining Qt thread", __func__);
+    qtThreadJoin();
+    qDebug("%s done joining Qt thread", __func__);
+}
+
+// TODO how to unregister types?
+static void registerQmlTypes()
+{
+    qmlRegisterType<SessionListModel>("com.aucalic.client", 1, 0, "SessionListModel");
+    qmlRegisterType<JamApiManager>("com.aucalic.client", 1, 0, "JamApiManager");
+}
+
+void globalInit()
+{
+    qtThreadStart();
+
+    if (initCount++ == 0) {
+        registerQmlTypes();
+    }
 }
 
 void globalCleanup()
@@ -113,11 +133,7 @@ void globalCleanup()
         return;
     }
 
-    QMetaObject::invokeMethod(qGuiApp, "quit",
-                              Qt::QueuedConnection);
-    qDebug("%s joining Qt thread", __func__);
-    qtThreadJoin();
-    qDebug("%s done joining Qt thread", __func__);
+    qtThreadStop();
 
     if (logfp != stderr) {
         fclose(logfp);
