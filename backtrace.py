@@ -4,6 +4,8 @@
 #
 # Print symbols from a winedbg backtrace.  The mmap base address must be given
 # (use 'info share' in winedbg).
+#
+# SPDX-License-Identifier: Apache-2.0
 
 import sys
 import subprocess

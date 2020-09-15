@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 project('wahjam2', 'cpp',
         default_options : [
           'cpp_std=gnu++14',
