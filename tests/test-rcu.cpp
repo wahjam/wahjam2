@@ -4,7 +4,7 @@
 #include <thread>
 #include <future>
 #include <functional>
-#include "rcu.h"
+#include "audio/rcu.h"
 
 static void testPointer()
 {

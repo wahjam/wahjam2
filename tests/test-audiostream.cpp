@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <stdio.h>
 #include <string.h>
-#include "AudioStream.h"
+#include "audio/AudioStream.h"
 
 const size_t blockSize = 64 /* samples */;
 

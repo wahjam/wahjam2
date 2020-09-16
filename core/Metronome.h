@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "AudioProcessor.h"
+#include "audio/AudioProcessor.h"
 
 class Metronome : public QObject
 {

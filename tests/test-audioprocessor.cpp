@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "AudioProcessor.h"
+#include "audio/AudioProcessor.h"
 
 static const float pi = 3.14159f;
 

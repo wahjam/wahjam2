@@ -6,7 +6,7 @@
 #include <QTimer>
 
 #include "aeffectx.h"
-#include "AudioProcessor.h"
+#include "audio/AudioProcessor.h"
 
 class VstPlugin : public QObject
 {
