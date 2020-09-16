@@ -19,5 +19,6 @@ resources = qt5.preprocess(qresources : 'resources.qrc')
 
 subdir('audio')
 subdir('core')
+subdir('standalone')
 subdir('tests')
 subdir('vst')
