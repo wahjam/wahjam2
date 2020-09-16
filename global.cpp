@@ -67,6 +67,9 @@ static void qtThreadRun(std::promise<void> ready)
         logfp = stderr;
     }
 
+    // Disable buffering so messages are saved even if there is a crash
+    setvbuf(logfp, nullptr, _IONBF, 0);
+
     app.setQuitOnLastWindowClosed(false);
     QObject::connect(&app, &QGuiApplication::aboutToQuit,
                      []() { qDebug("qtThreadRun done"); });
