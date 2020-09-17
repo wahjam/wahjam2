@@ -47,7 +47,7 @@ ColumnLayout {
                     jamApiManager: column.jamApiManager
                 }
                 delegate: Item {
-                    width: container.width
+                    width: parent.width
                     height: childrenRect.height
                     Column {
                         Text { text: topic }
