@@ -55,7 +55,10 @@ Pane {
         }
         MouseArea {
             id: mouseArea
-            anchors.fill: parent
+            x: 0
+            y: 0
+            width: parent.width
+            height: parent.height
             acceptedButtons: Qt.NoButton // don't consume events
         }
     }
