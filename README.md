@@ -20,7 +20,7 @@ This software is made available under the Apache License 2.0.
 ### Formats
 - [x] VST 2.4 plugin
 - [ ] AudioUnit plugin
-- [ ] Standalone
+- [x] Standalone
 
 ## Development
 
