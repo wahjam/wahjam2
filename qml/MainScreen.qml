@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import org.wahjam.client 1.0
 
-ColumnLayout {
+Item {
     id: column
     property JamApiManager jamApiManager
 
@@ -14,6 +14,7 @@ ColumnLayout {
 
     TabBar {
         id: bar
+        y: 0
         width: parent.width
         currentIndex: 1
         TabButton {
@@ -29,6 +30,8 @@ ColumnLayout {
     }
 
     StackLayout {
+        anchors.top: bar.bottom
+        anchors.bottom: parent.bottom
         width: parent.width
         currentIndex: bar.currentIndex
 
