@@ -27,6 +27,7 @@ int main(int argc, char **argv)
     QQuickView *view = new QQuickView{QUrl{"qrc:/qml/application.qml"}};
     QObject::connect(view, &QQuickView::statusChanged,
         [=] (QQuickView::Status) { showViewErrors(view); });
+    view->setResizeMode(QQuickView::SizeRootObjectToView);
     view->show();
 
     int rc = app.exec();
