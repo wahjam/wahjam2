@@ -34,8 +34,10 @@ Pane {
             id: password
             placeholderText: qsTr("Password")
             echoMode: TextInput.Password
+            onAccepted: logInButton.clicked()
         }
         Button {
+            id: logInButton
             text: qsTr("Log in")
             onClicked: {
                 mouseArea.cursorShape = Qt.WaitCursor
