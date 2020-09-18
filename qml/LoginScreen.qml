@@ -17,6 +17,7 @@ Pane {
             }
         }
 
+        anchors.centerIn: parent
         Component.onCompleted: jamApiManager.loginFinished.connect(loginFinished)
 
         Text {
