@@ -9,8 +9,8 @@ StackLayout {
         jamApiManager: jamApiManager
 
         onLoggedIn: {
-            mainScreen.refreshSessionList()
             stack.currentIndex = 1
+            mainScreen.entered()
         }
     }
 

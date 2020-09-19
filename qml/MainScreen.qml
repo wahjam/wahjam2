@@ -8,8 +8,8 @@ Item {
     id: column
     property JamApiManager jamApiManager
 
-    function refreshSessionList() {
-        sessionListModel.refresh()
+    function entered() {
+        lobby.refresh()
     }
 
     TabBar {
@@ -22,7 +22,7 @@ Item {
             text: qsTr("Session")
         }
         TabButton {
-            text: qsTr("Browser")
+            text: qsTr("Lobby")
         }
         TabButton {
             text: qsTr("Setup")
@@ -40,30 +40,9 @@ Item {
 
             Text { text: qsTr("Session") }
         }
-        Item {
-            id: browserTab
-
-            ListView {
-                anchors.fill: parent
-                model: SessionListModel {
-                    id: sessionListModel
-                    jamApiManager: column.jamApiManager
-                }
-                delegate: Item {
-                    width: parent.width
-                    height: childrenRect.height
-                    Column {
-                        Text { text: topic }
-                        Text { text: tempo }
-                        Text { text: slots }
-                        Text { text: users }
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: parent.ListView.view.currentIndex = index
-                    }
-                }
-            }
+        Lobby {
+            id: lobby
+            jamApiManager: column.jamApiManager
         }
         Item {
             id: setupTab

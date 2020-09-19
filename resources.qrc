@@ -1,6 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
     <file>qml/application.qml</file>
+    <file>qml/Lobby.qml</file>
     <file>qml/LoginScreen.qml</file>
     <file>qml/MainScreen.qml</file>
     <file>click.raw</file>
