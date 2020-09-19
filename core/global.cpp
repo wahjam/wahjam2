@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <QCoreApplication>
 #include <QDir>
+#include <QLoggingCategory>
 #include <QQmlEngine>
 #include <QStandardPaths>
+#include <QSysInfo>
 
 #include "global.h"
 #include "SessionListModel.h"
@@ -18,7 +20,31 @@ static void qtMessageHandler(QtMsgType type,
 
     Q_UNUSED(context);
 
-    fprintf(logfp, "%s\n", localMsg.constData());
+    const char *msgtype;
+    switch (type) {
+    case QtDebugMsg:
+        msgtype = "DEBUG";
+        break;
+    case QtWarningMsg:
+        msgtype = "WARN";
+        break;
+    case QtCriticalMsg:
+        msgtype = "CRIT";
+        break;
+    case QtFatalMsg:
+        msgtype = "FATAL";
+        break;
+    default:
+        msgtype = "???";
+        break;
+    }
+
+    QString timestamp(QDateTime::currentDateTime().toUTC().toString("MMM dd yyyy hh:mm:ss "));
+
+    fprintf(logfp, "%s %s %s\n",
+            timestamp.toUtf8().constData(),
+            msgtype,
+            localMsg.constData());
     if (type == QtFatalMsg) {
         abort();
     }
@@ -26,6 +52,7 @@ static void qtMessageHandler(QtMsgType type,
 
 void installMessageHandler()
 {
+    QLoggingCategory::setFilterRules("*.debug=true\nqt.*.debug=false");
     qInstallMessageHandler(qtMessageHandler);
 }
 
@@ -35,8 +62,14 @@ void globalInit()
     QCoreApplication::setOrganizationDomain("wahjam.org");
     QCoreApplication::setApplicationName("Wahjam2");
 
-    const QDir documents{QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)};
-    const QString log_txt{documents.filePath("log.txt")};
+    const QDir dataDir{QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)};
+    if (!dataDir.mkpath(dataDir.absolutePath())) {
+        fprintf(stderr, "Unable to create application data directory at %s.\n",
+                dataDir.absolutePath().toLocal8Bit().constData());
+        abort();
+    }
+
+    const QString log_txt{dataDir.filePath("log.txt")};
     logfp = fopen(log_txt.toLocal8Bit().constData(), "w");
     if (!logfp) {
         logfp = stderr;
@@ -44,6 +77,10 @@ void globalInit()
 
     // Disable buffering so messages are saved even if there is a crash
     setvbuf(logfp, nullptr, _IONBF, 0);
+
+    qDebug("Qt %s", qVersion());
+    qDebug("OS: %s", QSysInfo::prettyProductName().toLatin1().constData());
+    qDebug("CPU: %s", QSysInfo::currentCpuArchitecture().toLatin1().constData());
 }
 
 void globalCleanup()
