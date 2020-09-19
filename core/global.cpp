@@ -31,7 +31,7 @@ void installMessageHandler()
 
 void globalInit()
 {
-    QCoreApplication::setOrganizationName("The Wahjam Project");
+    QCoreApplication::setOrganizationName("Wahjam Project");
     QCoreApplication::setOrganizationDomain("wahjam.org");
     QCoreApplication::setApplicationName("Wahjam2");
 
