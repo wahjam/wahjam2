@@ -1,32 +1,31 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <assert.h>
-#include <QResource>
+#include <QFile>
 
 #include "Metronome.h"
 
 Metronome::Metronome(AudioProcessor *processor_, QObject *parent)
-    : QObject{parent}, processor{processor_}, stream{nullptr}, bpm_{120},
+    : QObject{parent}, processor{processor_}, bpm_{120},
       samplesPerBeat{0}, startTime{0}, now{0}
 {
-    // Load resource
-    QResource resource{"/click.raw"};
-    assert(resource.isValid());
-    if (resource.isCompressed()) {
-        QByteArray uncompressed = qUncompress(QByteArray{reinterpret_cast<const char*>(resource.data())});
-        clickLen = uncompressed.size();
-        click = new float[clickLen];
-        memcpy(click, uncompressed.constData(), clickLen);
-    } else {
-        clickLen = resource.size();
-        click = new float[clickLen];
-        memcpy(click, resource.data(), clickLen);
+    QFile file{":/click.raw"};
+    if (!file.open(QIODevice::ReadOnly)) {
+        qCritical("Cannot open click.raw resource");
+    }
+
+    QByteArray data = file.readAll();
+    auto samples = reinterpret_cast<const float*>(data.constData());
+    auto nsamples = data.size() / sizeof(float);
+
+    click = std::vector<float>(nsamples);
+    for (size_t i = 0; i < nsamples; i++) {
+        click[i] = samples[i];
     }
 }
 
 Metronome::~Metronome()
 {
     stop();
-    delete [] click;
 }
 
 void Metronome::start()
@@ -67,16 +66,14 @@ void Metronome::processAudioStreams()
     }
 
     size_t nsamples = stream->numSamplesWritable();
-    float *buf = new float[nsamples];
+    std::vector<float> buf(nsamples);
     size_t offset = (now - startTime) % samplesPerBeat;
 
     for (size_t i = 0; i < nsamples; i++) {
-        buf[i] = offset < clickLen ? click[offset] : 0.f;
+        buf[i] = offset < click.size() ? click[offset] : 0.f;
         offset = (offset + 1) % samplesPerBeat;
     }
 
-    stream->write(now, buf, nsamples);
+    stream->write(now, buf.data(), nsamples);
     now += nsamples;
-
-    delete [] buf;
 }

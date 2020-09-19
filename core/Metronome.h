@@ -25,8 +25,7 @@ public slots:
 private:
     AudioProcessor *processor;
     AudioStream *stream;
-    float *click;
-    size_t clickLen; // in samples
+    std::vector<float> click;
     int bpm_;
     size_t samplesPerBeat;
     SampleTime startTime;
