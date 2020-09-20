@@ -5,8 +5,8 @@
 #include "Metronome.h"
 
 Metronome::Metronome(AudioProcessor *processor_, QObject *parent)
-    : QObject{parent}, processor{processor_}, bpm_{120},
-      samplesPerBeat{0}, startTime{0}, now{0}
+    : QObject{parent}, processor{processor_}, stream{nullptr},
+      bpm_{120}, samplesPerBeat{0}, startTime{0}, now{0}
 {
     QFile file{":/click.raw"};
     if (!file.open(QIODevice::ReadOnly)) {
