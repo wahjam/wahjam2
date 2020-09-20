@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <QtGlobal>
-#include <QQmlError>
 #include <QGuiApplication>
 #include <QThread>
 #include <QMutexLocker>
@@ -96,75 +95,13 @@ VstPlugin *VstPlugin::fromAEffect(AEffect *aeffect)
 
 void VstPlugin::setSampleRate(float sampleRate)
 {
-    processor.setSampleRate(sampleRate);
-}
-
-// Called by an interval timer for Qt thread housekeeping
-void VstPlugin::periodicTick()
-{
-    if (!processor.isRunning()) {
-        return;
-    }
-
-    QMutexLocker locker{&processorWriteLock};
-
-    emit processAudioStreams();
-
-    processor.tick();
-}
-
-// Called from Qt thread
-void VstPlugin::startPeriodicTick()
-{
-    if (periodicTimer) {
-        return;
-    }
-
-    // setRunning(false) may have been called before our slot was invoked
-    if (!processor.isRunning()) {
-        return;
-    }
-
-    // Invoke immediately to minimize latency
-    periodicTick();
-
-    periodicTimer = new QTimer{this};
-    connect(periodicTimer, SIGNAL(timeout()),
-            this, SLOT(periodicTick()));
-    periodicTimer->start(50);
-}
-
-// Called from Qt thread
-void VstPlugin::stopPeriodicTick()
-{
-    // setRunning(true) may have been called before our slot was invoked
-    if (processor.isRunning()) {
-        return;
-    }
-
-    delete periodicTimer;
-    periodicTimer = nullptr;
+    appView.setSampleRate(sampleRate);
 }
 
 void VstPlugin::setRunning(bool enabled)
 {
-    QMutexLocker locker{&processorWriteLock};
-
     now = 0;
-    processor.setRunning(enabled);
-
-    QMetaObject::invokeMethod(this,
-            enabled ? "startPeriodicTick" : "stopPeriodicTick",
-            Qt::QueuedConnection);
-}
-
-void VstPlugin::viewStatusChanged(QQuickView::Status status)
-{
-    Q_UNUSED(status);
-
-    for (const QQmlError &error : view->errors()) {
-        qDebug("QML error: %s", error.toString().toUtf8().constData());
-    }
+    appView.setAudioRunning(enabled);
 }
 
 void VstPlugin::editOpen(void *ptrarg)
@@ -174,57 +111,45 @@ void VstPlugin::editOpen(void *ptrarg)
         return;
     }
 
-    if (!view) {
-        view = new QQuickView{QUrl{"qrc:/qml/application.qml"}};
-        connect(view, SIGNAL(statusChanged(QQuickView::Status)),
-                this, SLOT(viewStatusChanged(QQuickView::Status)));
-
-        /*
-         * Calling setParent(nullptr) adds a window frame.  Frame margins are
-         * not reset again by QWindow when reparenting to a real parent.  This
-         * causes incorrect geometry calculations since non-existent margins
-         * will be included.  Turn off the window frame.
-         */
-        view->setFlags(view->flags() | Qt::FramelessWindowHint);
-
-        view->setResizeMode(QQuickView::SizeRootObjectToView);
-    }
-
     parent = QWindow::fromWinId((WId)(uintptr_t)ptrarg);
 
     qDebug("%s parent %p threadID %p", __func__, parent, QThread::currentThreadId());
 
     if (parent) {
-        view->setParent(parent);
-        view->resize(viewRect.right, viewRect.bottom);
-        view->show();
+        /*
+         * Calling setParent(nullptr) adds a window frame. Frame margins are
+         * not reset again by QWindow when reparenting to a real parent. This
+         * causes incorrect geometry calculations since non-existent margins
+         * will be included. Turn off the window frame.
+         */
+        appView.setFlags(appView.flags() | Qt::FramelessWindowHint);
+
+        appView.setParent(parent);
     }
+
+    appView.resize(viewRect.right, viewRect.bottom);
+    appView.show();
 }
 
 void VstPlugin::editClose()
 {
-    qDebug("%s view %p parent %p", __func__, view, parent);
+    qDebug("%s parent %p", __func__, parent);
 
-    if (!view) {
-        qDebug("%s called with editor already deleted", __func__);
-        return;
+    appView.hide();
+    appView.setParent(nullptr);
+
+    if (parent) {
+        // See editOpen()
+        appView.setFlags(appView.flags() & ~Qt::FramelessWindowHint);
+
+        parent->deleteLater();
+        parent = nullptr;
     }
-
-    if (!parent) {
-        return;
-    }
-
-    view->hide();
-    view->setParent(nullptr);
-    parent->deleteLater();
-    parent = nullptr;
 }
 
 void VstPlugin::editIdle()
 {
-    if (view) {
-        view->update();
-    }
+    appView.update();
 }
 
 static struct {
@@ -404,7 +329,7 @@ void VstPlugin::processReplacing(float **inbuf, float **outbuf, int ns)
         now = samplePos;
     }
 
-    processor.process(outbuf, ns, now);
+    appView.process(outbuf, ns, now);
 
     now += ns;
 }
@@ -420,8 +345,9 @@ static void processReplacingCallback(AEffect *aeffect, float **inbuf, float **ou
 }
 
 VstPlugin::VstPlugin(audioMasterCallback masterCallback_)
-    : masterCallback{masterCallback_}, view{nullptr},
-      parent{nullptr}, periodicTimer{nullptr}
+    : masterCallback{masterCallback_},
+      appView{QUrl{"qrc:/qml/application.qml"}},
+      parent{nullptr}
 {
     memset(&aeffect, 0, sizeof(aeffect));
     aeffect.magic               = kEffectMagic;
@@ -445,16 +371,12 @@ VstPlugin::~VstPlugin()
 {
     qDebug("%s", __func__);
 
-    if (view) {
-        delete view;
-        view = nullptr;
+    appView.hide();
+    appView.setParent(nullptr);
+
+    if (parent) {
         delete parent;
         parent = nullptr;
-    }
-
-    if (periodicTimer) {
-        delete periodicTimer;
-        periodicTimer = nullptr;
     }
 }
 

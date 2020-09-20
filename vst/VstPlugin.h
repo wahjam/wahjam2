@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
-#include <QQuickView>
 #include <QMutex>
-#include <QTimer>
 
 #include "aeffectx.h"
-#include "audio/AudioProcessor.h"
+#include "core/AppView.h"
 
 class VstPlugin : public QObject
 {
@@ -36,11 +34,6 @@ public:
     // This is called from the real-time thread
     void processReplacing(float **inbuf, float **outbuf, int ns);
 
-signals:
-    // Emitted periodically to allow draining capture streams and refilling
-    // playback streams.
-    void processAudioStreams();
-
 public slots:
     void editOpen(void *ptrarg);
     void editClose();
@@ -48,22 +41,9 @@ public slots:
 
 private:
     audioMasterCallback masterCallback;
-    QQuickView *view;
+    AppView appView;
     QWindow *parent;        // foreign window in host application
-    AudioProcessor processor;
 
     // Current time, in samples.  Only accessed by real-time thread.
     SampleTime now;
-
-    // This mutex ensures that timer callbacks do not race with dispatcher
-    // calls (e.g. effMainsChanged)
-    QMutex processorWriteLock;
-
-    QTimer *periodicTimer;
-
-private slots:
-    void periodicTick();
-    void startPeriodicTick();
-    void stopPeriodicTick();
-    void viewStatusChanged(QQuickView::Status status);
 };
