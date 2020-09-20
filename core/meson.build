@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 moc_headers = files(
+  'AppView.h',
   'JamApiManager.h',
   'JamConnection.h',
   'Metronome.h',
@@ -7,6 +8,7 @@ moc_headers = files(
 )
 
 sources = files(
+  'AppView.cpp',
   'global.cpp',
   'JamApiManager.cpp',
   'JamConnection.cpp',
