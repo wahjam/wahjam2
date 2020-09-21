@@ -13,6 +13,7 @@ conf_data.set_quoted('APPNAME', 'Wahjam2')
 conf_data.set_quoted('ORGNAME', 'Wahjam Project')
 conf_data.set_quoted('ORGDOMAIN', 'wahjam.org')
 conf_data.set_quoted('VERSION', meson.project_version())
+conf_data.set('HAVE_PA_JACK_H', cxx.has_header('pa_jack.h'))
 
 configure_file(output : 'config.h', configuration : conf_data)
 

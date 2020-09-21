@@ -1,4 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
+#include "config.h"
+#ifdef HAVE_PA_JACK_H
+#include <pa_jack.h>
+#endif
 #include "PortAudioEngine.h"
 
 PortAudioEngine::PortAudioEngine(std::function<ProcessFn> processFn_,
@@ -6,7 +10,10 @@ PortAudioEngine::PortAudioEngine(std::function<ProcessFn> processFn_,
     : QObject{parent}, processFn{processFn_}, stream{nullptr}, now{0},
       sampleRate_{44100}, bufferSize_{512}
 {
-    // TODO set port name for JACK
+#ifdef HAVE_PA_JACK_H
+    // Make it easy for users to identify the application's JACK ports
+    PaJack_SetClientName(APPNAME);
+#endif
 
     PaError err = Pa_Initialize();
     if (err != paNoError) {
