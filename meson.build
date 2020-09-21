@@ -12,6 +12,7 @@ conf_data = configuration_data()
 conf_data.set_quoted('APPNAME', 'Wahjam2')
 conf_data.set_quoted('ORGNAME', 'Wahjam Project')
 conf_data.set_quoted('ORGDOMAIN', 'wahjam.org')
+conf_data.set_quoted('VERSION', meson.project_version())
 
 configure_file(output : 'config.h', configuration : conf_data)
 

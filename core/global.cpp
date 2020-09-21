@@ -79,6 +79,7 @@ void globalInit()
     // Disable buffering so messages are saved even if there is a crash
     setvbuf(logfp, nullptr, _IONBF, 0);
 
+    qDebug("%s %s", APPNAME, VERSION);
     qDebug("Qt %s", qVersion());
     qDebug("OS: %s", QSysInfo::prettyProductName().toLatin1().constData());
     qDebug("CPU: %s", QSysInfo::currentCpuArchitecture().toLatin1().constData());
