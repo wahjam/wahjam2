@@ -1,0 +1,25 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  ubuntu-20_04:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+      - run: sudo apt-get install -qy portaudio19-dev qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev
+      - uses: BSFishy/meson-build@v1.0.1
+        with:
+          action: test
+
+  macos-10_15:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+      - uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.12.9'
+      - run: brew install portaudio
+      - uses: BSFishy/meson-build@v1.0.1
+        with:
+          action: test
