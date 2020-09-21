@@ -74,8 +74,9 @@ private:
     QList<ChannelRoute> inputRouting_;
     QString outputDevice_;
     QList<ChannelRoute> outputRouting_;
-    int sampleRate_;
-    int bufferSize_;
+    int sampleRate_; // in Hz
+    int bufferSize_; // in samples
+    bool stopping; // are we expecting streamFinishedCallback()?
 
     QStringList availableDevices(bool input, bool output) const;
     void resetChannelRouting(const QString &deviceName,
@@ -86,10 +87,14 @@ private:
     void mixInputBuffers(const float **input, size_t nsamples);
     void mixOutputBuffers(float **output, size_t nsamples);
     void process(const float **input, float **output, size_t nsamples);
+    static void streamFinishedCallback(void *userData);
     static int streamCallback(const void *input_,
                               void *output_,
                               unsigned long frameCount,
                               const PaStreamCallbackTimeInfo* timeInfo,
                               PaStreamCallbackFlags statusFlags,
                               void *userData);
+
+private slots:
+    void streamFinished();
 };

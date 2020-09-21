@@ -404,9 +404,31 @@ int PortAudioEngine::streamCallback(const void *input_,
     return paContinue;
 }
 
-static void streamFinishedCallback(void *userData)
+// Called when the stream stopped unexpectedly with an error
+void PortAudioEngine::streamFinished()
 {
-    // TODO
+    auto info = Pa_GetLastHostErrorInfo();
+    qCritical("PortAudio stream %p stopped unexpectedly with error code %ld (\"%s\")",
+              stream,
+              info->errorCode,
+              info->errorText);
+    stop();
+
+    emit stoppedUnexpectedly();
+}
+
+// PortAudio may call this from an arbitrary thread
+void PortAudioEngine::streamFinishedCallback(void *userData)
+{
+    auto engine = reinterpret_cast<PortAudioEngine *>(userData);
+
+    // Ignore if stopping is expected
+    if (engine->stopping) {
+        return;
+    }
+
+    // Perform further processing in engine's event loop thread
+    QMetaObject::invokeMethod(engine, "streamFinished", Qt::QueuedConnection);
 }
 
 // Returns a string representation of a channel routing configuration
@@ -564,13 +586,20 @@ bool PortAudioEngine::start()
                         this);
     if (err != paNoError) {
         stream = nullptr;
-        // TODO stash error
+        qCritical("Pa_OpenStream failed: %s", Pa_GetErrorText(err));
+
+        auto info = Pa_GetLastHostErrorInfo();
+        qCritical("Host error code %ld (\"%s\")",
+                  info->errorCode,
+                  info->errorText);
+
         return false;
     }
 
     auto streamInfo = Pa_GetStreamInfo(stream);
     if (streamInfo) {
-        qDebug("Stream opened with sample rate %g Hz, input latency %g secs, output latency %g secs",
+        qDebug("PortAudio stream %p opened with sample rate %g Hz, input latency %g secs, output latency %g secs",
+               stream,
                streamInfo->sampleRate,
                streamInfo->inputLatency,
                streamInfo->outputLatency);
@@ -600,9 +629,7 @@ bool PortAudioEngine::start()
     err = Pa_StartStream(stream);
     if (err != paNoError) {
         qCritical("Pa_StartStream failed: %s", Pa_GetErrorText(err));
-        // TODO need to do something about the stream finish callback?
-        Pa_CloseStream(stream);
-        stream = nullptr;
+        stop();
         return false;
     }
 
@@ -615,6 +642,17 @@ void PortAudioEngine::stop()
         return;
     }
 
-    Pa_CloseStream(stream);
+    stopping = true;
+
+    PaError err = Pa_CloseStream(stream);
+    if (err == paNoError) {
+        qDebug("PortAudio stream %p closed successfully", stream);
+    } else {
+        qCritical("Pa_CloseStream stream %p failed: %s",
+                  stream,
+                  Pa_GetErrorText(err));
+    }
+
     stream = nullptr;
+    stopping = false;
 }
