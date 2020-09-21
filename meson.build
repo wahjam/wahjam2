@@ -6,6 +6,15 @@ project('wahjam2', 'cpp',
         license : 'Apache-2.0',
         version : '0.0.1')
 
+cxx = meson.get_compiler('cpp')
+
+conf_data = configuration_data()
+conf_data.set_quoted('APPNAME', 'Wahjam2')
+conf_data.set_quoted('ORGNAME', 'Wahjam Project')
+conf_data.set_quoted('ORGDOMAIN', 'wahjam.org')
+
+configure_file(output : 'config.h', configuration : conf_data)
+
 inc = include_directories('.')
 
 qt5 = import('qt5')

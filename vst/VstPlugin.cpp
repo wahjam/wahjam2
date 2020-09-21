@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QMutexLocker>
 
+#include "config.h"
 #include "core/global.h"
 #include "VstPlugin.h"
 
@@ -230,15 +231,15 @@ static intptr_t dispatcher(AEffect *aeffect, int op, int intarg, intptr_t intptr
 
     switch (op) {
     case effGetEffectName:
-        snprintf((char *)ptrarg, 32, "Wahjam2");
+        snprintf((char *)ptrarg, 32, APPNAME);
         return 1;
 
     case effGetVendorString:
-        snprintf((char *)ptrarg, 32, "The Wahjam Project");
+        snprintf((char *)ptrarg, 32, ORGNAME);
         return 1;
 
     case effGetProductString:
-        snprintf((char *)ptrarg, 32, "Wahjam2");
+        snprintf((char *)ptrarg, 32, APPNAME);
         return 1;
 
     case effGetVstVersion:

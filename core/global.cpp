@@ -6,6 +6,7 @@
 #include <QStandardPaths>
 #include <QSysInfo>
 
+#include "config.h"
 #include "global.h"
 #include "SessionListModel.h"
 #include "JamApiManager.h"
@@ -58,9 +59,9 @@ void installMessageHandler()
 
 void globalInit()
 {
-    QCoreApplication::setOrganizationName("Wahjam Project");
-    QCoreApplication::setOrganizationDomain("wahjam.org");
-    QCoreApplication::setApplicationName("Wahjam2");
+    QCoreApplication::setOrganizationName(ORGNAME);
+    QCoreApplication::setOrganizationDomain(ORGDOMAIN);
+    QCoreApplication::setApplicationName(APPNAME);
 
     const QDir dataDir{QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)};
     if (!dataDir.mkpath(dataDir.absolutePath())) {
