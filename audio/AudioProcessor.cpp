@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+#include <assert.h>
 #include <string.h>
 #include "AudioProcessor.h"
 
@@ -13,11 +14,9 @@ AudioProcessor::AudioProcessor()
 
 AudioProcessor::~AudioProcessor()
 {
-    // Delete any remaining playback streams
-    PlaybackStreams *streams = playbackStreams.load();
-    for (auto streamPointer : *streams) {
-        streamPointer.store(nullptr);
-    }
+    // No streams should be left. Their owner has a pointer so we cannot delete
+    // them here.
+    assert(playbackStreams.load()->empty());
 
     // Delete the playback streams vector itself
     playbackStreams.store(nullptr);

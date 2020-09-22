@@ -24,10 +24,10 @@ public:
     AudioProcessor();
     ~AudioProcessor();
 
-    // Passes ownership of stream to AudioProcessor
+    // Shares ownership of stream
     void addPlaybackStream(AudioStream *stream);
 
-    // AudioProcessor still has ownership of stream after this call
+    // Takes ownership of stream
     void removePlaybackStream(AudioStream *stream);
 
     AudioStream &captureStream(int channel);
