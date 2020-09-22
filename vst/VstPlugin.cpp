@@ -314,22 +314,6 @@ void VstPlugin::processReplacing(float **inbuf, float **outbuf, int ns)
         }
     }
 
-    // Fetch current sample time from host
-    intptr_t result = masterCallback(&aeffect, audioMasterGetTime,
-                                     0, 0, nullptr, 0.f);
-    VstTimeInfo *info = reinterpret_cast<VstTimeInfo*>(result);
-    if (info) {
-        SampleTime samplePos = info->samplePos + 0.5;
-        if (samplePos != now) {
-            qDebug("jump in samplePos.  expected %llu, got %llu (info->samplePos %f %#llx)",
-                   (long long unsigned)now,
-                   (long long unsigned)samplePos,
-                   info->samplePos,
-                   *(long long unsigned*)&info->samplePos);
-        }
-        now = samplePos;
-    }
-
     appView.process(outbuf, ns, now);
 
     now += ns;
