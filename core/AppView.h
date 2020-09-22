@@ -37,9 +37,11 @@ private slots:
     void processAudioStreamsTick();
     void startProcessAudioStreamsTimer();
     void stopProcessAudioStreamsTimer();
+    void transportReset();
 
 private:
     AudioProcessor processor;
+    std::atomic<bool> transportResetPending;
 
     // Protects setAudioRunning() vs processAudioStreamsTick()
     QMutex processorWriteLock;

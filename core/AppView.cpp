@@ -10,7 +10,7 @@ static void showViewErrors(QQuickView *view)
 }
 
 AppView::AppView(const QUrl &url, QWindow *parent)
-    : QQuickView{parent}, metronome{&processor}
+    : QQuickView{parent}, transportResetPending{false}, metronome{&processor}
 {
     // Install Quick error logger
     QObject::connect(this, &QQuickView::statusChanged,
@@ -51,8 +51,11 @@ void AppView::startProcessAudioStreamsTimer()
         return;
     }
 
-    // Invoke immediately to minimize latency
-    processAudioStreams();
+    // Emit processAudioStreams() immediately to minimize latency
+    {
+        QMutexLocker locker{&processorWriteLock};
+        emit processAudioStreams();
+    }
 
     connect(&processAudioStreamsTimer, &QTimer::timeout,
             this, &AppView::processAudioStreamsTick);
@@ -82,9 +85,47 @@ void AppView::setAudioRunning(bool enabled)
             Qt::QueuedConnection);
 }
 
+// The part of transport reset that runs in the Qt thread
+void AppView::transportReset()
+{
+    QMutexLocker locker{&processorWriteLock};
+
+    processor.setRunning(false);
+    processor.setRunning(true);
+    emit processAudioStreams();
+    transportResetPending.store(false);
+}
+
 void AppView::process(float *inOutSamples[CHANNELS_STEREO],
                       size_t nsamples,
                       SampleTime now)
 {
-    processor.process(inOutSamples, nsamples, now);
+    // Detect when time is reset. This is complicated by the fact that
+    // transportReset() needs to run in the Qt thread. We'll silence output
+    // while the transport is being reset.
+    bool resetPending = transportResetPending.load();
+    bool needsReset = false;
+
+    if (!resetPending) {
+        needsReset = now < processor.getNextSampleTime();
+
+        // This tells the processor the new 'now' time value, so do it even
+        // when reset is needed.
+        processor.process(inOutSamples, nsamples, now);
+    }
+
+    if (needsReset) {
+        transportResetPending.store(true);
+        QMetaObject::invokeMethod(this, "transportReset",
+                                  Qt::QueuedConnection);
+    }
+
+    // Silence output during transport reset
+    if (resetPending || needsReset) {
+        for (int ch = 0; ch < CHANNELS_STEREO; ch++) {
+            for (size_t i = 0; i < nsamples; i++) {
+                inOutSamples[ch][i] = 0.f;
+            }
+        }
+    }
 }
