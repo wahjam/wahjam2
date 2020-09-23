@@ -1,12 +1,11 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: GPL-2.0-or-later
+// From https://github.com/LMMS/lmms/commit/1e8fcbdf2df7bc5f4550dbed21a4ea5ea84fb6b4
 /*
  * aeffectx.h - simple header to allow VeSTige compilation and eventually work
  *
  * Copyright (c) 2006 Javier Serrano Polo <jasp00/at/users.sourceforge.net>
  *
- * This file is part of Linux MultiMedia Studio - http://lmms.sourceforge.net
- *
- * From http://subversion.ardour.org/svn/ardour2/branches/3.0 revision 13627.
+ * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -24,127 +23,154 @@
  * Boston, MA 02110-1301 USA.
  *
  */
+
+
+#ifndef AEFFECTX_H
+#define AEFFECTX_H
+
 #include <stdint.h>
-#ifndef _AEFFECTX_H
-#define _AEFFECTX_H
 
-#define CCONST(a, b, c, d)( ( ( (int) a ) << 24 ) |		\
-				( ( (int) b ) << 16 ) |		\
-				( ( (int) c ) << 8 ) |		\
-				( ( (int) d ) << 0 ) )
+// Calling convention
+#ifdef __i686__
+#define VST_CALL_CONV __attribute__((cdecl))
+#else
+#define VST_CALL_CONV
+#endif
 
-#define audioMasterAutomate 0
-#define audioMasterVersion 1
-#define audioMasterCurrentId 2
-#define audioMasterIdle 3
-#define audioMasterPinConnected 4
+#define CCONST(a, b, c, d)( ( ( (int32_t) a ) << 24 ) |		\
+				( ( (int32_t) b ) << 16 ) |		\
+				( ( (int32_t) c ) << 8 ) |		\
+				( ( (int32_t) d ) << 0 ) )
+
+const int audioMasterAutomate = 0;
+const int audioMasterVersion = 1;
+const int audioMasterCurrentId = 2;
+const int audioMasterIdle = 3;
+const int audioMasterPinConnected = 4;
 // unsupported? 5
-#define audioMasterWantMidi 6
-#define audioMasterGetTime 7
-#define audioMasterProcessEvents 8
-#define audioMasterSetTime 9
-#define audioMasterTempoAt 10
-#define audioMasterGetNumAutomatableParameters 11
-#define audioMasterGetParameterQuantization 12
-#define audioMasterIOChanged 13
-#define audioMasterNeedIdle 14
-#define audioMasterSizeWindow 15
-#define audioMasterGetSampleRate 16
-#define audioMasterGetBlockSize 17
-#define audioMasterGetInputLatency 18
-#define audioMasterGetOutputLatency 19
-#define audioMasterGetPreviousPlug 20
-#define audioMasterGetNextPlug 21
-#define audioMasterWillReplaceOrAccumulate 22
-#define audioMasterGetCurrentProcessLevel 23
-#define audioMasterGetAutomationState 24
-#define audioMasterOfflineStart 25
-#define audioMasterOfflineRead 26
-#define audioMasterOfflineWrite 27
-#define audioMasterOfflineGetCurrentPass 28
-#define audioMasterOfflineGetCurrentMetaPass 29
-#define audioMasterSetOutputSampleRate 30
+const int audioMasterWantMidi = 6;
+const int audioMasterGetTime = 7;
+const int audioMasterProcessEvents = 8;
+const int audioMasterSetTime = 9;
+const int audioMasterTempoAt = 10;
+const int audioMasterGetNumAutomatableParameters = 11;
+const int audioMasterGetParameterQuantization = 12;
+const int audioMasterIOChanged = 13;
+const int audioMasterNeedIdle = 14;
+const int audioMasterSizeWindow = 15;
+const int audioMasterGetSampleRate = 16;
+const int audioMasterGetBlockSize = 17;
+const int audioMasterGetInputLatency = 18;
+const int audioMasterGetOutputLatency = 19;
+const int audioMasterGetPreviousPlug = 20;
+const int audioMasterGetNextPlug = 21;
+const int audioMasterWillReplaceOrAccumulate = 22;
+const int audioMasterGetCurrentProcessLevel = 23;
+const int audioMasterGetAutomationState = 24;
+const int audioMasterOfflineStart = 25;
+const int audioMasterOfflineRead = 26;
+const int audioMasterOfflineWrite = 27;
+const int audioMasterOfflineGetCurrentPass = 28;
+const int audioMasterOfflineGetCurrentMetaPass = 29;
+const int audioMasterSetOutputSampleRate = 30;
 // unsupported? 31
-#define audioMasterGetSpeakerArrangement 31 // deprecated in 2.4?
-#define audioMasterGetVendorString 32
-#define audioMasterGetProductString 33
-#define audioMasterGetVendorVersion 34
-#define audioMasterVendorSpecific 35
-#define audioMasterSetIcon 36
-#define audioMasterCanDo 37
-#define audioMasterGetLanguage 38
-#define audioMasterOpenWindow 39
-#define audioMasterCloseWindow 40
-#define audioMasterGetDirectory 41
-#define audioMasterUpdateDisplay 42
-#define audioMasterBeginEdit 43
-#define audioMasterEndEdit 44
-#define audioMasterOpenFileSelector 45
-#define audioMasterCloseFileSelector 46 // currently unused
-#define audioMasterEditFile 47 // currently unused
-#define audioMasterGetChunkFile 48 // currently unused
-#define audioMasterGetInputSpeakerArrangement 49 // currently unused
+const int audioMasterGetSpeakerArrangement = 31; // deprecated in 2.4?
+const int audioMasterGetVendorString = 32;
+const int audioMasterGetProductString = 33;
+const int audioMasterGetVendorVersion = 34;
+const int audioMasterVendorSpecific = 35;
+const int audioMasterSetIcon = 36;
+const int audioMasterCanDo = 37;
+const int audioMasterGetLanguage = 38;
+const int audioMasterOpenWindow = 39;
+const int audioMasterCloseWindow = 40;
+const int audioMasterGetDirectory = 41;
+const int audioMasterUpdateDisplay = 42;
+const int audioMasterBeginEdit = 43;
+const int audioMasterEndEdit = 44;
+const int audioMasterOpenFileSelector = 45;
+const int audioMasterCloseFileSelector = 46; // currently unused
+const int audioMasterEditFile = 47; // currently unused
+const int audioMasterGetChunkFile = 48; // currently unused
+const int audioMasterGetInputSpeakerArrangement = 49; // currently unused
 
-#define effFlagsHasEditor 1
-#define effFlagsCanReplacing (1 << 4) // very likely
-#define effFlagsIsSynth (1 << 8) // currently unused
+const int effFlagsHasEditor = 1;
+const int effFlagsCanReplacing = 1 << 4; // very likely
+const int effFlagsIsSynth = 1 << 8; // currently unused
 
-#define effOpen 0
-#define effClose 1 // currently unused
-#define effSetProgram 2 // currently unused
-#define effGetProgram 3 // currently unused
-#define effGetProgramName 5 // currently unused
-#define effGetParamName 8 // currently unused
-#define effSetSampleRate 10
-#define effSetBlockSize 11
-#define effMainsChanged 12
-#define effEditGetRect 13
-#define effEditOpen 14
-#define effEditClose 15
-#define effEditIdle 19
-#define effEditTop 20
-#define effProcessEvents 25
-#define effGetEffectName 45
-#define effGetVendorString 47
-#define effGetProductString 48
-#define effGetVendorVersion 49
-#define effCanDo 51 // currently unused
-/* from http://asseca.com/vst-24-specs/efGetParameterProperties.html */
-#define effGetParameterProperties 56
-#define effGetVstVersion 58 // currently unused
+const int effOpen = 0;
+const int effClose = 1; // currently unused
+const int effSetProgram = 2; // currently unused
+const int effGetProgram = 3; // currently unused
+const int effGetProgramName = 5; // currently unused
+const int effGetParamLabel = 6;
+const int effGetParamDisplay = 7;
+const int effGetParamName = 8; // currently unused
+const int effSetSampleRate = 10;
+const int effSetBlockSize = 11;
+const int effMainsChanged = 12;
+const int effEditGetRect = 13;
+const int effEditOpen = 14;
+const int effEditClose = 15;
+const int effEditIdle = 19;
+const int effEditTop = 20;
+const int effSetChunk = 24;
+const int effProcessEvents = 25;
+const int effGetEffectName = 45;
+const int effGetVendorString = 47;
+const int effGetProductString = 48;
+const int effGetVendorVersion = 49;
+const int effCanDo = 51; // currently unused
+const int effGetVstVersion = 58; // currently unused
 
-#define kEffectMagic (CCONST( 'V', 's', 't', 'P' ))
-#define kVstLangEnglish 1
-#define kVstMidiType 1
-#define kVstTempoValid (1 << 10)
-#define kVstTransportPlaying (1 << 1)
+const int kEffectMagic = CCONST( 'V', 's', 't', 'P' );
+const int kVstLangEnglish = 1;
+const int kVstMidiType = 1;
+
+const int kVstTransportChanged = 1;
+const int kVstTransportPlaying = 1 << 1;
+const int kVstTransportCycleActive = 1 << 2;
+const int kVstTransportRecording = 1 << 3; // currently unused
+const int kVstPpqPosValid = 1 << 9;
+const int kVstTempoValid = 1 << 10;
+const int kVstBarsValid = 1 << 11;
+const int kVstCyclePosValid = 1 << 12;
+const int kVstTimeSigValid = 1 << 13;
+const int kVstSmpteValid = 1 << 14; // currently unused
+const int kVstClockValid = 1 << 15; // currently unused
+
+// currently unused
+const int kVstSmpte24fps = 0;
+const int kVstSmpte25fps = 1;
+const int kVstSmpte2997fps = 2;
+const int kVstSmpte30fps = 3;
+const int kVstSmpte2997dfps = 4;
+const int kVstSmpte30dfps = 5;
+const int kVstSmpteFilm16mm = 6; // very likely
+const int kVstSmpteFilm35mm = 7; // very likely
+const int kVstSmpte239fps = 10;
+const int kVstSmpte249fps = 11;
+const int kVstSmpte599fps = 12;
+const int kVstSmpte60fps = 13;
 
 
-struct RemoteVstPlugin;
 
-#define kVstNanosValid (1 << 8)
-#define kVstPpqPosValid (1 << 9)
-#define kVstTempoValid (1 << 10)
-#define kVstBarsValid (1 << 11)
-#define kVstCyclePosValid (1 << 12)
-#define kVstTimeSigValid (1 << 13)
-#define kVstSmpteValid (1 << 14)
-#define kVstClockValid (1 << 15)
 
-struct _VstMidiEvent
+class VstMidiEvent
 {
+public:
 	// 00
-	int type;
+	int32_t type;
 	// 04
-	int byteSize;
+	int32_t byteSize;
 	// 08
-	int deltaFrames;
+	int32_t deltaFrames;
 	// 0c?
-	int flags;
+	int32_t flags;
 	// 10?
-	int noteLength;
+	int32_t noteLength;
 	// 14?
-	int noteOffset;
+	int32_t noteOffset;
 	// 18
 	char midiData[4];
 	// 1c?
@@ -155,90 +181,65 @@ struct _VstMidiEvent
 	char reserved1;
 	// 1f?
 	char reserved2;
-};
 
-typedef struct _VstMidiEvent VstMidiEvent;
+} ;
 
 
-struct _VstEvent
+
+
+class VstEvent
 {
-	char dump[sizeof (VstMidiEvent)];
+	char dump[sizeof( VstMidiEvent )];
 
-};
+} ;
 
-typedef struct _VstEvent VstEvent;
 
-struct _VstEvents
+
+
+class VstEvents
 {
+public:
 	// 00
-	int numEvents;
+	int32_t numEvents;
 	// 04
 	void *reserved;
 	// 08
-	VstEvent * events[];
-};
+	VstEvent* events[1];
 
-typedef struct _VstEvents VstEvents;
+} ;
 
-/* this struct taken from http://asseca.com/vst-24-specs/efGetParameterProperties.html */
-struct _VstParameterProperties
+
+class AEffect
 {
-	float stepFloat;
-	float smallStepFloat;
-	float largeStepFloat;
-	char label[64];
-	int32_t flags;
-	int32_t minInteger;
-	int32_t maxInteger;
-	int32_t stepInteger;
-	int32_t largeStepInteger;
-	char shortLabel[8];
-};
-
-typedef struct _VstParameterProperties VstParameterProperties;
-
-/* this enum taken from http://asseca.com/vst-24-specs/efGetParameterProperties.html */
-enum VstParameterFlags
-{
-	kVstParameterIsSwitch                = 1 << 0,  /* parameter is a switch (on/off) */
-	kVstParameterUsesIntegerMinMax       = 1 << 1,  /* minInteger, maxInteger valid */
-	kVstParameterUsesFloatStep           = 1 << 2,  /* stepFloat, smallStepFloat, largeStepFloat valid */
-	kVstParameterUsesIntStep             = 1 << 3,  /* stepInteger, largeStepInteger valid */
-	kVstParameterSupportsDisplayIndex    = 1 << 4,  /* displayIndex valid */
-	kVstParameterSupportsDisplayCategory = 1 << 5,  /* category, etc. valid */
-	kVstParameterCanRamp                 = 1 << 6   /* set if parameter value can ramp up/down */
-};
-
-struct _AEffect
-{
+public:
 	// Never use virtual functions!!!
 	// 00-03
-	int magic;
+	int32_t magic;
 	// dispatcher 04-07
-	intptr_t (* dispatcher) (struct _AEffect *, int, int, intptr_t, void *, float);
+	intptr_t (VST_CALL_CONV * dispatcher)( AEffect * , int32_t , int32_t , intptr_t, void * , float );
 	// process, quite sure 08-0b
-	void (* process) (struct _AEffect *, float **, float **, int);
+	void (VST_CALL_CONV * process)( AEffect * , float * * , float * * , int32_t );
 	// setParameter 0c-0f
-	void (* setParameter) (struct _AEffect *, int, float);
+	void (VST_CALL_CONV * setParameter)( AEffect * , int32_t , float );
 	// getParameter 10-13
-	float (* getParameter) (struct _AEffect *, int);
+	float (VST_CALL_CONV * getParameter)( AEffect * , int32_t );
 	// programs 14-17
-	int numPrograms;
+	int32_t numPrograms;
 	// Params 18-1b
-	int numParams;
+	int32_t numParams;
 	// Input 1c-1f
-	int numInputs;
+	int32_t numInputs;
 	// Output 20-23
-	int numOutputs;
+	int32_t numOutputs;
 	// flags 24-27
-	int flags;
+	int32_t flags;
 	// Fill somewhere 28-2b
 	void *ptr1;
 	void *ptr2;
 	// Zeroes 2c-2f 30-33 34-37 38-3b
 	char empty3[4 + 4 + 4];
 	// 1.0f 3c-3f
-	float unkown_float;
+	float unknown_float;
 	// An object? pointer 40-43
 	void *ptr3;
 	// Zeroes 44-47
@@ -248,35 +249,50 @@ struct _AEffect
 	// Don't know 4c-4f
 	char unknown1[4];
 	// processReplacing 50-53
-	void (* processReplacing) (struct _AEffect *, float **, float **, int);
-};
+	void (VST_CALL_CONV * processReplacing)( AEffect * , float * * , float * * , int );
 
-typedef struct _AEffect AEffect;
+} ;
 
-struct _VstTimeInfo
+
+
+
+class VstTimeInfo
 {
+public:
 	// 00
 	double samplePos;
 	// 08
 	double sampleRate;
-	// unconfirmed 10 18
-	char empty1[8 + 8];
-	// 20?
+	// unconfirmed 10
+	double nanoSeconds;
+	// 18
+	double ppqPos;
+	// 20
 	double tempo;
-	// unconfirmed 28 30 38
-	char empty2[8 + 8 + 8];
-	// 40?
-	int timeSigNumerator;
-	// 44?
-	int timeSigDenominator;
-	// unconfirmed 48 4c 50
-	char empty3[4 + 4 + 4];
+	// 28
+	double barStartPos;
+	// 30
+	double cycleStartPos;
+	// 38
+	double cycleEndPos;
+	// 40
+	int32_t timeSigNumerator;
+	// 44
+	int32_t timeSigDenominator;
+	// 48 unused
+	int32_t smpteOffset;
+	// 4c unused
+	int32_t smpteFrameRate;
+	// 50? unused, where does this come from?
+	int32_t samplesToNextClock;
 	// 54
-	int flags;
-};
+	int32_t flags;
 
-typedef struct _VstTimeInfo VstTimeInfo;
+} ;
 
-typedef intptr_t (* audioMasterCallback) (AEffect *, int32_t, int32_t, intptr_t, void *, float);
+
+
+typedef intptr_t (VST_CALL_CONV * audioMasterCallback)( AEffect * , int32_t, int32_t, intptr_t, void * , float );
+
 
 #endif
