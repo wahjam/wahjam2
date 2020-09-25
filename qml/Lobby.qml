@@ -21,9 +21,10 @@ Item {
             id: sessionListModel
             jamApiManager: lobby.jamApiManager
         }
-        delegate: Item {
+        delegate: Rectangle {
             width: parent.width
             height: childrenRect.height
+            color: ListView.view.currentIndex == index ? 'lightgray' : 'white';
             Column {
                 Text { text: topic }
                 Text { text: tempo }
