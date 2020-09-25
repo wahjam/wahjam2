@@ -18,6 +18,7 @@ Item {
         width: parent.width
         currentIndex: 1
         TabButton {
+            id: sessionTabButton
             enabled: false
             text: qsTr("Session")
         }
@@ -43,6 +44,11 @@ Item {
         Lobby {
             id: lobby
             jamApiManager: column.jamApiManager
+            onConnectToJam: {
+                sessionTabButton.enabled = true
+                bar.currentIndex = 0
+                console.log('server: ' + server)
+            }
         }
         Item {
             id: setupTab

@@ -9,6 +9,7 @@ import org.wahjam.client 1.0
 Item {
     id: lobby
     property JamApiManager jamApiManager
+    signal connectToJam(string server)
 
     // Fetch new jam sessions
     function refresh() {
@@ -34,6 +35,9 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 onClicked: parent.ListView.view.currentIndex = index
+                onDoubleClicked: {
+                    lobby.connectToJam(server)
+                }
             }
         }
     }
