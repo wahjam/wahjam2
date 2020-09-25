@@ -36,10 +36,8 @@ Item {
         width: parent.width
         currentIndex: bar.currentIndex
 
-        Item {
+        Session {
             id: sessionTab
-
-            Text { text: qsTr("Session") }
         }
         Lobby {
             id: lobby

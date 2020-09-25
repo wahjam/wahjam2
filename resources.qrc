@@ -4,6 +4,7 @@
     <file>qml/Lobby.qml</file>
     <file>qml/LoginScreen.qml</file>
     <file>qml/MainScreen.qml</file>
+    <file>qml/Session.qml</file>
     <file>click.raw</file>
 </qresource>
 </RCC>
