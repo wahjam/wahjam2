@@ -17,6 +17,7 @@ AppView::AppView(const QUrl &url, QWindow *parent)
         [=] (QQuickView::Status) { showViewErrors(this); });
 
     setResizeMode(QQuickView::SizeRootObjectToView);
+    setMinimumSize(QSize{800, 600});
 
     // Now load the QML
     setSource(url);
