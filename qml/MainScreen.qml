@@ -19,7 +19,6 @@ Item {
         currentIndex: 1
         TabButton {
             id: sessionTabButton
-            enabled: false
             text: qsTr("Session")
         }
         TabButton {
@@ -38,14 +37,14 @@ Item {
 
         Session {
             id: sessionTab
+            jamApiManager: column.jamApiManager
         }
         Lobby {
             id: lobby
             jamApiManager: column.jamApiManager
             onConnectToJam: {
-                sessionTabButton.enabled = true
+                sessionTab.connect(server)
                 bar.currentIndex = 0
-                console.log('server: ' + server)
             }
         }
         Item {

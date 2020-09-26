@@ -3,6 +3,7 @@ moc_headers = files(
   'AppView.h',
   'JamApiManager.h',
   'JamConnection.h',
+  'JamSession.h',
   'Metronome.h',
   'SessionListModel.h',
 )
@@ -12,6 +13,7 @@ sources = files(
   'global.cpp',
   'JamApiManager.cpp',
   'JamConnection.cpp',
+  'JamSession.cpp',
   'Metronome.cpp',
   'SessionListModel.cpp',
 )
