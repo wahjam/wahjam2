@@ -133,6 +133,8 @@ void JamConnection::fail(const QString &errorString)
     }
 
     error_ = errorString;
+    emit error(error_);
+
     payloadSize = 0;
     stopKeepaliveTimers();
     socket.abort();
