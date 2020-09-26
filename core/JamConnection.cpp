@@ -581,6 +581,7 @@ bool JamConnection::sendAuthUser(quint32 protocolVersion, const quint8 challenge
     QByteArray bytes;
     bytes.append(passwordHash);
     bytes.append(username);
+    bytes.append('\0');
     bytes.append(reinterpret_cast<const char*>(&clientCapabilities),
                  sizeof(clientCapabilities));
     bytes.append(reinterpret_cast<const char*>(&protocolVersion),
