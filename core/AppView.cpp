@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <QQmlError>
+#include "config.h"
 #include "AppView.h"
 
 static void showViewErrors(QQuickView *view)
@@ -16,6 +17,7 @@ AppView::AppView(const QUrl &url, QWindow *parent)
     QObject::connect(this, &QQuickView::statusChanged,
         [=] (QQuickView::Status) { showViewErrors(this); });
 
+    setTitle(APPNAME);
     setResizeMode(QQuickView::SizeRootObjectToView);
     setMinimumSize(QSize{800, 600});
 
