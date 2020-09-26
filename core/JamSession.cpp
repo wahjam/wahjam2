@@ -24,6 +24,11 @@ JamSession::State JamSession::state() const
     return state_;
 }
 
+QString JamSession::server() const
+{
+    return server_;
+}
+
 void JamSession::setState(State newState)
 {
     state_ = newState;
@@ -49,6 +54,7 @@ void JamSession::connectToServer(const QString &server,
            server.toLatin1().constData(),
            username.toLatin1().constData());
 
+    server_ = server;
     setState(JamSession::Connecting);
     conn.connectToServer(server, username, hexToken);
 }
@@ -59,7 +65,8 @@ void JamSession::disconnectFromServer()
         return;
     }
 
-    qDebug("Disconnecting from server...");
+    qDebug("Disconnecting from server %s...",
+           server_.toLatin1().constData());
 
     setState(JamSession::Closing);
     conn.disconnectFromServer();
@@ -72,6 +79,7 @@ void JamSession::connConnected()
 
 void JamSession::connDisconnected()
 {
+    server_.clear();
     setState(JamSession::Unconnected);
 }
 

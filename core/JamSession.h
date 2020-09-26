@@ -12,6 +12,7 @@ class JamSession : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
+    Q_PROPERTY(QString server READ server)
 
 public:
     enum State {
@@ -26,6 +27,7 @@ public:
     ~JamSession();
 
     State state() const;
+    QString server() const;
 
     // Connect to a server, aborting any previous connection first. The state
     // will change to Connecting.
@@ -74,6 +76,7 @@ signals:
 private:
     JamConnection conn;
     State state_;
+    QString server_;
 
     void setState(State newState);
 
