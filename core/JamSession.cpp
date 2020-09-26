@@ -29,6 +29,11 @@ QString JamSession::server() const
     return server_;
 }
 
+QString JamSession::topic() const
+{
+    return topic_;
+}
+
 void JamSession::setState(State newState)
 {
     state_ = newState;
@@ -107,6 +112,10 @@ void JamSession::connChatMessageReceived(const QString &command,
         }
     } else if (command == "PRIVMSG") {
         emit chatPrivMsgReceived(arg1, arg2);
+    } else if (command == "TOPIC") {
+        auto who = arg1;
+        topic_ = arg2;
+        emit topicChanged(who, topic_);
     }
 }
 

@@ -13,6 +13,7 @@ class JamSession : public QObject
     Q_OBJECT
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
     Q_PROPERTY(QString server READ server)
+    Q_PROPERTY(QString topic READ server NOTIFY topicChanged)
 
 public:
     enum State {
@@ -28,6 +29,7 @@ public:
 
     State state() const;
     QString server() const;
+    QString topic() const;
 
     // Connect to a server, aborting any previous connection first. The state
     // will change to Connecting.
@@ -62,6 +64,9 @@ signals:
     // For error reporting, stateChanged() is emitted for actual state change
     void error(const QString &msg);
 
+    // The new topic and who changed it (who is empty if set by server)
+    void topicChanged(const QString &who, const QString &newTopic);
+
     // Public chat message notification
     void chatMessageReceived(const QString &senderUsername,
                              const QString &msg);
@@ -77,6 +82,7 @@ private:
     JamConnection conn;
     State state_;
     QString server_;
+    QString topic_;
 
     void setState(State newState);
 

@@ -16,6 +16,7 @@ Item {
         onChatMessageReceived: console.log('jamSession received chat message: "' + msg + '" from ' + senderUsername)
         onChatPrivMsgReceived: console.log('jamSession received private message: "' + msg + '" from ' + senderUsername)
         onChatServerMsgReceived: console.log('jamSession received server message: "' + msg + '"')
+        onTopicChanged: console.log('jamSession topic changed by ' + (who || "server") + ': ' + newTopic);
     }
 
     // Connect to a server
