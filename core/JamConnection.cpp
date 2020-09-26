@@ -196,6 +196,9 @@ bool JamConnection::parseAuthChallenge()
     }
 
     quint8 keepaliveInterval = msg.serverCapabilities >> 8;
+    if (keepaliveInterval == 0) {
+        keepaliveInterval = 3; // Default value in seconds
+    }
     sendKeepaliveTimer.setInterval(keepaliveInterval * 1000);
     receiveKeepaliveTimer.setInterval(3 * keepaliveInterval * 1000);
 
