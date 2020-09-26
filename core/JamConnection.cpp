@@ -259,7 +259,7 @@ bool JamConnection::parseAuthReply()
         fail(tr("Short read of auth reply max channels field"));
         return false;
     }
-    maxChannels_ = maxChannels;
+    maxChannels_ = noEndian8Bit(maxChannels);
 
     emit connected();
     return true;
