@@ -208,8 +208,9 @@ bool JamConnection::parseAuthChallenge()
 bool JamConnection::parseAuthReply()
 {
     quint8 flag;
+    quint8 errorMsgNul;
     quint8 maxChannels;
-    const qint64 minSize = sizeof(flag) + sizeof(maxChannels);
+    const qint64 minSize = sizeof(flag) + sizeof(errorMsgNul) + sizeof(maxChannels);
 
     if (payloadSize < minSize) {
         fail(tr("Auth reply payload size %1 too small").arg(payloadSize));
@@ -236,6 +237,17 @@ bool JamConnection::parseAuthReply()
 
         errorMsg = QString::fromUtf8(errorBytes);
     }
+
+    if (socket.read(reinterpret_cast<char *>(&errorMsgNul),
+                    sizeof(errorMsgNul)) != sizeof(errorMsgNul)) {
+        fail(tr("Short read of auth reply error message NUL byte"));
+        return false;
+    }
+    if (noEndian8Bit(errorMsgNul) != '\0') {
+        fail(tr("Expected error message NUL byte, got %1").arg(errorMsgNul));
+        return false;
+    }
+
     if (!authSuccess) {
         fail(tr("Authentication failed: %1").arg(errorMsg));
         return false;
