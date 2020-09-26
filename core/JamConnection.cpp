@@ -390,8 +390,18 @@ bool JamConnection::parseDownloadIntervalBegin()
     memcpy(&msg, bytes.constData(), sizeof(msg));
     msg.estimatedSize = qFromLittleEndian(msg.estimatedSize);
     msg.channelIndex = noEndian8Bit(msg.channelIndex);
-
     bytes.remove(0, sizeof(msg));
+
+    if (bytes.size() < 1) {
+        fail(tr("Missing username field in download interval begin"));
+        return false;
+    }
+    if (!bytes.endsWith('\0')) {
+        fail(tr("Expected username NUL terminator in download interval begin, got %1").arg(bytes.back()));
+        return false;
+    }
+    bytes.remove(bytes.size() - 1, 1);
+
     const QString username = QString::fromUtf8(bytes);
 
     emit downloadIntervalBegan(msg.guid, msg.estimatedSize, msg.fourCC,
