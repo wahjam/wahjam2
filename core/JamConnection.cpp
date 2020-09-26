@@ -76,7 +76,6 @@ void JamConnection::connectToServer(const QString &server,
         return;
     }
 
-    qDebug("%s %s", __func__, server.toLatin1().constData());
     username_ = username;
     hexToken_ = hexToken;
     error_ = QString{};
@@ -88,6 +87,13 @@ void JamConnection::socketConnected()
 {
     // Wait for server to send us the auth challenge.  We don't emit connect()
     // until auth is finished.
+    qDebug("Socket connected, awaiting auth challenge");
+}
+
+void JamConnection::abort()
+{
+    stopKeepaliveTimers();
+    socket.abort();
 }
 
 void JamConnection::disconnectFromServer()
@@ -96,7 +102,6 @@ void JamConnection::disconnectFromServer()
 
     if (socket.state() != QAbstractSocket::ConnectedState) {
         socket.abort();
-        emit disconnected();
     } else {
         socket.disconnectFromHost();
     }
@@ -104,6 +109,7 @@ void JamConnection::disconnectFromServer()
 
 void JamConnection::socketDisconnected()
 {
+    qDebug("Socket disconnected");
     stopKeepaliveTimers();
     emit disconnected();
 }

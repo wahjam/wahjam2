@@ -72,6 +72,7 @@ public:
                          const QString &arg4 = QString());
 
 public slots:
+    void abort();
     void disconnectFromServer();
 
 signals:
