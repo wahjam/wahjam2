@@ -66,10 +66,10 @@ public:
                                  qint64 len);
 
     bool sendChatMessage(const QString &command,
-                         const QString &arg1,
-                         const QString &arg2,
-                         const QString &arg3,
-                         const QString &arg4);
+                         const QString &arg1 = QString(),
+                         const QString &arg2 = QString(),
+                         const QString &arg3 = QString(),
+                         const QString &arg4 = QString());
 
 public slots:
     void disconnectFromServer();
