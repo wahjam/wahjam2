@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "JamSession.h"
 
-JamSession::JamSession(QObject *parent)
-    : QObject{parent}, state_{JamSession::Unconnected}
+JamSession::JamSession(AppView *appView, QObject *parent)
+    : QObject{parent}, state_{JamSession::Unconnected},
+      metronome{appView->audioProcessor()}
 {
     connect(&conn, &JamConnection::connected,
             this, &JamSession::connConnected);
@@ -12,6 +13,9 @@ JamSession::JamSession(QObject *parent)
             this, &JamSession::connError);
     connect(&conn, &JamConnection::chatMessageReceived,
             this, &JamSession::connChatMessageReceived);
+
+    connect(appView, &AppView::processAudioStreams,
+            &metronome, &Metronome::processAudioStreams);
 }
 
 JamSession::~JamSession()

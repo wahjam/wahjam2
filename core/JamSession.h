@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
+#include "AppView.h"
 #include "JamConnection.h"
+#include "Metronome.h"
 
 /*
  * JamSession implements a running jam session, including responding to
@@ -24,7 +26,7 @@ public:
     };
     Q_ENUM(State)
 
-    JamSession(QObject *parent = nullptr);
+    JamSession(AppView *appView, QObject *parent = nullptr);
     ~JamSession();
 
     State state() const;
@@ -83,6 +85,7 @@ private:
     State state_;
     QString server_;
     QString topic_;
+    Metronome metronome;
 
     void setState(State newState);
 

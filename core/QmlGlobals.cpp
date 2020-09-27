@@ -3,8 +3,8 @@
 #include "QmlGlobals.h"
 #include "SessionListModel.h"
 
-QmlGlobals::QmlGlobals(QObject *parent)
-    : QObject(parent)
+QmlGlobals::QmlGlobals(AppView *appView, QObject *parent)
+    : QObject(parent), session_{appView}
 {
 }
 
@@ -18,6 +18,19 @@ void QmlGlobals::registerQmlTypes()
                                            "Use Client.session singleton instead");
     qmlRegisterSingletonType<QmlGlobals>("org.wahjam.client", 1, 0, "Client",
                                          [](QQmlEngine *engine, QJSEngine *) -> QObject * {
-        return new QmlGlobals;
+        // Assume this singleton is only created from AppView's QQmlEngine.
+        // Find AppView by searching the QObject parent chain for the
+        // QQmlEngine. Even in a plugin environment where other code is using
+        // Qt this should work because the singleton creation function is only
+        // called from our QML code. Note that a global AppView variable cannot
+        // be used since multiple plugin instances share globals.
+        for (QObject *obj = engine; obj; obj = obj->parent()) {
+            auto appView = qobject_cast<AppView *>(obj);
+            if (appView) {
+                return new QmlGlobals{appView};
+            }
+        }
+
+        qFatal("Cannot find AppView needed for QmlGlobals instantiation");
     });
 }

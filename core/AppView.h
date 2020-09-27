@@ -14,6 +14,11 @@ class AppView : public QQuickView
 public:
     AppView(const QUrl &url, QWindow *parent = nullptr);
 
+    AudioProcessor *audioProcessor()
+    {
+        return &processor;
+    }
+
     // Start/stop audio processing, can be called from any thread
     void setAudioRunning(bool enabled);
 

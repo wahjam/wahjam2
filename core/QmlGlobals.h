@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+#include "AppView.h"
 #include "JamApiManager.h"
 #include "JamSession.h"
 
@@ -13,7 +14,7 @@ class QmlGlobals : public QObject
     Q_PROPERTY(JamSession *session READ session NOTIFY sessionChanged)
 
 public:
-    QmlGlobals(QObject *parent = nullptr);
+    QmlGlobals(AppView *appView, QObject *parent = nullptr);
 
     JamApiManager *apiManager()
     {
