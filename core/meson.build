@@ -5,6 +5,7 @@ moc_headers = files(
   'JamConnection.h',
   'JamSession.h',
   'Metronome.h',
+  'QmlGlobals.h',
   'SessionListModel.h',
 )
 
@@ -15,6 +16,7 @@ sources = files(
   'JamConnection.cpp',
   'JamSession.cpp',
   'Metronome.cpp',
+  'QmlGlobals.cpp',
   'SessionListModel.cpp',
 )
 

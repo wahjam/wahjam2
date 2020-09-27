@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <QCoreApplication>
+#include <QDateTime>
 #include <QDir>
 #include <QLoggingCategory>
-#include <QQmlEngine>
 #include <QStandardPaths>
 #include <QSysInfo>
 
 #include "config.h"
 #include "global.h"
-#include "SessionListModel.h"
-#include "JamApiManager.h"
-#include "JamSession.h"
 
 static FILE *logfp = stderr;
 
@@ -92,12 +89,4 @@ void globalCleanup()
         fclose(logfp);
         logfp = stderr;
     }
-}
-
-// TODO how to unregister types?
-void registerQmlTypes()
-{
-    qmlRegisterType<SessionListModel>("org.wahjam.client", 1, 0, "SessionListModel");
-    qmlRegisterType<JamApiManager>("org.wahjam.client", 1, 0, "JamApiManager");
-    qmlRegisterType<JamSession>("org.wahjam.client", 1, 0, "JamSession");
 }

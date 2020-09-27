@@ -8,6 +8,7 @@
 
 #include "config.h"
 #include "core/global.h"
+#include "core/QmlGlobals.h"
 #include "VstPlugin.h"
 
 // How many instances have initialized us?
@@ -370,7 +371,7 @@ extern "C" Q_DECL_EXPORT AEffect *VSTPluginMain(audioMasterCallback masterCallba
     qtThreadStart();
 
     if (initCount++ == 0) {
-        registerQmlTypes();
+        QmlGlobals::registerQmlTypes();
     }
 
     qDebug("%s threadId %p", __func__, QThread::currentThreadId());

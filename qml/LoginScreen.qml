@@ -6,26 +6,25 @@ import org.wahjam.client 1.0
 
 Pane {
     id: pane
-    property JamApiManager jamApiManager
     signal loggedIn
 
     ColumnLayout {
         function loginFinished() {
             mouseArea.cursorShape = Qt.ArrowCursor
-            if (jamApiManager.isLoggedIn()) {
+            if (Client.apiManager.isLoggedIn()) {
                 pane.loggedIn()
             }
         }
 
         anchors.centerIn: parent
-        Component.onCompleted: jamApiManager.loginFinished.connect(loginFinished)
+        Component.onCompleted: Client.apiManager.loginFinished.connect(loginFinished)
 
         Text {
             text: qsTr("Login")
         }
         Text {
             id: errorField
-            text: jamApiManager.loginError
+            text: Client.apiManager.loginError
         }
         TextField {
             id: username
@@ -42,9 +41,9 @@ Pane {
             text: qsTr("Log in")
             onClicked: {
                 mouseArea.cursorShape = Qt.WaitCursor
-                jamApiManager.username = username.text
-                jamApiManager.password = password.text
-                jamApiManager.login()
+                Client.apiManager.username = username.text
+                Client.apiManager.password = password.text
+                Client.apiManager.login()
             }
         }
         Text {

@@ -11,7 +11,7 @@ static void showViewErrors(QQuickView *view)
 }
 
 AppView::AppView(const QUrl &url, QWindow *parent)
-    : QQuickView{parent}, transportResetPending{false}, metronome{&processor}
+    : QQuickView{parent}, transportResetPending{false}
 {
     // Install Quick error logger
     QObject::connect(this, &QQuickView::statusChanged,
@@ -23,10 +23,6 @@ AppView::AppView(const QUrl &url, QWindow *parent)
 
     // Now load the QML
     setSource(url);
-
-    connect(this, &AppView::processAudioStreams,
-            &metronome, &Metronome::processAudioStreams);
-    metronome.start();
 }
 
 void AppView::processAudioStreamsTick()

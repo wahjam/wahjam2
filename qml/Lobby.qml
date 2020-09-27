@@ -8,7 +8,6 @@ import org.wahjam.client 1.0
 
 Item {
     id: lobby
-    property JamApiManager jamApiManager
     signal connectToJam(string server)
 
     // Fetch new jam sessions
@@ -20,7 +19,7 @@ Item {
         anchors.fill: parent
         model: SessionListModel {
             id: sessionListModel
-            jamApiManager: lobby.jamApiManager
+            jamApiManager: Client.apiManager
         }
         delegate: Rectangle {
             width: parent.width

@@ -3,6 +3,7 @@
 
 #include "core/global.h"
 #include "core/AppView.h"
+#include "core/QmlGlobals.h"
 #include "PortAudioEngine.h"
 
 int main(int argc, char **argv)
@@ -14,7 +15,7 @@ int main(int argc, char **argv)
     QGuiApplication app(argc, argv);
 
     globalInit();
-    registerQmlTypes();
+    QmlGlobals::registerQmlTypes();
 
     {
         AppView appView{QUrl{"qrc:/qml/application.qml"}};

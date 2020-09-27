@@ -5,7 +5,6 @@
 #include <QQuickView>
 #include <QTimer>
 #include "audio/AudioProcessor.h"
-#include "Metronome.h"
 
 // The application including the user interface and audio.
 class AppView : public QQuickView
@@ -47,7 +46,4 @@ private:
     QMutex processorWriteLock;
 
     QTimer processAudioStreamsTimer;
-
-    // HACK just for testing, member must be defined after processor for constructor/destructor ordering
-    Metronome metronome;
 };
