@@ -6,7 +6,8 @@
 
 Metronome::Metronome(AudioProcessor *processor_, QObject *parent)
     : QObject{parent}, processor{processor_}, stream{nullptr},
-      bpm_{120}, samplesPerBeat{0}, startTime{0}, now{0}
+      bpm_{120}, samplesPerBeat{0}, startTime{0}, now{0},
+      monitor{true}
 {
     QFile file{":/click.raw"};
     if (!file.open(QIODevice::ReadOnly)) {
@@ -35,6 +36,7 @@ void Metronome::start()
     }
 
     stream = new AudioStream;
+    stream->setMonitorEnabled(monitor);
 
     qDebug("%s stream %p", __func__, stream);
 
@@ -76,4 +78,22 @@ void Metronome::processAudioStreams()
 
     stream->write(now, buf.data(), nsamples);
     now += nsamples;
+}
+
+bool Metronome::monitorEnabled() const
+{
+    return monitor;
+}
+
+void Metronome::setMonitorEnabled(bool monitor_)
+{
+    if (monitor_ == monitor) {
+        return; // unchanged
+    }
+
+    monitor = monitor_;
+    emit monitorChanged(monitor);
+    if (stream) {
+        stream->setMonitorEnabled(monitor);
+    }
 }
