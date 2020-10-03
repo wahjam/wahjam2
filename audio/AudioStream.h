@@ -30,6 +30,12 @@ inline constexpr int msecToSamples(int sampleRate, int msec)
     return sampleRate * 1000 / msec;
 }
 
+// Duration rounded up to the next millisecond for a given number of samples
+inline constexpr int samplesToMsec(int sampleRate, int nsamples)
+{
+    return (nsamples + sampleRate / 1000 - 1) * 1000 / sampleRate;
+}
+
 inline void mixSamples(const float *in, float *out, size_t nsamples, float vol)
 {
     while (nsamples > 0) {
