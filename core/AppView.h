@@ -4,6 +4,7 @@
 #include <QMutex>
 #include <QQuickView>
 #include <QTimer>
+#include <QElapsedTimer>
 #include "audio/AudioProcessor.h"
 
 // The application including the user interface and audio.
@@ -27,6 +28,9 @@ public:
         processor.setSampleRate(sampleRate);
     }
 
+    // Returns calculated sample position. Called from the Qt thread.
+    SampleTime currentSampleTime() const;
+
     // Process audio samples. Called from the real-time audio thread.
     void process(float *inOutSamples[CHANNELS_STEREO],
                  size_t nsamples,
@@ -46,6 +50,9 @@ private slots:
 private:
     AudioProcessor processor;
     std::atomic<bool> transportResetPending;
+
+    // For currentSampleTime()
+    QElapsedTimer audioRunningTimer;
 
     // Protects setAudioRunning() vs processAudioStreamsTick()
     QMutex processorWriteLock;

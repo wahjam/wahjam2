@@ -71,11 +71,20 @@ void AppView::stopProcessAudioStreamsTimer()
     processAudioStreamsTimer.stop();
 }
 
+SampleTime AppView::currentSampleTime() const
+{
+    const SampleTime nsecsPerSecond = 1000000000;
+    return audioRunningTimer.nsecsElapsed() *
+           processor.getSampleRate() /
+           nsecsPerSecond;
+}
+
 // May be called from another thread
 void AppView::setAudioRunning(bool enabled)
 {
     QMutexLocker locker{&processorWriteLock};
 
+    audioRunningTimer.start();
     processor.setRunning(enabled);
 
     QMetaObject::invokeMethod(this,
@@ -90,6 +99,7 @@ void AppView::transportReset()
     QMutexLocker locker{&processorWriteLock};
 
     processor.setRunning(false);
+    audioRunningTimer.start();
     processor.setRunning(true);
     emit processAudioStreams();
     transportResetPending.store(false);
