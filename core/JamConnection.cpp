@@ -42,8 +42,13 @@ JamConnection::JamConnection(QObject *parent)
             this, &JamConnection::socketConnected);
     connect(&socket, &QTcpSocket::disconnected,
             this, &JamConnection::socketDisconnected);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+    connect(&socket, &QAbstractSocket::errorOccurred,
+            this, &JamConnection::socketError),
+#else
     connect(&socket, QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::error),
             this, &JamConnection::socketError),
+#endif
     connect(&socket, &QTcpSocket::readyRead,
             this, &JamConnection::socketReadyRead);
 }
