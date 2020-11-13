@@ -2,6 +2,7 @@
 #include <QQmlError>
 #include "config.h"
 #include "AppView.h"
+#include "QmlGlobals.h"
 
 static void showViewErrors(QQuickView *view)
 {
@@ -13,6 +14,8 @@ static void showViewErrors(QQuickView *view)
 AppView::AppView(const QUrl &url, QWindow *parent)
     : QQuickView{parent}, transportResetPending{false}
 {
+    qmlGlobals_ = new QmlGlobals{this};
+
     // Install Quick error logger
     QObject::connect(this, &QQuickView::statusChanged,
         [=] (QQuickView::Status) { showViewErrors(this); });
@@ -23,6 +26,12 @@ AppView::AppView(const QUrl &url, QWindow *parent)
 
     // Now load the QML
     setSource(url);
+}
+
+AppView::~AppView()
+{
+    // Delete qmlGlobals now so audio streams are destroyed before processor
+    delete qmlGlobals_;
 }
 
 void AppView::processAudioStreamsTick()

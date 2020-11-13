@@ -27,7 +27,12 @@ void QmlGlobals::registerQmlTypes()
         for (QObject *obj = engine; obj; obj = obj->parent()) {
             auto appView = qobject_cast<AppView *>(obj);
             if (appView) {
-                return new QmlGlobals{appView};
+                QmlGlobals *qmlGlobals = appView->qmlGlobals();
+
+                // appView owns qmlGlobals, so don't let QQmlEngine take ownership
+                QQmlEngine::setObjectOwnership(qmlGlobals, QQmlEngine::CppOwnership);
+
+                return qmlGlobals;
             }
         }
 

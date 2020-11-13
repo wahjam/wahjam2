@@ -7,6 +7,9 @@
 #include <QElapsedTimer>
 #include "audio/AudioProcessor.h"
 
+// Don't #include it because of the circular dependency on AppView
+class QmlGlobals;
+
 // The application including the user interface and audio.
 class AppView : public QQuickView
 {
@@ -14,8 +17,13 @@ class AppView : public QQuickView
 
 public:
     AppView(const QUrl &url, QWindow *parent = nullptr);
+    ~AppView();
 
-    // TODO disconnect jam session when AppView closes
+    // Needed by QmlGlobals::registerQmlTypes()
+    QmlGlobals *qmlGlobals()
+    {
+        return qmlGlobals_;
+    }
 
     AudioProcessor *audioProcessor()
     {
@@ -60,4 +68,6 @@ private:
     QMutex processorWriteLock;
 
     QTimer processAudioStreamsTimer;
+
+    QmlGlobals *qmlGlobals_;
 };
