@@ -3,7 +3,7 @@
 
 #include <QTimer>
 
-#include "audio/AudioProcessor.h"
+#include "AppView.h"
 
 class Metronome : public QObject
 {
@@ -14,7 +14,7 @@ class Metronome : public QObject
     Q_PROPERTY(bool monitor READ monitorEnabled WRITE setMonitorEnabled NOTIFY monitorChanged)
 
 public:
-    Metronome(AudioProcessor *processor, QObject *parent = nullptr);
+    Metronome(AppView *appView, QObject *parent = nullptr);
     ~Metronome();
 
     bool monitorEnabled() const;
@@ -38,7 +38,7 @@ public slots:
 
 private:
     QTimer nextBeatTimer;
-    AudioProcessor *processor;
+    AppView *appView;
     AudioStream *stream;
     std::vector<float> click;
     int beat_;
@@ -46,11 +46,8 @@ private:
     int bpi_;
     int nextBpm; // takes effect next interval
     int nextBpi;
-    size_t samplesPerBeat;
     SampleTime nextBeatSampleTime; // for syncing QTimer to audio stream
-    SampleTime startTime;
-    SampleTime now;
-    SampleTime intervalPos; // number of samples from start of interval
+    SampleTime writeIntervalPos; // number of samples from start of interval
     SampleTime writeSampleTime; // stream write position
     bool monitor;
 

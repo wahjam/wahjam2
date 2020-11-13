@@ -15,6 +15,8 @@ class AppView : public QQuickView
 public:
     AppView(const QUrl &url, QWindow *parent = nullptr);
 
+    // TODO disconnect jam session when AppView closes
+
     AudioProcessor *audioProcessor()
     {
         return &processor;

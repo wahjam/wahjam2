@@ -4,9 +4,10 @@
 
 #include "Metronome.h"
 
-Metronome::Metronome(AudioProcessor *processor_, QObject *parent)
-    : QObject{parent}, processor{processor_}, stream{nullptr},
-      bpm_{120}, samplesPerBeat{0}, startTime{0}, now{0},
+Metronome::Metronome(AppView *appView_, QObject *parent)
+    : QObject{parent}, appView{appView_}, stream{nullptr},
+      beat_{1}, bpm_{120}, bpi_{16}, nextBpm{120}, nextBpi{16},
+      nextBeatSampleTime{0}, writeIntervalPos{0}, writeSampleTime{0},
       monitor{true}
 {
     nextBeatTimer.setSingleShot(true);
@@ -39,8 +40,8 @@ void Metronome::nextBeat()
     bool emitBpiChanged = false;
 
     beat_++;
-    if (beat_ == bpi_) {
-        beat_ = 0;
+    if (beat_ > bpi_) {
+        beat_ = 1;
         emitBpmChanged = bpm_ != nextBpm;
         emitBpiChanged = bpi_ != nextBpi;
         bpm_ = nextBpm;
@@ -53,14 +54,16 @@ void Metronome::nextBeat()
     if (emitBpiChanged) {
         emit bpiChanged(bpi_);
     }
+    qDebug("beatChanged %d/%d", beat_, bpi_);
     emit beatChanged(beat_);
 
     // QTimer only has millisecond accuracy so sync against sample time to
     // avoid accumulating errors.
-    SampleTime samplesPerBeat = 60.f / bpm_ * processor->getSampleRate();
-    auto t = processor->getNextSampleTime(); // TODO introduce a real time-synced sample time
+    int sampleRate = appView->audioProcessor()->getSampleRate();
+    SampleTime samplesPerBeat = 60.f / bpm_ * sampleRate;
+    auto t = appView->currentSampleTime();
     auto samples = nextBeatSampleTime + samplesPerBeat - t;
-    auto msec = samples * 1000 / processor->getSampleRate();
+    auto msec = samplesToMsec(sampleRate, samples);
     nextBeatTimer.start(msec);
     nextBeatSampleTime += samplesPerBeat;
 }
@@ -80,23 +83,20 @@ void Metronome::start()
     stream = new AudioStream;
     stream->setMonitorEnabled(monitor);
 
-    qDebug("%s stream %p", __func__, stream);
-
-    processor->addPlaybackStream(stream);
-
-    beat_ = 0; // TODO should beat counting be 0-based or 1-based?
-    nextBpm = bpm_;
-    nextBpi = bpi_;
-    nextBeatSampleTime = processor->getNextSampleTime(); // TODO
+    // Kick off counting using nextBeat()
+    beat_ = nextBpi;
+    nextBpm = nextBpm;
+    nextBpi = nextBpi;
+    nextBeatSampleTime = appView->currentSampleTime();
     nextBeat();
+
+    appView->audioProcessor()->addPlaybackStream(stream);
 }
 
 void Metronome::stop()
 {
-    qDebug("%s stream %p", __func__, stream);
-
     if (stream) {
-        processor->removePlaybackStream(stream);
+        appView->audioProcessor()->removePlaybackStream(stream);
         stream = nullptr;
     }
 
@@ -110,24 +110,32 @@ void Metronome::processAudioStreams()
     }
 
     if (stream->checkResetAndClear()) {
-        qDebug("%s audio stream was reset", __func__);
-        // TODO implement bpm change
-        samplesPerBeat = 60.f / bpm_ * processor->getSampleRate();
-        startTime = processor->getNextSampleTime();
-        now = startTime;
+        writeSampleTime = 0;
+        writeIntervalPos = 0;
     }
 
+    /*
+     * Audio samples are pre-rendered in the Qt thread instead of rendered in
+     * the real-time audio thread. The BPM/BPI could be changed after samples
+     * for the next interval have already been rendered. Ignore this for now
+     * because it should not be very noticable. nextBeat() will update bpm_ and
+     * bpi_ eventually so further audio samples will be rendered correctly.
+     */
+    int sampleRate = appView->audioProcessor()->getSampleRate();
+    SampleTime samplesPerBeat = 60.f / bpm_ * sampleRate;
+    SampleTime samplesPerInterval = bpi_ * samplesPerBeat;
     size_t nsamples = stream->numSamplesWritable();
     std::vector<float> buf(nsamples);
-    size_t offset = (now - startTime) % samplesPerBeat;
+    size_t offset = writeIntervalPos % samplesPerBeat;
 
     for (size_t i = 0; i < nsamples; i++) {
         buf[i] = offset < click.size() ? click[offset] : 0.f;
         offset = (offset + 1) % samplesPerBeat;
+        writeIntervalPos = (writeIntervalPos + 1) % samplesPerInterval;
     }
 
-    stream->write(now, buf.data(), nsamples);
-    now += nsamples;
+    stream->write(writeSampleTime, buf.data(), nsamples);
+    writeSampleTime += nsamples;
 }
 
 bool Metronome::monitorEnabled() const

@@ -3,7 +3,7 @@
 
 JamSession::JamSession(AppView *appView, QObject *parent)
     : QObject{parent}, state_{JamSession::Unconnected},
-      metronome{appView->audioProcessor()}
+      metronome{appView}
 {
     connect(&conn, &JamConnection::connected,
             this, &JamSession::connConnected);
@@ -13,6 +13,8 @@ JamSession::JamSession(AppView *appView, QObject *parent)
             this, &JamSession::connError);
     connect(&conn, &JamConnection::chatMessageReceived,
             this, &JamSession::connChatMessageReceived);
+    connect(&conn, &JamConnection::configChanged,
+            this, &JamSession::connConfigChanged);
 
     connect(appView, &AppView::processAudioStreams,
             &metronome, &Metronome::processAudioStreams);
@@ -77,6 +79,7 @@ void JamSession::disconnectFromServer()
     qDebug("Disconnecting from server %s...",
            server_.toLatin1().constData());
 
+    metronome.stop();
     setState(JamSession::Closing);
     conn.disconnectFromServer();
 }
@@ -88,6 +91,7 @@ void JamSession::connConnected()
 
 void JamSession::connDisconnected()
 {
+    metronome.stop();
     server_.clear();
     setState(JamSession::Unconnected);
 }
@@ -121,6 +125,13 @@ void JamSession::connChatMessageReceived(const QString &command,
         topic_ = arg2;
         emit topicChanged(who, topic_);
     }
+}
+
+void JamSession::connConfigChanged(int bpm, int bpi)
+{
+    qDebug("Server config changed bpm=%d bpi=%d", bpm, bpi);
+    metronome.setNextBpmBpi(bpm, bpi);
+    metronome.start();
 }
 
 void JamSession::sendChatMessage(const QString &msg)

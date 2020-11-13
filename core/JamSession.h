@@ -58,7 +58,6 @@ public:
     // Remote channels
     // Local channels
     // BPM/BPI
-    // Metronome
 
 signals:
     void stateChanged(State newState);
@@ -101,4 +100,5 @@ private slots:
                                  const QString &arg2,
                                  const QString &arg3,
                                  const QString &arg4);
+    void connConfigChanged(int bpm, int bpi);
 };
