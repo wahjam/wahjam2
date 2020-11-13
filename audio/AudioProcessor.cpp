@@ -24,6 +24,10 @@ AudioProcessor::~AudioProcessor()
 
 void AudioProcessor::addPlaybackStream(AudioStream *stream)
 {
+    size_t nsamples = running.load() ?
+        msecToSamples(getSampleRate(), GENEROUS_BUFFER_MSEC) : 0;
+    stream->setSampleBufferSize(nsamples);
+
     auto newStreams = new PlaybackStreams{*playbackStreams.load()};
     newStreams->push_back(RCUPointer<AudioStream>{&rcu, stream});
     playbackStreams.store(newStreams);
