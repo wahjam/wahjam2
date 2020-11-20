@@ -85,8 +85,8 @@ void Metronome::start()
 
     // Kick off counting using nextBeat()
     beat_ = nextBpi;
-    nextBpm = nextBpm;
-    nextBpi = nextBpi;
+    bpm_ = nextBpm;
+    bpi_ = nextBpi;
     nextBeatSampleTime = appView->currentSampleTime();
     nextBeat();
 
