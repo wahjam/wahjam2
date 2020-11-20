@@ -189,6 +189,7 @@ public:
 
 class VstEvent
 {
+public:
 	char dump[sizeof( VstMidiEvent )];
 
 } ;
