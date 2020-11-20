@@ -5,11 +5,27 @@ tests = [
   'test-audioprocessor',
 ]
 
+qt_tests = [
+  'test-oggvorbisdecoder',
+]
+
+# Execute tests in the source directory so they can access data files
+tests_dir = meson.current_source_dir()
+
 foreach name : tests
   exe = executable(name,
                    name + '.cpp',
 		   dependencies : dependency('threads'),
 		   include_directories : inc,
 		   link_with : libaudio)
-  test(name, exe)
+  test(name, exe, workdir : tests_dir)
+endforeach
+
+foreach name : qt_tests
+  exe = executable(name,
+                   name + '.cpp',
+	               dependencies : dependencies,
+	               include_directories : inc,
+	               link_with : [libaudio, libcore])
+  test(name, exe, workdir : tests_dir)
 endforeach

@@ -5,6 +5,7 @@ moc_headers = files(
   'JamConnection.h',
   'JamSession.h',
   'Metronome.h',
+  'OggVorbisDecoder.h',
   'QmlGlobals.h',
   'SessionListModel.h',
 )
@@ -16,12 +17,13 @@ sources = files(
   'JamConnection.cpp',
   'JamSession.cpp',
   'Metronome.cpp',
+  'OggVorbisDecoder.cpp',
   'QmlGlobals.cpp',
   'SessionListModel.cpp',
 )
 
 libcore = static_library('core',
                          sources,
-			 qt5.preprocess(moc_headers : moc_headers),
-			 dependencies : dependencies,
-			 include_directories : inc)
+                         qt5.preprocess(moc_headers : moc_headers),
+                         dependencies : dependencies,
+                         include_directories : inc)

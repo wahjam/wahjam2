@@ -6,20 +6,29 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
-      - run: sudo apt-get install -qy portaudio19-dev qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev
+      - run: sudo apt-get install -qy portaudio19-dev qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev libvorbis-dev
       - uses: BSFishy/meson-build@v1.0.1
         with:
           action: test
+      - uses: actions/upload-artifact@v2
+        with:
+          name: testlog-ubuntu.txt
+          path: build/meson-logs/testlog.txt
+        if: ${{ always() }}
 
   macos-10_15:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
-      - uses: jurplel/install-qt-action@v2
-        with:
-          version: '5.12.9'
-      - run: brew install portaudio
+      - run: brew install qt5 portaudio libvorbis
       - uses: BSFishy/meson-build@v1.0.1
         with:
           action: test
+        env:
+          PKG_CONFIG_PATH: /usr/local/opt/qt/lib/pkgconfig
+      - uses: actions/upload-artifact@v2
+        with:
+          name: testlog-macos.txt
+          path: build/meson-logs/testlog.txt
+        if: ${{ always() }}
