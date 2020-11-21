@@ -43,6 +43,13 @@ public:
     // to resume decoding after 0 was returned.
     size_t decode(QByteArray *left, QByteArray *right, size_t nsamples);
 
+    // One-shot convenience function to decode a whole file. Returns the number
+    // of samples decoded or 0 if there are an error.
+    static size_t decodeFile(const char *filename,
+                             QByteArray *left,
+                             QByteArray *right,
+                             int *sampleRate);
+
 public slots:
     // Add compressed audio data
     void appendData(const QByteArray &data);

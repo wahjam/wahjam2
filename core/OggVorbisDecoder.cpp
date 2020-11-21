@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <errno.h>
+#include <QFile>
 #include "OggVorbisDecoder.h"
 
 OggVorbisDecoder::OggVorbisDecoder(QObject *parent)
@@ -189,4 +190,38 @@ size_t OggVorbisDecoder::decode(QByteArray *left, QByteArray *right,
     }
 
     return decoded;
+}
+
+size_t OggVorbisDecoder::decodeFile(const char *filename,
+                                    QByteArray *left,
+                                    QByteArray *right,
+                                    int *sampleRate)
+{
+    QFile file{filename};
+    if (!file.open(QIODevice::ReadOnly)) {
+        qCritical("Failed to open file \"%s\"", filename);
+        return false;
+    }
+
+    OggVorbisDecoder decoder;
+    decoder.appendData(file.readAll());
+
+    bool gotSampleRate = false;
+    size_t nsamples = 0;
+    size_t n;
+    while ((n = decoder.decode(left, right, 8192)) > 0) {
+        if (gotSampleRate) {
+            if (*sampleRate != decoder.sampleRate()) {
+                qCritical("Unexpected sample rate change in Ogg Vorbis file \"%s\"", filename);
+                return false;
+            }
+        } else {
+            *sampleRate = decoder.sampleRate();
+            gotSampleRate = true;
+        }
+
+        nsamples += n;
+    }
+
+    return nsamples;
 }

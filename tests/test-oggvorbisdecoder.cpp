@@ -102,6 +102,29 @@ static void testSmallReadsStereo()
     decodeFileSmallReads("data/sine-44_1kHz-stereo.ogg", 8, 44100);
 }
 
+static void decodeWholeFile(const char *filename, int seconds, int sampleRate)
+{
+    QByteArray left, right;
+    int actualSampleRate;
+
+    size_t n = OggVorbisDecoder::decodeFile(filename, &left, &right,
+                                            &actualSampleRate);
+    assert(n == seconds * sampleRate);
+    assert(actualSampleRate == sampleRate);
+    assert(left.size() == n * sizeof(float));
+    assert(right.size() == n * sizeof(float));
+}
+
+static void testDecodeFileMono()
+{
+    decodeWholeFile("data/sine-44_1kHz-mono.ogg", 8, 44100);
+}
+
+static void testDecodeFileStereo()
+{
+    decodeWholeFile("data/sine-44_1kHz-stereo.ogg", 8, 44100);
+}
+
 int main(int argc, char **argv)
 {
     testEmptyInput();
@@ -109,6 +132,8 @@ int main(int argc, char **argv)
     testStereo();
     testSmallReadsMono();
     testSmallReadsStereo();
+    testDecodeFileMono();
+    testDecodeFileStereo();
 
     printf("ok\n");
     return 0;
