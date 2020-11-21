@@ -6,7 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
-      - run: sudo apt-get install -qy portaudio19-dev qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev libvorbis-dev
+      - run: sudo apt-get install -qy libsamplerate0-dev portaudio19-dev qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev libvorbis-dev
       - uses: BSFishy/meson-build@v1.0.1
         with:
           action: test
@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
-      - run: brew install qt5 portaudio libvorbis
+      - run: brew install libsamplerate qt5 portaudio libvorbis
       - uses: BSFishy/meson-build@v1.0.1
         with:
           action: test

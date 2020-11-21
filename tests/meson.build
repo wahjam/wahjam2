@@ -7,6 +7,7 @@ tests = [
 
 qt_tests = [
   'test-oggvorbisdecoder',
+  'test-resampler',
 ]
 
 # Execute tests in the source directory so they can access data files

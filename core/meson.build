@@ -7,6 +7,7 @@ moc_headers = files(
   'Metronome.h',
   'OggVorbisDecoder.h',
   'QmlGlobals.h',
+  'Resampler.h',
   'SessionListModel.h',
 )
 
@@ -19,6 +20,7 @@ sources = files(
   'Metronome.cpp',
   'OggVorbisDecoder.cpp',
   'QmlGlobals.cpp',
+  'Resampler.cpp',
   'SessionListModel.cpp',
 )
 

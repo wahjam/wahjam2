@@ -25,6 +25,7 @@ dependencies = [
   dependency('qt5', modules : [
     'Core', 'Gui', 'Network', 'Quick', 'QuickControls2', 'Qml'
   ]),
+  dependency('samplerate'),
   dependency('threads'),
   dependency('vorbisfile'),
 ]
