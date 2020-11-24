@@ -29,7 +29,7 @@ struct MessageHeader
 } Q_PACKED;
 
 JamConnection::JamConnection(QObject *parent)
-    : QObject{parent}, payloadSize{0}, maxChannels_{0}
+    : QObject{parent}, payloadSize{0}, maxChannels{0}
 {
     sendKeepaliveTimer.setSingleShot(true);
     receiveKeepaliveTimer.setSingleShot(true);
@@ -222,8 +222,8 @@ bool JamConnection::parseAuthReply()
 {
     quint8 flag;
     quint8 errorMsgNul;
-    quint8 maxChannels;
-    const qint64 minSize = sizeof(flag) + sizeof(errorMsgNul) + sizeof(maxChannels);
+    quint8 maxChannels_;
+    const qint64 minSize = sizeof(flag) + sizeof(errorMsgNul) + sizeof(maxChannels_);
 
     if (payloadSize < minSize) {
         fail(tr("Auth reply payload size %1 too small").arg(payloadSize));
@@ -267,12 +267,12 @@ bool JamConnection::parseAuthReply()
     }
     // On success errorMsg may contain an updated username, but we discard it.
 
-    if (socket.read(reinterpret_cast<char*>(&maxChannels),
-                    sizeof(maxChannels)) != sizeof(maxChannels)) {
+    if (socket.read(reinterpret_cast<char*>(&maxChannels_),
+                    sizeof(maxChannels_)) != sizeof(maxChannels_)) {
         fail(tr("Short read of auth reply max channels field"));
         return false;
     }
-    maxChannels_ = noEndian8Bit(maxChannels);
+    maxChannels = noEndian8Bit(maxChannels_);
 
     emit connected();
     return true;
@@ -368,6 +368,12 @@ bool JamConnection::parseUserInfoChangeNotify()
         userInfo.pan = item.flags;
         userInfo.username = QString::fromUtf8(usernamePtr);
         userInfo.channelName = QString::fromUtf8(channelNamePtr);
+
+        if (userInfo.channelIndex >= maxChannels) {
+            fail(tr("Channel index %1 invalid with max channels %2 for user \"%3\"").arg(userInfo.channelIndex).arg(maxChannels).arg(userInfo.username));
+            return false;
+        }
+
         list.append(userInfo);
     }
 
@@ -414,6 +420,11 @@ bool JamConnection::parseDownloadIntervalBegin()
     bytes.remove(bytes.size() - 1, 1);
 
     const QString username = QString::fromUtf8(bytes);
+
+    if (msg.channelIndex >= maxChannels) {
+        fail(tr("Download interval begin channel index %1 invalid with max channels %2 for user \"%3\"").arg(msg.channelIndex).arg(maxChannels).arg(username));
+        return false;
+    }
 
     emit downloadIntervalBegan(msg.guid, msg.estimatedSize, msg.fourCC,
                                msg.channelIndex, username);

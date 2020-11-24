@@ -120,7 +120,7 @@ private:
     QTcpSocket socket;
     QString error_;
     qint64 payloadSize;
-    quint8 maxChannels_;
+    quint8 maxChannels;
 
     void fail(const QString &errorString);
     void stopKeepaliveTimers();
