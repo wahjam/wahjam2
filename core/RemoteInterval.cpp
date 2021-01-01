@@ -2,14 +2,14 @@
 #include "RemoteInterval.h"
 
 RemoteInterval::RemoteInterval(const JamConnection::Guid guid_,
-                               const JamConnection::FourCC fourcc_,
+                               const JamConnection::FourCC fourCC_,
                                int sampleRate_,
                                QObject *parent)
     : QObject{parent}, outputSampleRate{44100}, decodeStarted{false},
       finished{false}
 {
     memcpy(guid, guid_, sizeof(guid));
-    memcpy(fourcc, fourcc_, sizeof(fourcc));
+    memcpy(fourCC, fourCC_, sizeof(fourCC));
 }
 
 void RemoteInterval::setSampleRate(int rate)
