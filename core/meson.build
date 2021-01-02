@@ -9,6 +9,7 @@ moc_headers = files(
   'QmlGlobals.h',
   'RemoteChannel.h',
   'RemoteInterval.h',
+  'RemoteUser.h',
   'Resampler.h',
   'SessionListModel.h',
 )
@@ -24,6 +25,7 @@ sources = files(
   'QmlGlobals.cpp',
   'RemoteChannel.cpp',
   'RemoteInterval.cpp',
+  'RemoteUser.cpp',
   'Resampler.cpp',
   'SessionListModel.cpp',
 )
