@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "RemoteInterval.h"
 
-RemoteInterval::RemoteInterval(const JamConnection::Guid guid_,
+RemoteInterval::RemoteInterval(const QUuid &guid_,
                                const JamConnection::FourCC fourCC_,
                                int sampleRate_,
                                QObject *parent)
-    : QObject{parent}, outputSampleRate{44100}, decodeStarted{false},
-      finished{false}
+    : QObject{parent}, guid{guid_}, outputSampleRate{44100},
+      decodeStarted{false}, finished{false}
 {
-    memcpy(guid, guid_, sizeof(guid));
     memcpy(fourCC, fourCC_, sizeof(fourCC));
 }
 

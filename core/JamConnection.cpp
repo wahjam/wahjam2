@@ -385,7 +385,7 @@ bool JamConnection::parseDownloadIntervalBegin()
 {
     struct DownloadIntervalBegin
     {
-        Guid guid;
+        quint8 guid[16];
         quint32 estimatedSize;
         FourCC fourCC;
         quint8 channelIndex;
@@ -426,14 +426,20 @@ bool JamConnection::parseDownloadIntervalBegin()
         return false;
     }
 
-    emit downloadIntervalBegan(msg.guid, msg.estimatedSize, msg.fourCC,
-                               msg.channelIndex, username);
+    QUuid guid = QUuid::fromRfc4122(
+            QByteArray(reinterpret_cast<const char*>(msg.guid),
+                       sizeof(msg.guid)));
+    emit downloadIntervalBegan(guid,
+                               msg.estimatedSize,
+                               msg.fourCC,
+                               msg.channelIndex,
+                               username);
     return true;
 }
 
 bool JamConnection::parseDownloadIntervalWrite()
 {
-    const qint64 fieldSize = sizeof(Guid) + sizeof(quint8);
+    const qint64 fieldSize = sizeof(quint8[16]) + sizeof(quint8);
 
     if (payloadSize < fieldSize) {
         fail(tr("Payload size for download interval write too small %1").arg(payloadSize));
@@ -446,15 +452,16 @@ bool JamConnection::parseDownloadIntervalWrite()
         return false;
     }
 
-    quint8 flags = noEndian8Bit(bytes.at(sizeof(Guid)));
+    quint8 flags = noEndian8Bit(bytes.at(sizeof(quint8[16])));
     QByteArray audioData;
     if (!(flags & 0x1)) {
         audioData.setRawData(bytes.constData() + fieldSize,
                              payloadSize - fieldSize);
     }
 
-    emit downloadIntervalReceived(reinterpret_cast<const quint8*>(bytes.constData()),
-                                  audioData);
+    emit downloadIntervalReceived(QUuid::fromRfc4122(bytes),
+                                  audioData,
+                                  flags & 0x1);
     return true;
 }
 
@@ -653,21 +660,21 @@ bool JamConnection::sendChannelInfo(QList<JamConnection::ChannelInfo> const &cha
     return send(MSG_TYPE_CLIENT_SET_CHANNEL_INFO, bytes);
 }
 
-bool JamConnection::sendUploadIntervalBegin(const Guid guid,
+bool JamConnection::sendUploadIntervalBegin(const QUuid &guid,
                                             quint32 estimatedSize,
                                             const FourCC fourCC,
                                             quint8 channelIndex)
 {
     struct UploadIntervalBegin
     {
-        Guid guid;
+        quint8 guid[16];
         quint32 estimatedSize;
         FourCC fourCC;
         quint8 channelIndex;
     } Q_PACKED;
 
     UploadIntervalBegin msg;
-    memcpy(msg.guid, guid, sizeof(Guid));
+    memcpy(msg.guid, guid.toRfc4122().constData(), sizeof(msg.guid));
     msg.estimatedSize = qToLittleEndian(estimatedSize);
     memcpy(msg.fourCC, fourCC, sizeof(FourCC));
     msg.channelIndex = noEndian8Bit(channelIndex);
@@ -677,19 +684,19 @@ bool JamConnection::sendUploadIntervalBegin(const Guid guid,
                 sizeof(msg));
 }
 
-bool JamConnection::sendUploadIntervalWrite(const Guid guid,
+bool JamConnection::sendUploadIntervalWrite(const QUuid &guid,
                                             quint8 flags,
                                             const quint8 *data,
                                             qint64 len)
 {
     struct UploadIntervalWrite
     {
-        Guid guid;
-        uint8_t flags;
+        quint8 guid[16];
+        quint8 flags;
     } Q_PACKED;
 
     UploadIntervalWrite msg;
-    memcpy(msg.guid, guid, sizeof(Guid));
+    memcpy(msg.guid, guid.toRfc4122().constData(), sizeof(msg.guid));
     msg.flags = noEndian8Bit(flags);
 
     if (!send(MSG_TYPE_CLIENT_UPLOAD_INTERVAL_WRITE,

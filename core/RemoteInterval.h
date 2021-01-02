@@ -19,7 +19,7 @@ class RemoteInterval : public QObject
     Q_OBJECT
 
 public:
-    RemoteInterval(const JamConnection::Guid guid,
+    RemoteInterval(const QUuid &guid,
                    const JamConnection::FourCC fourCC,
                    int sampleRate,
                    QObject *parent = nullptr);
@@ -44,7 +44,7 @@ public slots:
 private:
     OggVorbisDecoder decoder;
     Resampler resampler[CHANNELS_STEREO];
-    JamConnection::Guid guid;
+    QUuid guid;
     JamConnection::FourCC fourCC;
     int outputSampleRate;
     bool decodeStarted;

@@ -3,6 +3,7 @@
 
 #include <QTcpSocket>
 #include <QTimer>
+#include <QUuid>
 
 /*
  * JamConnection implements the network protocol for online jamming.  It
@@ -14,7 +15,6 @@ class JamConnection : public QObject
     Q_OBJECT
 
 public:
-    typedef quint8 Guid[16];
     typedef quint8 FourCC[4];
 
     // Used to notify server of channels with sendChannelInfo()
@@ -55,12 +55,12 @@ public:
 
     bool sendChannelInfo(const QList<ChannelInfo> &channels);
 
-    bool sendUploadIntervalBegin(const Guid guid,
+    bool sendUploadIntervalBegin(const QUuid &guid,
                                  quint32 estimatedSize,
                                  const FourCC fourCC,
                                  quint8 channelIndex);
 
-    bool sendUploadIntervalWrite(const Guid guid,
+    bool sendUploadIntervalWrite(const QUuid &guid,
                                  quint8 flags,
                                  const quint8 *data,
                                  qint64 len);
@@ -90,13 +90,15 @@ signals:
 
     void userInfoChanged(const QList<UserInfo> &changes);
 
-    void downloadIntervalBegan(const Guid guid,
+    void downloadIntervalBegan(const QUuid &guid,
                                quint32 estimatedSize,
                                const FourCC fourCC,
                                quint8 channelIndex,
                                const QString &username);
 
-    void downloadIntervalReceived(const Guid guid, const QByteArray &data);
+    void downloadIntervalReceived(const QUuid &guid,
+                                  const QByteArray &data,
+                                  bool last);
 
     void chatMessageReceived(const QString &command,
                              const QString &arg1,
