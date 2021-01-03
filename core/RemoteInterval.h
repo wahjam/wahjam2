@@ -24,6 +24,8 @@ public:
                    int sampleRate,
                    QObject *parent = nullptr);
 
+    QUuid guid() const;
+
     // May be called at any time to change the sample rate
     void setSampleRate(int rate);
 
@@ -44,7 +46,7 @@ public slots:
 private:
     OggVorbisDecoder decoder;
     Resampler resampler[CHANNELS_STEREO];
-    QUuid guid;
+    QUuid guid_;
     JamConnection::FourCC fourCC;
     int outputSampleRate;
     bool decodeStarted;
