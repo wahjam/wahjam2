@@ -19,11 +19,13 @@ class RemoteInterval : public QObject
     Q_OBJECT
 
 public:
-    RemoteInterval(const QUuid &guid,
+    RemoteInterval(const QString &username,
+                   const QUuid &guid,
                    const JamConnection::FourCC fourCC,
                    int sampleRate,
                    QObject *parent = nullptr);
 
+    QString username() const;
     QUuid guid() const;
 
     // May be called at any time to change the sample rate
@@ -46,6 +48,7 @@ public slots:
 private:
     OggVorbisDecoder decoder;
     Resampler resampler[CHANNELS_STEREO];
+    QString username_;
     QUuid guid_;
     JamConnection::FourCC fourCC;
     int outputSampleRate;
