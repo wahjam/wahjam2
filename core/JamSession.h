@@ -4,6 +4,7 @@
 #include "AppView.h"
 #include "JamConnection.h"
 #include "Metronome.h"
+#include "RemoteUser.h"
 
 /*
  * JamSession implements a running jam session, including responding to
@@ -80,11 +81,18 @@ signals:
     void chatServerMsgReceived(const QString &msg);
 
 private:
+    AppView *appView;
     JamConnection conn;
     State state_;
     QString server_;
     QString topic_;
     Metronome metronome;
+    QHash<QString, RemoteUser*> remoteUsers;
+
+    // Remote intervals with downloads in progress
+    QHash<QUuid, std::shared_ptr<RemoteInterval> > remoteIntervals;
+
+    void deleteRemoteUsers();
 
     void setState(State newState);
 
@@ -95,10 +103,19 @@ private slots:
     void connConnected();
     void connDisconnected();
     void connError(const QString &errorString);
+    void connConfigChanged(int bpm, int bpi);
+    void connUserInfoChanged(const QList<JamConnection::UserInfo> &changes);
+    void connDownloadIntervalBegan(const QUuid &guid,
+                                   quint32 estimatedSize,
+                                   const JamConnection::FourCC fourCC,
+                                   quint8 channelIndex,
+                                   const QString &username);
+    void connDownloadIntervalReceived(const QUuid &guid,
+                                      const QByteArray &data,
+                                      bool last);
     void connChatMessageReceived(const QString &command,
                                  const QString &arg1,
                                  const QString &arg2,
                                  const QString &arg3,
                                  const QString &arg4);
-    void connConfigChanged(int bpm, int bpi);
 };
