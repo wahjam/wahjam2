@@ -22,7 +22,6 @@ public:
     RemoteInterval(const QString &username,
                    const QUuid &guid,
                    const JamConnection::FourCC fourCC,
-                   int sampleRate,
                    QObject *parent = nullptr);
 
     QString username() const;

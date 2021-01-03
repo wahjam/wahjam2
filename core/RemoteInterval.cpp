@@ -4,7 +4,6 @@
 RemoteInterval::RemoteInterval(const QString &username,
                                const QUuid &guid,
                                const JamConnection::FourCC fourCC_,
-                               int sampleRate_,
                                QObject *parent)
     : QObject{parent}, username_{username}, guid_{guid},
       outputSampleRate{44100}, decodeStarted{false}, finished{false}
