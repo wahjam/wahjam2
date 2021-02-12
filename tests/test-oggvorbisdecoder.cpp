@@ -109,10 +109,10 @@ static void decodeWholeFile(const char *filename, int seconds, int sampleRate)
 
     size_t n = OggVorbisDecoder::decodeFile(filename, &left, &right,
                                             &actualSampleRate);
-    assert(n == seconds * sampleRate);
+    assert(n == static_cast<size_t>(seconds * sampleRate));
     assert(actualSampleRate == sampleRate);
-    assert(left.size() == n * sizeof(float));
-    assert(right.size() == n * sizeof(float));
+    assert(static_cast<size_t>(left.size()) == n * sizeof(float));
+    assert(static_cast<size_t>(right.size()) == n * sizeof(float));
 }
 
 static void testDecodeFileMono()
