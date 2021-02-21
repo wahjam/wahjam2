@@ -39,6 +39,16 @@ JamSession::~JamSession()
     abort();
 }
 
+SampleTime JamSession::nextIntervalTime() const
+{
+    return metronome.nextIntervalTime();
+}
+
+SampleTime JamSession::remainingIntervalTime(SampleTime pos) const
+{
+    return metronome.remainingIntervalTime(pos);
+}
+
 JamSession::State JamSession::state() const
 {
     return state_;

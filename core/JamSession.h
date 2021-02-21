@@ -60,6 +60,13 @@ public:
     // Local channels
     // BPM/BPI
 
+    // Returns the sample time when the next interval starts
+    SampleTime nextIntervalTime() const;
+
+    // Returns the number of samples remaining in this interval given an
+    // absolute time
+    SampleTime remainingIntervalTime(SampleTime pos) const;
+
 signals:
     void stateChanged(State newState);
 
