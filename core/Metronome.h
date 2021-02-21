@@ -19,6 +19,9 @@ public:
 
     bool monitorEnabled() const;
 
+    SampleTime nextIntervalTime() const;
+    SampleTime remainingIntervalTime(SampleTime pos) const;
+
 signals:
     void beatChanged(int beat);
     void bpmChanged(int bpm);
@@ -46,6 +49,7 @@ private:
     int bpi_;
     int nextBpm; // takes effect next interval
     int nextBpi;
+    SampleTime nextIntervalTime_; // first sample of the next interval
     SampleTime nextBeatSampleTime; // for syncing QTimer to audio stream
     SampleTime writeIntervalPos; // number of samples from start of interval
     SampleTime writeSampleTime; // stream write position

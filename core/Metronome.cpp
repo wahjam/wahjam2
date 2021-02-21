@@ -7,7 +7,8 @@
 Metronome::Metronome(AppView *appView_, QObject *parent)
     : QObject{parent}, appView{appView_}, stream{nullptr},
       beat_{1}, bpm_{120}, bpi_{16}, nextBpm{120}, nextBpi{16},
-      nextBeatSampleTime{0}, writeIntervalPos{0}, writeSampleTime{0},
+      nextIntervalTime_{0}, nextBeatSampleTime{0},
+      writeIntervalPos{0}, writeSampleTime{0},
       monitor{true}
 {
     nextBeatTimer.setSingleShot(true);
@@ -34,8 +35,39 @@ Metronome::~Metronome()
     stop();
 }
 
+SampleTime Metronome::nextIntervalTime() const
+{
+    return nextIntervalTime_;
+}
+
+SampleTime Metronome::remainingIntervalTime(SampleTime pos) const
+{
+    SampleTime intervalTime;
+    SampleTime intervalDuration;
+    int sampleRate = appView->audioProcessor()->getSampleRate();
+
+    if (pos < nextIntervalTime_) {
+        SampleTime samplesPerBeat = 60.f / bpm_ * sampleRate;
+        intervalDuration = bpi_ * samplesPerBeat;
+        intervalTime = nextIntervalTime_ - intervalDuration;
+    } else {
+        SampleTime samplesPerBeat = 60.f / nextBpm * sampleRate;
+        intervalDuration = nextBpi * samplesPerBeat;
+        intervalTime = nextIntervalTime_;
+    }
+
+    // Check that pos is within the interval that we've calculated. If not,
+    // then either the caller needs to avoid getting out of sync or this method
+    // needs to be extended to keep more bpi/bpm history.
+    assert(pos >= intervalTime);
+    assert(pos < intervalTime + intervalDuration);
+
+    return intervalTime + intervalDuration - pos;
+}
+
 void Metronome::nextBeat()
 {
+    int sampleRate = appView->audioProcessor()->getSampleRate();
     bool emitBpmChanged = false;
     bool emitBpiChanged = false;
 
@@ -46,6 +78,7 @@ void Metronome::nextBeat()
         emitBpiChanged = bpi_ != nextBpi;
         bpm_ = nextBpm;
         bpi_ = nextBpi;
+        nextIntervalTime_ += bpi_ * 60.f / bpm_ * sampleRate;
     }
 
     if (emitBpmChanged) {
@@ -59,7 +92,6 @@ void Metronome::nextBeat()
 
     // QTimer only has millisecond accuracy so sync against sample time to
     // avoid accumulating errors.
-    int sampleRate = appView->audioProcessor()->getSampleRate();
     SampleTime samplesPerBeat = 60.f / bpm_ * sampleRate;
     auto t = appView->currentSampleTime();
     auto samples = nextBeatSampleTime + samplesPerBeat - t;
@@ -87,7 +119,8 @@ void Metronome::start()
     beat_ = nextBpi;
     bpm_ = nextBpm;
     bpi_ = nextBpi;
-    nextBeatSampleTime = appView->currentSampleTime();
+    nextIntervalTime_ = appView->currentSampleTime();
+    nextBeatSampleTime = nextIntervalTime_;
     nextBeat();
 
     appView->audioProcessor()->addPlaybackStream(stream);
