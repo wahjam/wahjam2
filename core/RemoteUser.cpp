@@ -50,14 +50,13 @@ void RemoteUser::setChannelInfo(int channelIndex, const QString &channelName,
 }
 
 bool RemoteUser::enqueueRemoteInterval(int channelIndex,
-                                       std::shared_ptr<RemoteInterval> remoteInterval,
-                                       SampleTime nextIntervalTime)
+                                       std::shared_ptr<RemoteInterval> remoteInterval)
 {
     RemoteChannel *channel = channels.value(channelIndex, nullptr);
     if (!channel) {
         return false;
     }
 
-    channel->enqueueRemoteInterval(remoteInterval, nextIntervalTime);
+    channel->enqueueRemoteInterval(remoteInterval);
     return true;
 }

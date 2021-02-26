@@ -240,14 +240,12 @@ void JamSession::connDownloadIntervalBegan(const QUuid &guid,
     auto remoteInterval =
         std::make_shared<RemoteInterval>(username, guid, fourCC);
 
-    SampleTime nextIntervalTime = 0; // TODO
-
     RemoteUser *remoteUser = remoteUsers[username];
-    if (remoteUser->enqueueRemoteInterval(channelIndex,
-                                          remoteInterval,
-                                          nextIntervalTime)) {
-        remoteIntervals.insert(guid, remoteInterval);
+    if (!remoteUser->enqueueRemoteInterval(channelIndex, remoteInterval)) {
+        return; // invalid channel index, throw away this interval
     }
+
+    remoteIntervals.insert(guid, remoteInterval);
 }
 
 void JamSession::connDownloadIntervalReceived(const QUuid &guid,

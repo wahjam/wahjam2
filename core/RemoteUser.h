@@ -21,8 +21,7 @@ public:
 
     // Returns true on success, false on failure
     bool enqueueRemoteInterval(int channelIndex,
-                               std::shared_ptr<RemoteInterval> remoteInterval,
-                               SampleTime nextIntervalTime);
+                               std::shared_ptr<RemoteInterval> remoteInterval);
 
 private:
     AppView *appView;

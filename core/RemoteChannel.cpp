@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+#include "JamSession.h"
+#include "QmlGlobals.h"
 #include "RemoteChannel.h"
 
 RemoteChannel::RemoteChannel(const QString &name,
@@ -73,13 +75,17 @@ bool RemoteChannel::fillPlaybackStreams()
         return true;
     }
 
+    // TODO handle underflow when remote interval falls behind actual playback position
+
+    JamSession *session = appView->qmlGlobals()->session();
     QByteArray left, right;
     size_t nwritable =
         qMin(playbackStreams[CHANNEL_LEFT]->numSamplesWritable(),
              playbackStreams[CHANNEL_RIGHT]->numSamplesWritable());
     auto interval = intervals.first();
+    SampleTime remaining = session->remainingIntervalTime(nextPlaybackTime);
     interval->setSampleRate(appView->audioProcessor()->getSampleRate());
-    size_t n = interval->decode(&left, &right, nwritable);
+    size_t n = interval->decode(&left, &right, qMin(nwritable, remaining));
 
     playbackStreams[CHANNEL_LEFT]->write(nextPlaybackTime,
             reinterpret_cast<const float*>(left.constData()),
@@ -88,15 +94,14 @@ bool RemoteChannel::fillPlaybackStreams()
             reinterpret_cast<const float*>(right.constData()),
             n);
 
-    nextPlaybackTime += n;
-
     // Finished with interval?
-    if (n < nwritable && interval->appendingFinished()) {
+    if (n == remaining || (n == 0 && interval->appendingFinished())) {
         intervals.removeFirst();
+        nextPlaybackTime = session->nextIntervalTime();
         return false;
     }
-    // TODO what if current time exceeds interval end time and download hasn't finished?
 
+    nextPlaybackTime += n;
     return true;
 }
 
@@ -113,15 +118,13 @@ void RemoteChannel::processAudioStreams()
     }
 }
 
-void RemoteChannel::enqueueRemoteInterval(SharedRemoteInterval remoteInterval,
-                                          SampleTime nextIntervalTime)
+void RemoteChannel::enqueueRemoteInterval(SharedRemoteInterval remoteInterval)
 {
     // TODO handle silent intervals
     // Start playing the first interval after the current interval
     if (intervals.isEmpty()) {
-        nextPlaybackTime = nextIntervalTime;
+        nextPlaybackTime = appView->qmlGlobals()->session()->nextIntervalTime();
     }
-    // TODO handle BPM/BPI changes including remote intervals that are shorter/longer than the next interval
 
     intervals.append(remoteInterval);
 }

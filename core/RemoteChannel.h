@@ -46,11 +46,7 @@ signals:
 
 public slots:
     void processAudioStreams();
-
-    // Add a remote interval for download and playback. nextIntervalTime is the
-    // time when the next interval will start playing.
-    void enqueueRemoteInterval(SharedRemoteInterval remoteInterval,
-                               SampleTime nextIntervalTime);
+    void enqueueRemoteInterval(SharedRemoteInterval remoteInterval);
 
 private:
     AppView *appView;
