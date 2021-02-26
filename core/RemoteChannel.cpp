@@ -65,7 +65,10 @@ bool RemoteChannel::underflow() const
 
 bool RemoteChannel::remoteSending() const
 {
-    return true; // TODO silence intervals?
+    if (intervals.isEmpty()) {
+        return false;
+    }
+    return !intervals.last()->isSilence();
 }
 
 // Returns true if done, false if we should try again
@@ -96,8 +99,11 @@ bool RemoteChannel::fillPlaybackStreams()
 
     // Finished with interval?
     if (n == remaining || (n == 0 && interval->appendingFinished())) {
-        intervals.removeFirst();
         nextPlaybackTime = session->nextIntervalTime();
+        intervals.removeFirst();
+        if (intervals.isEmpty()) {
+            emit remoteSendingChanged(false);
+        }
         return false;
     }
 
@@ -120,11 +126,19 @@ void RemoteChannel::processAudioStreams()
 
 void RemoteChannel::enqueueRemoteInterval(SharedRemoteInterval remoteInterval)
 {
-    // TODO handle silent intervals
-    // Start playing the first interval after the current interval
+    bool oldSilence = true;
+    bool newSilence = remoteInterval->isSilence();
+
     if (intervals.isEmpty()) {
+        // Start playing the first interval after the current interval
         nextPlaybackTime = appView->qmlGlobals()->session()->nextIntervalTime();
+    } else {
+        oldSilence = intervals.last()->isSilence();
     }
 
     intervals.append(remoteInterval);
+
+    if (oldSilence != newSilence) {
+        emit remoteSendingChanged(!newSilence);
+    }
 }
