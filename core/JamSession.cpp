@@ -178,6 +178,9 @@ void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &chang
         if (!remoteUsers.contains(userInfo.username)) {
             remoteUsers[userInfo.username] =
                 new RemoteUser{userInfo.username, appView};
+
+            /* Subscribe to all channels */
+            conn.sendSetUsermask(userInfo.username, 0xffffffff);
         }
 
         qDebug("%s user \"%s\" channel \"%s\" (%d)",
@@ -191,9 +194,6 @@ void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &chang
         remoteUser->setChannelInfo(userInfo.channelIndex,
                                    userInfo.channelName,
                                    userInfo.active);
-
-        // TODO subscribe to channel?
-        // TODO connect processAudioStreams
     }
 
     // Delete remote users with no channels

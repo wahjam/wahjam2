@@ -44,8 +44,10 @@ void RemoteUser::setChannelInfo(int channelIndex, const QString &channelName,
     } else if (channel && active) {
         channel->setName(channelName);
     } else if (!channel && active) {
-        channels.insert(channelIndex,
-                        new RemoteChannel{channelName, appView});
+        channel = new RemoteChannel{channelName, appView};
+        channels.insert(channelIndex, channel);
+        connect(appView, &AppView::processAudioStreams,
+                channel, &RemoteChannel::processAudioStreams);
     }
 }
 
