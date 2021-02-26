@@ -49,9 +49,7 @@ public:
     QString errorString() const;
 
     // Mute/unmute another user's channels
-    bool sendSetUsermask(const QString &username,
-                         const quint32 *mask,
-                         size_t maskSize);
+    bool sendSetUsermask(const QString &username, quint32 mask);
 
     bool sendChannelInfo(const QList<ChannelInfo> &channels);
 

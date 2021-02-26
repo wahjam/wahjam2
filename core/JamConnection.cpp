@@ -619,19 +619,14 @@ bool JamConnection::sendAuthUser(quint32 protocolVersion, const quint8 challenge
     return send(MSG_TYPE_CLIENT_AUTH_USER, bytes);
 }
 
-bool JamConnection::sendSetUsermask(QString const &username,
-                                    const quint32* mask,
-                                    size_t maskSize)
+bool JamConnection::sendSetUsermask(QString const &username, quint32 mask)
 {
     const QByteArray usernameBytes{username.toUtf8()};
 
     QByteArray bytes;
     bytes.append(usernameBytes);
     bytes.append('\0');
-
-    for (size_t i = 0; i < maskSize; i++) {
-        bytes.append(qToLittleEndian(mask[i]));
-    }
+    bytes.append(qToLittleEndian(mask));
 
     return send(MSG_TYPE_CLIENT_SET_USERMASK, bytes);
 }
