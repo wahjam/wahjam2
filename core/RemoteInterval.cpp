@@ -21,6 +21,11 @@ QUuid RemoteInterval::guid() const
     return guid_;
 }
 
+bool RemoteInterval::isSilence() const
+{
+    return guid_.isNull();
+}
+
 void RemoteInterval::setSampleRate(int rate)
 {
     outputSampleRate = rate;
@@ -28,7 +33,7 @@ void RemoteInterval::setSampleRate(int rate)
 
 bool RemoteInterval::appendingFinished() const
 {
-    return finished;
+    return isSilence() || finished;
 }
 
 // Returns number of output samples
@@ -78,6 +83,13 @@ size_t RemoteInterval::fillResampler(size_t nsamples)
 size_t RemoteInterval::decode(QByteArray *left, QByteArray *right,
                               size_t nsamples)
 {
+    /* Infinite silence, caller will stop decoding when interval expires */
+    if (isSilence()) {
+        left->fill(0, nsamples * sizeof(float));
+        right->fill(0, nsamples * sizeof(float));
+        return nsamples;
+    }
+
     bool needFill = false;
     size_t decoded = 0;
 

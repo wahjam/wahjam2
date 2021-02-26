@@ -27,6 +27,9 @@ public:
     QString username() const;
     QUuid guid() const;
 
+    // Is this a silent interval with no audio data?
+    bool isSilence() const;
+
     // May be called at any time to change the sample rate
     void setSampleRate(int rate);
 
