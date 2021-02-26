@@ -236,7 +236,6 @@ void JamSession::connDownloadIntervalBegan(const QUuid &guid,
         return;
     }
 
-    // TODO how is silence handled?
     auto remoteInterval =
         std::make_shared<RemoteInterval>(username, guid, fourCC);
 
@@ -245,7 +244,14 @@ void JamSession::connDownloadIntervalBegan(const QUuid &guid,
         return; // invalid channel index, throw away this interval
     }
 
-    remoteIntervals.insert(guid, remoteInterval);
+    // Silence intervals have a zero GUID. Don't add them to the hash map
+    // because the server will not send further messages related to them,
+    // we won't known when to delete them. Instead drop our shared pointer
+    // in this reference and let remoteUser decide how long the interval stays
+    // alive.
+    if (!remoteInterval->isSilence()) {
+        remoteIntervals.insert(guid, remoteInterval);
+    }
 }
 
 void JamSession::connDownloadIntervalReceived(const QUuid &guid,
