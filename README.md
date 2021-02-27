@@ -6,6 +6,8 @@ replace Wahjam 1.x.
 
 This software is made available under the Apache License 2.0.
 
+[![Gitter](https://badges.gitter.im/wahjam/community.svg)](https://gitter.im/wahjam/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 ## Status
 
 **Early development** - this client is not ready for use yet.
