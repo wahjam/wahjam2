@@ -439,7 +439,8 @@ bool JamConnection::parseDownloadIntervalBegin()
 
 bool JamConnection::parseDownloadIntervalWrite()
 {
-    const qint64 fieldSize = sizeof(quint8[16]) + sizeof(quint8);
+    const size_t guidSize = sizeof(quint8[16]);
+    const qint64 fieldSize = guidSize + sizeof(quint8);
 
     if (payloadSize < fieldSize) {
         fail(tr("Payload size for download interval write too small %1").arg(payloadSize));
@@ -452,14 +453,14 @@ bool JamConnection::parseDownloadIntervalWrite()
         return false;
     }
 
-    quint8 flags = noEndian8Bit(bytes.at(sizeof(quint8[16])));
+    quint8 flags = noEndian8Bit(bytes.at(guidSize));
     QByteArray audioData;
     if (!(flags & 0x1)) {
         audioData.setRawData(bytes.constData() + fieldSize,
                              payloadSize - fieldSize);
     }
 
-    emit downloadIntervalReceived(QUuid::fromRfc4122(bytes),
+    emit downloadIntervalReceived(QUuid::fromRfc4122(bytes.left(guidSize)),
                                   audioData,
                                   flags & 0x1);
     return true;
