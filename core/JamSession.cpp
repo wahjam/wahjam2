@@ -268,5 +268,4 @@ void JamSession::connDownloadIntervalReceived(const QUuid &guid,
         remoteInterval->finishAppendingData();
         remoteIntervals.remove(guid);
     }
-    // TODO how do silent intervals remove themselves from remoteIntervals?
 }
