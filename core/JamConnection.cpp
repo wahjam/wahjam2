@@ -589,12 +589,22 @@ bool JamConnection::send(quint8 type, const QByteArray &bytes)
     return send(type, bytes.constData(), bytes.size());
 }
 
+static void appendLe16(QByteArray *bytes, quint16 value)
+{
+    value = qToLittleEndian(value);
+    bytes->append(reinterpret_cast<const char*>(&value), sizeof(value));
+}
+
+static void appendLe32(QByteArray *bytes, quint32 value)
+{
+    value = qToLittleEndian(value);
+    bytes->append(reinterpret_cast<const char*>(&value), sizeof(value));
+}
+
 bool JamConnection::sendAuthUser(quint32 protocolVersion, const quint8 challenge[8])
 {
-    protocolVersion = qToLittleEndian(protocolVersion);
-
     const QByteArray username = username_.toUtf8();
-    const quint32 clientCapabilities = qToLittleEndian(0);
+    const quint32 clientCapabilities = 0;
 
     // Password hash = SHA1(SHA1(username + ":" + hexToken) + challenge)
     QCryptographicHash inner{QCryptographicHash::Sha1};
@@ -611,10 +621,8 @@ bool JamConnection::sendAuthUser(quint32 protocolVersion, const quint8 challenge
     bytes.append(passwordHash);
     bytes.append(username);
     bytes.append('\0');
-    bytes.append(reinterpret_cast<const char*>(&clientCapabilities),
-                 sizeof(clientCapabilities));
-    bytes.append(reinterpret_cast<const char*>(&protocolVersion),
-                 sizeof(protocolVersion));
+    appendLe32(&bytes, clientCapabilities);
+    appendLe32(&bytes, protocolVersion);
 
     return send(MSG_TYPE_CLIENT_AUTH_USER, bytes);
 }
@@ -626,7 +634,7 @@ bool JamConnection::sendSetUsermask(QString const &username, quint32 mask)
     QByteArray bytes;
     bytes.append(usernameBytes);
     bytes.append('\0');
-    bytes.append(qToLittleEndian(mask));
+    appendLe32(&bytes, mask);
 
     return send(MSG_TYPE_CLIENT_SET_USERMASK, bytes);
 }
@@ -635,19 +643,17 @@ bool JamConnection::sendChannelInfo(QList<JamConnection::ChannelInfo> const &cha
 {
     QByteArray bytes;
 
-    const quint16 paramSize = qToLittleEndian(
-            sizeof(qint16) /* volume */ +
-            sizeof(qint8) /* pan */ +
-            sizeof(quint8) /* flags */);
-    bytes.append(reinterpret_cast<const char*>(&paramSize), sizeof(paramSize));
+    const quint16 paramSize = sizeof(qint16) /* volume */ +
+                              sizeof(qint8) /* pan */ +
+                              sizeof(quint8) /* flags */;
+    appendLe16(&bytes, paramSize);
 
     for (int i = 0; i < channels.size(); i++) {
         const ChannelInfo &channel = channels.at(i);
-        const qint16 volume = qToLittleEndian(channel.volume);
 
         bytes.append(channel.name.toUtf8());
         bytes.append('\0');
-        bytes.append(reinterpret_cast<const char*>(&volume), sizeof(volume));
+        appendLe16(&bytes, channel.volume);
         bytes.append(noEndian8Bit(channel.pan));
         bytes.append(noEndian8Bit(channel.flags));
     }
