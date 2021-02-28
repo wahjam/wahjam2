@@ -24,6 +24,12 @@ AppView::AppView(const QUrl &url, QWindow *parent)
     setResizeMode(QQuickView::SizeRootObjectToView);
     setMinimumSize(QSize{800, 600});
 
+    // TODO make SSL verification a boolean setting
+    qWarning("SSL verification disabled for development");
+    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+    sslConfig.setPeerVerifyMode(QSslSocket::QueryPeer);
+    QSslConfiguration::setDefaultConfiguration(sslConfig);
+
     // Now load the QML
     setSource(url);
 }
