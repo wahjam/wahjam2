@@ -14,9 +14,6 @@ RemoteChannel::RemoteChannel(const QString &name,
     playbackStreams[CHANNEL_RIGHT] = new AudioStream;
     processor->addPlaybackStream(playbackStreams[CHANNEL_LEFT]);
     processor->addPlaybackStream(playbackStreams[CHANNEL_RIGHT]);
-
-    connect(appView, &AppView::processAudioStreams,
-            this, &RemoteChannel::processAudioStreams);
 }
 
 RemoteChannel::~RemoteChannel()
