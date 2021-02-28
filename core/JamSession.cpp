@@ -259,6 +259,8 @@ void JamSession::connDownloadIntervalReceived(const QUuid &guid,
                                               bool last)
 {
     if (!remoteIntervals.contains(guid)) {
+        qDebug("Ignoring download interval received for unknown guid %s",
+               guid.toString().toLatin1().constData());
         return;
     }
 
