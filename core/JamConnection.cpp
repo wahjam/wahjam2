@@ -453,16 +453,11 @@ bool JamConnection::parseDownloadIntervalWrite()
         return false;
     }
 
+    QUuid guid{QUuid::fromRfc4122(bytes.left(guidSize))};
     quint8 flags = noEndian8Bit(bytes.at(guidSize));
-    QByteArray audioData;
-    if (!(flags & 0x1)) {
-        audioData.setRawData(bytes.constData() + fieldSize,
-                             payloadSize - fieldSize);
-    }
+    QByteArray audioData{bytes.right(payloadSize - fieldSize)};
 
-    emit downloadIntervalReceived(QUuid::fromRfc4122(bytes.left(guidSize)),
-                                  audioData,
-                                  flags & 0x1);
+    emit downloadIntervalReceived(guid, audioData, flags & 0x1);
     return true;
 }
 
