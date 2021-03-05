@@ -27,7 +27,7 @@ enum
 // Number of samples for a given duration
 inline constexpr int msecToSamples(int sampleRate, int msec)
 {
-    return sampleRate * 1000 / msec;
+    return sampleRate * msec / 1000;
 }
 
 // Duration rounded up to the next millisecond for a given number of samples
