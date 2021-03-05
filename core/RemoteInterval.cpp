@@ -77,6 +77,11 @@ size_t RemoteInterval::fillResampler(size_t nsamples)
 
     resampler[CHANNEL_LEFT].appendData(tmpLeft);
     resampler[CHANNEL_RIGHT].appendData(tmpRight);
+
+    if (n == 0 && finished) {
+        resampler[CHANNEL_LEFT].finishAppendingData();
+        resampler[CHANNEL_RIGHT].finishAppendingData();
+    }
     return n;
 }
 
@@ -121,7 +126,5 @@ void RemoteInterval::appendData(const QByteArray &data)
 
 void RemoteInterval::finishAppendingData()
 {
-    resampler[CHANNEL_LEFT].finishAppendingData();
-    resampler[CHANNEL_RIGHT].finishAppendingData();
     finished = true;
 }
