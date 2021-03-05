@@ -95,7 +95,8 @@ bool RemoteChannel::fillPlaybackStreams()
             n);
 
     // Finished with interval?
-    if (n == remaining || (n == 0 && interval->appendingFinished())) {
+    if (n == remaining ||
+        (n == 0 && nwritable > 0 && interval->appendingFinished())) {
         nextPlaybackTime = session->nextIntervalTime();
         intervals.removeFirst();
         if (intervals.isEmpty()) {
