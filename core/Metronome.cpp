@@ -126,6 +126,7 @@ void Metronome::start()
     nextBeat();
 
     appView->audioProcessor()->addPlaybackStream(stream);
+    processAudioStreams();
 }
 
 void Metronome::stop()
