@@ -115,6 +115,8 @@ void Metronome::start()
     stream = new AudioStream;
     stream->setMonitorEnabled(monitor);
 
+    writeIntervalPos = 0;
+
     // Kick off counting using nextBeat()
     beat_ = nextBpi;
     bpm_ = nextBpm;
@@ -143,8 +145,7 @@ void Metronome::processAudioStreams()
     }
 
     if (stream->checkResetAndClear()) {
-        writeSampleTime = 0;
-        writeIntervalPos = 0;
+        writeSampleTime = appView->currentSampleTime();
     }
 
     /*
