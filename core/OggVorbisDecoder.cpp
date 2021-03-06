@@ -104,9 +104,6 @@ bool OggVorbisDecoder::tryOpen()
     ret = ov_open_callbacks(this, &ovfile, peekData.data(), peekData.size(),
                             callbacks);
     if (ret < 0) {
-        qDebug("ov_open_callbacks ret %d peekData.size() %d",
-               ret, peekData.size());
-
         // Restore input so caller can try opening again later
         input = std::move(peekData);
         return false;
@@ -137,9 +134,6 @@ static ssize_t doDecode(OggVorbis_File *ovfile,
     float **samples;
     int bitstream;
     long n = ov_read_float(ovfile, &samples, nsamples, &bitstream);
-
-    qDebug("ov_read_float %ld", n);
-
     if (n == 0) {
         return 0;
     } else if (n < 0) {
