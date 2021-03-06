@@ -99,9 +99,16 @@ size_t AudioStream::readInternal(SampleTime now,
 
         AudioDescriptor &desc = ring.readCurrent();
 
+        // Stop if the audio data is in the future. Don't bother handling
+        // partial overlap, we'll drop the overlapping audio samples and seek
+        // into the descriptor next time.
+        if (now < desc.time) {
+            return nread;
+        }
+
         // Seek if necessary
         size_t seek = now - desc.time;
-        if (seek > desc.nsamples) {
+        if (seek >= desc.nsamples) {
             size_t dequeued = desc.nsamples;
             ring.readNext();
             samplesQueued.fetch_sub(dequeued);
