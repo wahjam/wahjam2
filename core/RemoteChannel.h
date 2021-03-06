@@ -54,6 +54,9 @@ private:
     QVector<SharedRemoteInterval> intervals;
     QString name_;
     SampleTime nextPlaybackTime;
+    SampleTime intervalStartTime;
 
+    void fillWithSilence(size_t nsamples);
+    size_t fillFromInterval(size_t nsamples);
     bool fillPlaybackStreams();
 };

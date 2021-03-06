@@ -6,8 +6,8 @@
 RemoteChannel::RemoteChannel(const QString &name,
                              AppView *appView_,
                              QObject *parent)
-    : QObject{parent}, appView{appView_}, name_{name}, nextPlaybackTime{0}
-{
+    : QObject{parent}, appView{appView_}, name_{name}, nextPlaybackTime{0},
+      intervalStartTime{0} {
     AudioProcessor *processor = appView->audioProcessor();
 
     playbackStreams[CHANNEL_LEFT] = new AudioStream;
@@ -68,24 +68,26 @@ bool RemoteChannel::remoteSending() const
     return !intervals.last()->isSilence();
 }
 
-// Returns true if done, false if we should try again
-bool RemoteChannel::fillPlaybackStreams()
+// Play nsamples of silence
+void RemoteChannel::fillWithSilence(size_t nsamples)
 {
-    if (intervals.isEmpty()){
-        return true;
-    }
+    std::vector<float> silence(nsamples, 0.f);
+    playbackStreams[CHANNEL_LEFT]->write(nextPlaybackTime,
+                                         silence.data(),
+                                         nsamples);
+    playbackStreams[CHANNEL_RIGHT]->write(nextPlaybackTime,
+                                          silence.data(),
+                                          nsamples);
+}
 
-    // TODO handle underflow when remote interval falls behind actual playback position
-
-    JamSession *session = appView->qmlGlobals()->session();
-    QByteArray left, right;
-    size_t nwritable =
-        qMin(playbackStreams[CHANNEL_LEFT]->numSamplesWritable(),
-             playbackStreams[CHANNEL_RIGHT]->numSamplesWritable());
+// Play nsamples from current interval and return actual sample count played
+size_t RemoteChannel::fillFromInterval(size_t nsamples)
+{
     auto interval = intervals.first();
-    SampleTime remaining = session->remainingIntervalTime(nextPlaybackTime);
     interval->setSampleRate(appView->audioProcessor()->getSampleRate());
-    size_t n = interval->decode(&left, &right, qMin(nwritable, remaining));
+
+    QByteArray left, right;
+    size_t n = interval->decode(&left, &right, nsamples);
 
     playbackStreams[CHANNEL_LEFT]->write(nextPlaybackTime,
             reinterpret_cast<const float*>(left.constData()),
@@ -94,19 +96,43 @@ bool RemoteChannel::fillPlaybackStreams()
             reinterpret_cast<const float*>(right.constData()),
             n);
 
-    // Finished with interval?
-    if (n == remaining ||
-        (n == 0 && nwritable > 0 && interval->appendingFinished())) {
-        nextPlaybackTime = session->nextIntervalTime();
-        intervals.removeFirst();
-        if (intervals.isEmpty()) {
-            emit remoteSendingChanged(false);
+    return n;
+}
+
+// Returns true if done, false if we should try again
+bool RemoteChannel::fillPlaybackStreams()
+{
+    JamSession *session = appView->qmlGlobals()->session();
+    size_t nwritable =
+        qMin(playbackStreams[CHANNEL_LEFT]->numSamplesWritable(),
+             playbackStreams[CHANNEL_RIGHT]->numSamplesWritable());
+    SampleTime remaining = session->remainingIntervalTime(nextPlaybackTime);
+    size_t n = qMin(nwritable, remaining);
+
+    qDebug("[now %" PRIu64 " nextPlaybackTime %" PRIu64 "] nwritable %zu remaining %" PRIu64,
+           appView->currentSampleTime(), nextPlaybackTime, nwritable, remaining);
+
+    if (intervals.isEmpty() || nextPlaybackTime < intervalStartTime){
+        fillWithSilence(n);
+    } else {
+        n = fillFromInterval(n);
+
+        // Remove interval when finished or upon underflow
+        if (n == remaining || n < nwritable) {
+            // TODO signal underflow
+            qDebug("Removing interval");
+            intervalStartTime = nextPlaybackTime + remaining;
+            intervals.removeFirst();
+            if (intervals.isEmpty()) {
+                emit remoteSendingChanged(false);
+            }
         }
-        return false;
     }
 
+    qDebug("filled %zu samples", n);
+
     nextPlaybackTime += n;
-    return true;
+    return n == nwritable;
 }
 
 void RemoteChannel::processAudioStreams()
@@ -114,7 +140,7 @@ void RemoteChannel::processAudioStreams()
     bool wasResetLeft = playbackStreams[CHANNEL_LEFT]->checkResetAndClear();
     bool wasResetRight = playbackStreams[CHANNEL_RIGHT]->checkResetAndClear();
     if (wasResetLeft || wasResetRight) {
-        // TODO resync?
+        nextPlaybackTime = appView->currentSampleTime();
     }
 
     while (!fillPlaybackStreams()) {
@@ -128,12 +154,12 @@ void RemoteChannel::enqueueRemoteInterval(SharedRemoteInterval remoteInterval)
     bool newSilence = remoteInterval->isSilence();
 
     if (intervals.isEmpty()) {
-        // Start playing the first interval after the current interval
-        nextPlaybackTime = appView->qmlGlobals()->session()->nextIntervalTime();
+        intervalStartTime = appView->qmlGlobals()->session()->nextIntervalTime();
     } else {
         oldSilence = intervals.last()->isSilence();
     }
 
+    qDebug("Appending interval");
     intervals.append(remoteInterval);
 
     if (oldSilence != newSilence) {
