@@ -22,11 +22,14 @@ inc = include_directories('.')
 qt5 = import('qt5')
 
 dependencies = [
+  dependency('ogg'),
   dependency('qt5', modules : [
     'Core', 'Gui', 'Network', 'Quick', 'QuickControls2', 'Qml'
   ]),
   dependency('samplerate'),
   dependency('threads'),
+  dependency('vorbis'),
+  dependency('vorbisenc'),
   dependency('vorbisfile'),
 ]
 
