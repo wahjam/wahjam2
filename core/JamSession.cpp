@@ -26,6 +26,49 @@ JamSession::JamSession(AppView *appView_, QObject *parent)
             &metronome, &Metronome::processAudioStreams);
 }
 
+// Local channels currently only live while the jam session is connected.
+// addLocalChannels() is called when the jam session starts and
+// deleteLocalChannels() is called when it disconnects. This could be changed
+// in the future to make the local channels persist across jam session so the
+// user can still monitor and adjust audio outside a jam session.
+void JamSession::addLocalChannels()
+{
+    if (!localChannels.isEmpty()) {
+        return;
+    }
+
+    AudioProcessor *processor = appView->audioProcessor();
+    LocalChannel *chan = new LocalChannel{
+        "channel0",
+        0,
+        &processor->captureStream(CHANNEL_LEFT),
+        &processor->captureStream(CHANNEL_RIGHT),
+        processor->getSampleRate(),
+        appView->currentSampleTime(),
+        this
+    };
+    connect(chan, &LocalChannel::uploadData,
+            this, &JamSession::uploadData);
+    localChannels.push_back(chan);
+
+    conn.sendChannelInfo({
+        (JamConnection::ChannelInfo){
+            .name = chan->name(),
+            .volume = 0,
+            .pan = 0,
+            .flags = 0,
+        }
+    });
+}
+
+void JamSession::deleteLocalChannels()
+{
+    for (auto chan : localChannels) {
+        delete chan;
+    }
+    localChannels.clear();
+}
+
 void JamSession::deleteRemoteUsers()
 {
     for (auto remoteUser : qAsConst(remoteUsers)) {
@@ -79,6 +122,7 @@ void JamSession::abort()
     conn.abort();
     remoteIntervals.clear();
     deleteRemoteUsers();
+    deleteLocalChannels();
 }
 
 void JamSession::connectToServer(const QString &server,
@@ -106,6 +150,7 @@ void JamSession::disconnectFromServer()
            server_.toLatin1().constData());
 
     metronome.stop();
+    deleteLocalChannels();
     setState(JamSession::Closing);
     conn.disconnectFromServer();
 }
@@ -121,6 +166,7 @@ void JamSession::connDisconnected()
     server_.clear();
     remoteIntervals.clear();
     deleteRemoteUsers();
+    deleteLocalChannels();
     setState(JamSession::Unconnected);
 }
 
@@ -160,6 +206,7 @@ void JamSession::connConfigChanged(int bpm, int bpi)
     qDebug("Server config changed bpm=%d bpi=%d", bpm, bpi);
     metronome.setNextBpmBpi(bpm, bpi);
     metronome.start();
+    addLocalChannels();
 }
 
 void JamSession::sendChatMessage(const QString &msg)
@@ -269,5 +316,22 @@ void JamSession::connDownloadIntervalReceived(const QUuid &guid,
     if (last) {
         remoteInterval->finishAppendingData();
         remoteIntervals.remove(guid);
+    }
+}
+
+void JamSession::uploadData(int channelIdx, const QUuid &guid,
+                            const QByteArray &data, bool first, bool last)
+{
+    if (first) {
+        JamConnection::FourCC fourCC{'O', 'G', 'G', 'v'};
+        conn.sendUploadIntervalWrite(guid, 0, fourCC, channelIdx);
+    }
+    if (!guid.isNull()) {
+        conn.sendUploadIntervalWrite(
+            guid,
+            last ? 0x1 : 0x0,
+            reinterpret_cast<const quint8*>(data.constData()),
+            data.size()
+        );
     }
 }

@@ -4,6 +4,7 @@
 #include "AppView.h"
 #include "IIntervalTime.h"
 #include "JamConnection.h"
+#include "LocalChannel.h"
 #include "Metronome.h"
 #include "RemoteUser.h"
 
@@ -91,10 +92,14 @@ private:
     QString server_;
     QString topic_;
     Metronome metronome;
+    QVector<LocalChannel*> localChannels;
     QHash<QString, RemoteUser*> remoteUsers;
 
     // Remote intervals with downloads in progress
     QHash<QUuid, std::shared_ptr<RemoteInterval> > remoteIntervals;
+
+    void addLocalChannels();
+    void deleteLocalChannels();
 
     void deleteRemoteUsers();
 
@@ -122,4 +127,6 @@ private slots:
                                  const QString &arg2,
                                  const QString &arg3,
                                  const QString &arg4);
+    void uploadData(int channelIdx, const QUuid &uuid, const QByteArray &data,
+                    bool first, bool last);
 };

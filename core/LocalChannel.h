@@ -20,6 +20,7 @@ class LocalChannel : public QObject
 public:
     // Does not take ownership of captureLeft and captureRight
     LocalChannel(const QString &name,
+                 int channelIdx,
                  AudioStream *captureLeft,
                  AudioStream *captureRight,
                  int sampleRate,
@@ -40,12 +41,14 @@ signals:
     // This signal is emitted at least once per interval. The first time this
     // signal is emitted each interval 'first' is true. The last time the
     // signal is emitted each interval 'last' is true. 'data' may be empty.
-    void uploadData(const QUuid &uuid, const QByteArray &data, bool first, bool last);
+    void uploadData(int channelIdx, const QUuid &uuid, const QByteArray &data,
+                    bool first, bool last);
 
 private:
     IIntervalTime *intervalTime;
     AudioStream *captureStreams[CHANNELS_STEREO];
     QString name_;
+    int channelIdx;
     bool send_;
     bool nextSend;
     bool firstUploadData;

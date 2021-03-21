@@ -29,7 +29,8 @@ static MockIntervalTime intervalTime;
 
 struct ExpectedUploadData
 {
-    bool dataIsEmpty;
+    int channelIdx;
+    bool zeroGuid;
     bool first;
     bool last;
     SampleTime intervalTimeStep;
@@ -38,14 +39,16 @@ struct ExpectedUploadData
 // Global variables that the values from the LocalChannel::uploadData() signal
 static std::vector<ExpectedUploadData> expectedUploadData;
 
-static void uploadData(const QUuid &guid_, const QByteArray &data,
-                       bool first, bool last)
+static void uploadData(int channelIdx, const QUuid &guid,
+                       const QByteArray &data, bool first, bool last)
 {
     // Unexpected signal
     assert(!expectedUploadData.empty());
 
     auto expected = expectedUploadData.front();
-    assert(expected.dataIsEmpty == data.isEmpty());
+    assert(expected.channelIdx == channelIdx);
+    assert(expected.zeroGuid == guid.isNull());
+    assert(expected.zeroGuid == data.isEmpty());
     assert(expected.first == first);
     assert(expected.last == last);
 
@@ -70,7 +73,7 @@ static void testSilentIntervals()
     AudioStream captureRight{sampleBufferSize};
 
     SampleTime now = 0;
-    LocalChannel chan{"channel0", &captureLeft, &captureRight, sampleRate,
+    LocalChannel chan{"channel0", 0, &captureLeft, &captureRight, sampleRate,
                       now, &intervalTime};
     QObject::connect(&chan, &LocalChannel::uploadData, uploadData);
     chan.setSend(false);
@@ -83,7 +86,8 @@ static void testSilentIntervals()
 
     // The second interval has one signal
     expectedUploadData.push_back((ExpectedUploadData){
-        .dataIsEmpty = true,
+        .channelIdx = 0,
+        .zeroGuid = true,
         .first = true,
         .last = true,
         .intervalTimeStep = sampleRate,
@@ -96,7 +100,8 @@ static void testSilentIntervals()
 
     // The third interval has one signal but three processAudioStreams() calls
     expectedUploadData.push_back((ExpectedUploadData){
-        .dataIsEmpty = true,
+        .channelIdx = 0,
+        .zeroGuid = true,
         .first = true,
         .last = true,
         .intervalTimeStep = sampleRate,
@@ -127,7 +132,7 @@ static void testSendIntervals()
     AudioStream captureRight{sampleBufferSize};
 
     SampleTime now = 0;
-    LocalChannel chan{"channel0", &captureLeft, &captureRight, sampleRate,
+    LocalChannel chan{"channel0", 0, &captureLeft, &captureRight, sampleRate,
                       now, &intervalTime};
     QObject::connect(&chan, &LocalChannel::uploadData, uploadData);
 
@@ -140,7 +145,8 @@ static void testSendIntervals()
 
     // The second interval has one signal
     expectedUploadData.push_back((ExpectedUploadData){
-        .dataIsEmpty = false,
+        .channelIdx = 0,
+        .zeroGuid = false,
         .first = true,
         .last = true,
         .intervalTimeStep = sampleRate,
@@ -153,7 +159,8 @@ static void testSendIntervals()
 
     // The third interval
     expectedUploadData.push_back((ExpectedUploadData){
-        .dataIsEmpty = false,
+        .channelIdx = 0,
+        .zeroGuid = false,
         .first = true,
         .last = false,
         .intervalTimeStep = 0,
@@ -165,7 +172,8 @@ static void testSendIntervals()
     assert(expectedUploadData.empty());
 
     expectedUploadData.push_back((ExpectedUploadData){
-        .dataIsEmpty = false,
+        .channelIdx = 0,
+        .zeroGuid = false,
         .first = false,
         .last = false,
         .intervalTimeStep = 0,
@@ -177,7 +185,8 @@ static void testSendIntervals()
     assert(expectedUploadData.empty());
 
     expectedUploadData.push_back((ExpectedUploadData){
-        .dataIsEmpty = false,
+        .channelIdx = 0,
+        .zeroGuid = false,
         .first = false,
         .last = true,
         .intervalTimeStep = sampleRate,

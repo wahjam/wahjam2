@@ -2,6 +2,7 @@
 #include "LocalChannel.h"
 
 LocalChannel::LocalChannel(const QString &name,
+                           int channelIdx_,
                            AudioStream *captureLeft,
                            AudioStream *captureRight,
                            int sampleRate,
@@ -12,6 +13,7 @@ LocalChannel::LocalChannel(const QString &name,
       intervalTime{intervalTime_},
       captureStreams{captureLeft, captureRight},
       name_{name},
+      channelIdx{channelIdx_},
       send_{false},
       nextSend{true},
       firstUploadData{true},
@@ -72,7 +74,8 @@ void LocalChannel::processAudioStreams()
             if (lastUploadData) {
                 data.append(encoder.encode(nullptr, nullptr, 0)); // drain encoder
             }
-            emit uploadData(guid, data, firstUploadData, lastUploadData);
+            emit uploadData(channelIdx, guid, data,
+                            firstUploadData, lastUploadData);
             firstUploadData = false;
         }
 
@@ -80,12 +83,16 @@ void LocalChannel::processAudioStreams()
         if (lastUploadData) {
             send_ = nextSend;
             firstUploadData = true;
-            guid = QUuid::createUuid();
+            if (send_) {
+                guid = QUuid::createUuid(); // random UUID
+            } else {
+                guid = QUuid(); // null UUID for silence
+            }
             encoder.reset();
 
             // Still emit uploadData once per silent interval
             if (!send_) {
-                emit uploadData(guid, QByteArray{}, true, true);
+                emit uploadData(channelIdx, guid, QByteArray{}, true, true);
             }
         }
 
