@@ -2,6 +2,7 @@
 #pragma once
 
 #include "AppView.h"
+#include "IIntervalTime.h"
 #include "JamConnection.h"
 #include "Metronome.h"
 #include "RemoteUser.h"
@@ -11,7 +12,7 @@
  * protocol messages and dealing with audio data. The user interface uses this
  * class as its interface for managing the currently active jam session.
  */
-class JamSession : public QObject
+class JamSession : public QObject, public IIntervalTime
 {
     Q_OBJECT
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
@@ -60,11 +61,7 @@ public:
     // Local channels
     // BPM/BPI
 
-    // Returns the sample time when the next interval starts
     SampleTime nextIntervalTime() const;
-
-    // Returns the number of samples remaining in this interval given an
-    // absolute time
     SampleTime remainingIntervalTime(SampleTime pos) const;
 
 signals:
