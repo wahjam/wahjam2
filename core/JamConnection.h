@@ -136,7 +136,7 @@ private:
     bool parseKeepalive();
     bool parseMessage();
 
-    bool send(quint8 type, const char *data, size_t len);
-    bool send(quint8 type, const QByteArray &bytes);
+    bool send(quint8 type, const char *data, size_t len, size_t extraDataLen = 0);
+    bool send(quint8 type, const QByteArray &bytes, size_t extraDataLen = 0);
     bool sendAuthUser(quint32 protocolVersion, const quint8 challenge[8]);
 };

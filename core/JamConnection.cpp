@@ -555,11 +555,15 @@ void JamConnection::socketReadyRead()
     }
 }
 
-bool JamConnection::send(quint8 type, const char *data, size_t len)
+// Additional data may be written directly to the socket by the caller
+// afterwards by setting extraDataLen non-zero.
+bool JamConnection::send(quint8 type, const char *data, size_t len,
+                         size_t extraDataLen)
 {
     const MessageHeader header = {
         .type = noEndian8Bit(type),
-        .length = qToLittleEndian(static_cast<quint32>(len)),
+        .length = qToLittleEndian(static_cast<quint32>(len) +
+                                  static_cast<quint32>(extraDataLen)),
     };
 
     if (socket.write(reinterpret_cast<const char*>(&header),
@@ -580,9 +584,10 @@ bool JamConnection::send(quint8 type, const char *data, size_t len)
     return true;
 }
 
-bool JamConnection::send(quint8 type, const QByteArray &bytes)
+bool JamConnection::send(quint8 type, const QByteArray &bytes,
+                         size_t extraDataLen)
 {
-    return send(type, bytes.constData(), bytes.size());
+    return send(type, bytes.constData(), bytes.size(), extraDataLen);
 }
 
 static void appendLe16(QByteArray *bytes, quint16 value)
@@ -698,7 +703,8 @@ bool JamConnection::sendUploadIntervalWrite(const QUuid &guid,
 
     if (!send(MSG_TYPE_CLIENT_UPLOAD_INTERVAL_WRITE,
               reinterpret_cast<const char*>(&msg),
-              sizeof(msg))) {
+              sizeof(msg),
+              len)) {
         return false;
     }
 
