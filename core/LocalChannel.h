@@ -24,7 +24,6 @@ public:
                  AudioStream *captureLeft,
                  AudioStream *captureRight,
                  int sampleRate,
-                 SampleTime now,
                  IIntervalTime *intervalTime,
                  QObject *parent = nullptr);
 
@@ -32,6 +31,9 @@ public:
     void setName(const QString &name);
     bool send() const;
     void setSend(bool enable);
+
+    // Begin uploading data from the capture streams
+    void start();
 
 public slots:
     void processAudioStreams();
@@ -55,4 +57,6 @@ private:
     QUuid guid;
     OggVorbisEncoder encoder;
     SampleTime nextCaptureTime;
+    SampleTime remainingIntervalTime;
+    bool nextCaptureTimeValid;
 };

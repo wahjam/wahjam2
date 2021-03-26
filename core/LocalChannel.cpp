@@ -6,7 +6,6 @@ LocalChannel::LocalChannel(const QString &name,
                            AudioStream *captureLeft,
                            AudioStream *captureRight,
                            int sampleRate,
-                           SampleTime now,
                            IIntervalTime *intervalTime_,
                            QObject *parent)
     : QObject(parent),
@@ -18,7 +17,8 @@ LocalChannel::LocalChannel(const QString &name,
       nextSend{true},
       firstUploadData{true},
       encoder{1, sampleRate},
-      nextCaptureTime{now}
+      nextCaptureTime{0},
+      nextCaptureTimeValid{false}
 {
 }
 
@@ -42,8 +42,31 @@ void LocalChannel::setSend(bool enable)
     nextSend = enable;
 }
 
+// TODO start sending right away?
+void LocalChannel::start()
+{
+    captureStreams[CHANNEL_LEFT]->checkResetAndClear();
+    captureStreams[CHANNEL_RIGHT]->checkResetAndClear();
+
+    // Discard stale audio data
+    captureStreams[CHANNEL_LEFT]->readDiscardAll();
+    captureStreams[CHANNEL_RIGHT]->readDiscardAll();
+
+    nextCaptureTimeValid = false;
+}
+
 void LocalChannel::processAudioStreams()
 {
+    // Synchronize time to the capture stream
+    if (!nextCaptureTimeValid) {
+        if (!captureStreams[CHANNEL_LEFT]->peekReadSampleTime(&nextCaptureTime)) {
+            return;
+        }
+        remainingIntervalTime = intervalTime->remainingIntervalTime(nextCaptureTime);
+        firstUploadData = true;
+        nextCaptureTimeValid = true;
+    }
+
     size_t readable =
         qMin(captureStreams[CHANNEL_LEFT]->numSamplesReadable(),
              captureStreams[CHANNEL_RIGHT]->numSamplesReadable());
@@ -56,7 +79,7 @@ void LocalChannel::processAudioStreams()
     auto samples = std::vector<float>(readable, 0.f);
     size_t n;
     n = captureStreams[CHANNEL_LEFT]->read(nextCaptureTime, left.data(), readable);
-    assert(n == readable);
+    readable = qMin(n, readable); // in case data was discarded
     n = captureStreams[CHANNEL_RIGHT]->read(nextCaptureTime, right.data(), readable);
     assert(n == readable);
     float pan = 0.5f; // linear stereo pan
@@ -64,23 +87,22 @@ void LocalChannel::processAudioStreams()
     mixSamples(right.data(), samples.data(), readable, pan);
 
     for (size_t i = 0; i < readable; i += n) {
-        size_t remaining = intervalTime->remainingIntervalTime(nextCaptureTime);
-
-        n = qMin(readable, remaining); // only process up to next interval
-        bool lastUploadData = n == remaining;
+        n = qMin(readable - i, remainingIntervalTime); // only process up to next interval
+        remainingIntervalTime -= n;
+        nextCaptureTime += n;
 
         if (send_) {
             QByteArray data = encoder.encode(samples.data() + i, nullptr, n);
-            if (lastUploadData) {
+            if (remainingIntervalTime == 0) {
                 data.append(encoder.encode(nullptr, nullptr, 0)); // drain encoder
+                emit uploadData(channelIdx, guid, data, firstUploadData, true);
+            } else if (data.size() > 0) {
+                emit uploadData(channelIdx, guid, data, firstUploadData, false);
+                firstUploadData = false;
             }
-            emit uploadData(channelIdx, guid, data,
-                            firstUploadData, lastUploadData);
-            firstUploadData = false;
         }
 
-        // Next interval
-        if (lastUploadData) {
+        if (remainingIntervalTime == 0) {
             send_ = nextSend;
             firstUploadData = true;
             if (send_) {
@@ -94,8 +116,8 @@ void LocalChannel::processAudioStreams()
             if (!send_) {
                 emit uploadData(channelIdx, guid, QByteArray{}, true, true);
             }
-        }
 
-        nextCaptureTime += n;
+            remainingIntervalTime = intervalTime->remainingIntervalTime(nextCaptureTime);
+        }
     }
 }

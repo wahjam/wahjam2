@@ -44,9 +44,10 @@ void JamSession::addLocalChannels()
         &processor->captureStream(CHANNEL_LEFT),
         &processor->captureStream(CHANNEL_RIGHT),
         processor->getSampleRate(),
-        appView->currentSampleTime(),
         this
     };
+    connect(appView, &AppView::processAudioStreams,
+            chan, &LocalChannel::processAudioStreams);
     connect(chan, &LocalChannel::uploadData,
             this, &JamSession::uploadData);
     localChannels.push_back(chan);
@@ -59,6 +60,8 @@ void JamSession::addLocalChannels()
             .flags = 0,
         }
     });
+
+    chan->start();
 }
 
 void JamSession::deleteLocalChannels()

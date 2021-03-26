@@ -19,9 +19,8 @@ public:
 
     SampleTime remainingIntervalTime(SampleTime pos) const
     {
-        // The test case should have updated the time before the next interval
-        assert(pos < nextIntervalTime_);
-        return nextIntervalTime_ - pos;
+        // The interval time is always 1 second in our test cases
+        return sampleRate - (pos % sampleRate);
     }
 };
 
@@ -74,9 +73,10 @@ static void testSilentIntervals()
 
     SampleTime now = 0;
     LocalChannel chan{"channel0", 0, &captureLeft, &captureRight, sampleRate,
-                      now, &intervalTime};
+                      &intervalTime};
     QObject::connect(&chan, &LocalChannel::uploadData, uploadData);
     chan.setSend(false);
+    chan.start();
 
     // The first interval has no signals
     generateAudioSamples(&captureLeft, now, sampleBufferSize - 1);
@@ -133,8 +133,9 @@ static void testSendIntervals()
 
     SampleTime now = 0;
     LocalChannel chan{"channel0", 0, &captureLeft, &captureRight, sampleRate,
-                      now, &intervalTime};
+                      &intervalTime};
     QObject::connect(&chan, &LocalChannel::uploadData, uploadData);
+    chan.start();
 
     // The first interval has no signals
     generateAudioSamples(&captureLeft, now, sampleBufferSize);
@@ -171,18 +172,11 @@ static void testSendIntervals()
     chan.processAudioStreams();
     assert(expectedUploadData.empty());
 
-    expectedUploadData.push_back((ExpectedUploadData){
-        .channelIdx = 0,
-        .zeroGuid = false,
-        .first = false,
-        .last = false,
-        .intervalTimeStep = 0,
-    });
+    // No uploadData() signal because libvorbis buffers up the data here
     generateAudioSamples(&captureLeft, now, sampleBufferSize / 3);
     generateAudioSamples(&captureRight, now, sampleBufferSize / 3);
     now += sampleBufferSize / 3;
     chan.processAudioStreams();
-    assert(expectedUploadData.empty());
 
     expectedUploadData.push_back((ExpectedUploadData){
         .channelIdx = 0,
