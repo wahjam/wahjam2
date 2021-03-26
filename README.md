@@ -15,7 +15,7 @@ This software is made available under the Apache License 2.0.
 ### Functionality
 - [x] jammr.net login
 - [x] jammr.net session listing
-- [ ] Jam sessions
+- [x] Jam sessions
 - [ ] Creating private jams
 - [ ] Audio device settings
 

@@ -30,18 +30,22 @@ int main(int argc, char **argv)
 
         portAudioEngine.logDeviceInfo();
 
-        portAudioEngine.setHostApi("ALSA");
-        portAudioEngine.setInputDevice("Scarlett 2i4 USB: Audio (hw:3,0)");
+//        portAudioEngine.setHostApi("ALSA");
+        portAudioEngine.setHostApi("JACK Audio Connection Kit");
+//        portAudioEngine.setInputDevice("Scarlett 2i4 USB: Audio (hw:3,0)");
+        portAudioEngine.setInputDevice("system");
         portAudioEngine.setInputRouting({
             ChannelRoute::LEFT,
-            ChannelRoute::RIGHT,
+//            ChannelRoute::RIGHT,
+            ChannelRoute::LEFT,
         });
-        portAudioEngine.setOutputDevice("Scarlett 2i4 USB: Audio (hw:3,0)");
+        portAudioEngine.setOutputDevice("system");
         portAudioEngine.setOutputRouting({
             ChannelRoute::LEFT,
-            ChannelRoute::RIGHT,
-            ChannelRoute::OFF,
-            ChannelRoute::OFF,
+//            ChannelRoute::RIGHT,
+            ChannelRoute::LEFT,
+//            ChannelRoute::OFF,
+//            ChannelRoute::OFF,
         });
 
         if (!portAudioEngine.start()) {
