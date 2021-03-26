@@ -109,9 +109,6 @@ bool RemoteChannel::fillPlaybackStreams()
     SampleTime remaining = session->remainingIntervalTime(nextPlaybackTime);
     size_t n = qMin(nwritable, remaining);
 
-    qDebug("[now %" PRIu64 " nextPlaybackTime %" PRIu64 "] nwritable %zu remaining %" PRIu64,
-           appView->currentSampleTime(), nextPlaybackTime, nwritable, remaining);
-
     if (intervals.isEmpty() || nextPlaybackTime < intervalStartTime){
         fillWithSilence(n);
     } else {
@@ -120,7 +117,6 @@ bool RemoteChannel::fillPlaybackStreams()
         // Remove interval when finished or upon underflow
         if (n == remaining || n < nwritable) {
             // TODO signal underflow
-            qDebug("Removing interval");
             intervalStartTime = nextPlaybackTime + remaining;
             intervals.removeFirst();
             if (intervals.isEmpty()) {
@@ -128,8 +124,6 @@ bool RemoteChannel::fillPlaybackStreams()
             }
         }
     }
-
-    qDebug("filled %zu samples", n);
 
     nextPlaybackTime += n;
     return n == nwritable;
@@ -159,7 +153,6 @@ void RemoteChannel::enqueueRemoteInterval(SharedRemoteInterval remoteInterval)
         oldSilence = intervals.last()->isSilence();
     }
 
-    qDebug("Appending interval");
     intervals.append(remoteInterval);
 
     if (oldSilence != newSilence) {
