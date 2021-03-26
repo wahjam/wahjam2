@@ -8,6 +8,7 @@ tests = [
 qt_tests = [
   'test-localchannel',
   'test-oggvorbisdecoder',
+  'test-oggvorbisencoder',
   'test-resampler',
 ]
 
