@@ -43,6 +43,11 @@ public:
         return ring[reader.load() % nelems];
     }
 
+    const T &readCurrent() const
+    {
+        return ring[reader.load() % nelems];
+    }
+
     void readNext()
     {
         reader.fetch_add(1);

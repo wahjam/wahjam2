@@ -37,6 +37,17 @@ bool AudioStream::checkResetAndClear()
     return reset;
 }
 
+bool AudioStream::peekReadSampleTime(SampleTime *sampleTime) const
+{
+    if (!ring.canRead()) {
+        return false;
+    }
+
+    auto desc = ring.readCurrent();
+    *sampleTime = desc.time;
+    return true;
+}
+
 size_t AudioStream::numSamplesWritable() const
 {
     return sampleBufferSize - samplesQueued.load();
@@ -167,6 +178,16 @@ size_t AudioStream::readMixStereo(SampleTime now,
             mixSamples(input, &samples[CHANNEL_RIGHT][offset], n, volRight);
         },
         nsamples);
+}
+
+void AudioStream::readDiscardAll()
+{
+    while (ring.canRead()) {
+        AudioDescriptor &desc = ring.readCurrent();
+        size_t dequeued = desc.nsamples;
+        ring.readNext();
+        samplesQueued.fetch_sub(dequeued);
+    }
 }
 
 float AudioStream::getPan() const

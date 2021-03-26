@@ -66,6 +66,10 @@ public:
     // the sample rate may have changed).  Call from non-real-time thread.
     bool checkResetAndClear();
 
+    // Returns true if there are samples available for reading and fills in the
+    // sample time.
+    realtime bool peekReadSampleTime(SampleTime *sampleTime) const;
+
     // Returns the number of samples that there is space for
     realtime size_t numSamplesWritable() const;
 
@@ -82,6 +86,9 @@ public:
                                   float *samples[CHANNELS_STEREO],
                                   size_t nsamples);
     realtime size_t readDiscard(SampleTime now, size_t nsamples);
+
+    // Throw away all available samples
+    realtime void readDiscardAll();
 
     realtime float getPan() const;
     realtime void setPan(float pan_);
