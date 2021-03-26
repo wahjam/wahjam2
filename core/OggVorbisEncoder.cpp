@@ -162,15 +162,7 @@ QByteArray OggVorbisEncoder::encode(const float *left,
         vorbis_analysis_wrote(&vd, 0); // end of stream
     }
 
-    bool moreBlocks;
-    do {
-        ret = vorbis_analysis_blockout(&vd, &vb);
-        moreBlocks = ret == 1;
-        if (ret < 0) {
-            qWarning("vorbis_analysis_blockout failed %d", ret);
-            return output;
-        }
-
+    while ((ret = vorbis_analysis_blockout(&vd, &vb)) == 1) {
         ret = vorbis_analysis(&vb, nullptr);
         if (ret < 0) {
             qWarning("vorbis_analysis failed %d", ret);
@@ -184,15 +176,7 @@ QByteArray OggVorbisEncoder::encode(const float *left,
         }
 
         ogg_packet op;
-        bool morePackets;
-        do {
-            ret = vorbis_bitrate_flushpacket(&vd, &op);
-            morePackets = ret == 1;
-            if (ret < 0) {
-                qWarning("vorbis_bitrate_flushpacket failed %d", ret);
-                return output;
-            }
-
+        while ((ret = vorbis_bitrate_flushpacket(&vd, &op)) == 1) {
             ret = ogg_stream_packetin(&os, &op);
             if (ret < 0) {
                 qWarning("ogg_stream_packetin failed %d", ret);
@@ -206,8 +190,14 @@ QByteArray OggVorbisEncoder::encode(const float *left,
                 output.append(reinterpret_cast<const char*>(og.body),
                               static_cast<int>(og.body_len));
             }
-        } while (morePackets);
-    } while (moreBlocks);
-
+        }
+        if (ret < 0) {
+            qWarning("vorbis_bitrate_flushpacket failed %d", ret);
+            return output;
+        }
+    }
+    if (ret < 0) {
+        qWarning("vorbis_analysis_blockout failed %d", ret);
+    }
     return output;
 }
