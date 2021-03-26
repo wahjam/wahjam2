@@ -324,7 +324,7 @@ void JamSession::uploadData(int channelIdx, const QUuid &guid,
 {
     if (first) {
         JamConnection::FourCC fourCC{'O', 'G', 'G', 'v'};
-        conn.sendUploadIntervalWrite(guid, 0, fourCC, channelIdx);
+        conn.sendUploadIntervalBegin(guid, 0, fourCC, channelIdx);
     }
     if (!guid.isNull()) {
         conn.sendUploadIntervalWrite(
