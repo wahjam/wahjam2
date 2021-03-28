@@ -10,9 +10,17 @@ Item {
     Component.onCompleted: {
         Client.session.stateChanged.connect((newState) => console.log('jamSession state changed: ' + newState));
         Client.session.error.connect((msg) => console.log('jamSession unexpected error: ' + msg));
-        Client.session.chatMessageReceived.connect((senderUsername, msg) => console.log('jamSession received chat message: "' + msg + '" from ' + senderUsername));
-        Client.session.chatPrivMsgReceived.connect((senderUsername, msg) => console.log('jamSession received private message: "' + msg + '" from ' + senderUsername));
-        Client.session.chatServerMsgReceived.connect((msg) => console.log('jamSession received server message: "' + msg + '"'));
+        Client.session.chatMessageReceived.connect((senderUsername, msg) =>
+            chatMessages.append({username: senderUsername, message: msg})
+        );
+        Client.session.chatPrivMsgReceived.connect((senderUsername, msg) =>
+            // TODO mark private messages to distinguish them from public messages
+            chatMessages.append({username: senderUsername, message: msg})
+        );
+        Client.session.chatServerMsgReceived.connect((msg) =>
+            // TODO mark server messages to distinguish them from public messages
+            chatMessages.append({username: "SERVER", message: msg})
+        );
         Client.session.topicChanged.connect((who, newTopic) => console.log('jamSession topic changed by ' + (who || "server") + ': ' + newTopic));
     }
 
@@ -23,7 +31,31 @@ Item {
                                        Client.apiManager.hexToken)
     }
 
-    Text {
-        text: qsTr("Session")
+    ListModel {
+        id: chatMessages
+    }
+
+    ListView {
+        id: chatMessagesListView
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: chatMessageInput.top
+        model: chatMessages
+        delegate: Text {
+            text: "<b>" + username + "</b>: " + message
+        }
+        // TODO scroll bar
+    }
+
+    TextInput {
+        id: chatMessageInput
+        width: parent.width
+        height: 20
+        anchors.bottom: parent.bottom
+        onAccepted: {
+            Client.session.sendChatMessage(chatMessageInput.text)
+            chatMessageInput.clear()
+        }
     }
 }
