@@ -44,7 +44,7 @@ Row {
         Text {
             text: qsTr("Volume:")
         }
-        ProgressBar {
+        Slider {
             from: -24
             to: 24
             value: 0
