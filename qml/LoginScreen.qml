@@ -2,7 +2,6 @@
 import QtQuick 2.3
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
-import Qt.labs.settings 1.0
 import org.wahjam.client 1.0
 
 Pane {
@@ -30,17 +29,19 @@ Pane {
         TextField {
             id: username
             placeholderText: qsTr("Username")
-
-            Settings {
-                category: "login"
-                property alias username: username.text
-            }
+            text: Client.apiManager.username
         }
         TextField {
             id: password
             placeholderText: qsTr("Password")
+            text: Client.apiManager.password
             echoMode: TextInput.Password
             onAccepted: logInButton.clicked()
+        }
+        CheckBox {
+            id: rememberPassword
+            text: qsTr("Remember password")
+            checked: Client.apiManager.rememberPassword
         }
         Button {
             id: logInButton
@@ -49,6 +50,7 @@ Pane {
                 mouseArea.cursorShape = Qt.WaitCursor
                 Client.apiManager.username = username.text
                 Client.apiManager.password = password.text
+                Client.apiManager.rememberPassword = rememberPassword.checked
                 Client.apiManager.login()
             }
         }

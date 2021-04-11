@@ -31,6 +31,13 @@ dependencies = [
   dependency('vorbis'),
   dependency('vorbisenc'),
   dependency('vorbisfile'),
+
+  # Qt5Keychain does not having working qmake detection or pkg-config support.
+  # Find it manually.
+  meson.get_compiler('cpp').find_library(
+      'qt5keychain',
+      has_headers : ['qt5keychain/keychain.h'],
+  ),
 ]
 
 resources = qt5.preprocess(qresources : 'resources.qrc')

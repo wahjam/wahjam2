@@ -19,6 +19,7 @@ class JamApiManager : public QObject
     Q_OBJECT
     Q_PROPERTY(QString username READ username WRITE setUsername NOTIFY usernameChanged)
     Q_PROPERTY(QString password READ password WRITE setPassword NOTIFY passwordChanged)
+    Q_PROPERTY(bool rememberPassword READ rememberPassword WRITE setRememberPassword NOTIFY rememberPasswordChanged)
     Q_PROPERTY(QString hexToken READ hexToken NOTIFY hexTokenChanged)
     Q_PROPERTY(QString loginError READ loginError NOTIFY loginFinished)
 
@@ -37,6 +38,8 @@ public:
     void setUsername(const QString &username);
     QString password() const;
     void setPassword(const QString &password);
+    bool rememberPassword() const;
+    void setRememberPassword(bool enable);
     QString hexToken() const;
     QString loginError() const;
 
@@ -47,6 +50,7 @@ public:
 signals:
     void usernameChanged();
     void passwordChanged();
+    void rememberPasswordChanged();
     void hexTokenChanged();
     void loginFinished();
 
@@ -55,6 +59,7 @@ private:
     QUrl apiUrl;
     QString username_;
     QString password_;
+    bool rememberPassword_;
     QString hexToken_;
     QString loginError_;
     QNetworkReply *loginReply;

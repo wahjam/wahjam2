@@ -1,18 +1,88 @@
 // SPDX-License-Identifier: Apache-2.0
-#include <QUuid>
 #include <QCryptographicHash>
+#include <QEventLoop>
+#include <QSettings>
+#include <QUuid>
+#include <qt5keychain/keychain.h>
+#include "config.h"
 #include "JamApiManager.h"
+
+static QString keychainGetPassword()
+{
+  QKeychain::ReadPasswordJob job(ORGDOMAIN);
+  QEventLoop loop;
+
+  job.setAutoDelete(false);
+  job.connect(&job, SIGNAL(finished(QKeychain::Job*)), &loop, SLOT(quit()));
+  job.setKey("password");
+  job.start();
+  loop.exec();
+
+  return job.textData();
+}
+
+static void keychainSetPassword(const QString &password)
+{
+  QKeychain::WritePasswordJob job(ORGDOMAIN);
+  QEventLoop loop;
+
+  job.setAutoDelete(false);
+  job.connect(&job, SIGNAL(finished(QKeychain::Job*)), &loop, SLOT(quit()));
+  job.setKey("password");
+  job.setTextData(password);
+  job.start();
+  loop.exec();
+}
+
+static void keychainDeletePassword()
+{
+  QKeychain::DeletePasswordJob job(ORGDOMAIN);
+  QEventLoop loop;
+
+  job.setAutoDelete(false);
+  job.connect(&job, SIGNAL(finished(QKeychain::Job*)), &loop, SLOT(quit()));
+  job.setKey("password");
+  job.start();
+  loop.exec();
+}
 
 JamApiManager::JamApiManager(QObject *parent)
     : QObject{parent},
       netManager{new QNetworkAccessManager{this}},
-      apiUrl{"https://jammr.net/api/"}, // TODO make this a setting
       loggedIn{false}
 {
+    QSettings settings;
+
+    settings.beginGroup("login");
+
+    apiUrl = settings.value("apiUrl", "https://jammr.net/api/").toString();
+    username_ = settings.value("username").toString();
+
+    if (settings.value("passwordSaved", false).toBool()) {
+        password_ = keychainGetPassword();
+    }
+
+    rememberPassword_ = settings.value("rememberPassword", true).toBool();
 }
 
 void JamApiManager::login()
 {
+    QSettings settings;
+
+    settings.beginGroup("login");
+    settings.setValue("username", username_);
+
+    if (rememberPassword_) {
+        keychainSetPassword(password_);
+        settings.setValue("passwordSaved", true);
+    } else if (settings.value("passwordSaved", false).toBool()) {
+        /* If it was previously saved, delete it now */
+        keychainDeletePassword();
+        settings.setValue("passwordSaved", false);
+    }
+
+    settings.setValue("rememberPassword", rememberPassword_);
+
     QUrl url{QString("tokens/%1/").arg(username_)};
 
     /* Generate unique 20-byte token */
@@ -89,6 +159,17 @@ void JamApiManager::setPassword(const QString &password)
     loggedIn = false;
     password_ = password;
     emit passwordChanged();
+}
+
+bool JamApiManager::rememberPassword() const
+{
+    return rememberPassword_;
+}
+
+void JamApiManager::setRememberPassword(bool enable)
+{
+    rememberPassword_ = enable;
+    emit rememberPasswordChanged();
 }
 
 QString JamApiManager::hexToken() const
