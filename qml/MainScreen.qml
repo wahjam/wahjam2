@@ -14,16 +14,16 @@ Item {
         id: bar
         y: 0
         width: parent.width
-        currentIndex: 1
+        currentIndex: 0
+        TabButton {
+            text: qsTr("Lobby")
+        }
         TabButton {
             id: sessionTabButton
             text: qsTr("Session")
         }
         TabButton {
-            text: qsTr("Lobby")
-        }
-        TabButton {
-            text: qsTr("Setup")
+            text: qsTr("Settings")
         }
     }
 
@@ -33,15 +33,15 @@ Item {
         width: parent.width
         currentIndex: bar.currentIndex
 
-        Session {
-            id: sessionTab
-        }
         Lobby {
             id: lobby
             onConnectToJam: {
                 sessionTab.connect(server)
                 bar.currentIndex = 0
             }
+        }
+        Session {
+            id: sessionTab
         }
         Item {
             id: setupTab
