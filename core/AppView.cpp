@@ -11,10 +11,10 @@ static void showViewErrors(QQuickView *view)
     }
 }
 
-AppView::AppView(const QUrl &url, QWindow *parent)
+AppView::AppView(const QString &format, const QUrl &url, QWindow *parent)
     : QQuickView{parent}, transportResetPending{false}
 {
-    qmlGlobals_ = new QmlGlobals{this};
+    qmlGlobals_ = new QmlGlobals{this, format};
 
     // Install Quick error logger
     QObject::connect(this, &QQuickView::statusChanged,

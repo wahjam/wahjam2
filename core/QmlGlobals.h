@@ -11,14 +11,23 @@ class QmlGlobals : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(JamApiManager *apiManager READ apiManager NOTIFY apiManagerChanged)
+
+    // The format (standalone, VST plugin, etc)
+    Q_PROPERTY(QString format READ format)
+
     Q_PROPERTY(JamSession *session READ session NOTIFY sessionChanged)
 
 public:
-    QmlGlobals(AppView *appView, QObject *parent = nullptr);
+    QmlGlobals(AppView *appView, const QString &format, QObject *parent = nullptr);
 
     JamApiManager *apiManager()
     {
         return &apiManager_;
+    }
+
+    QString format() const
+    {
+        return format_;
     }
 
     JamSession *session()
@@ -34,6 +43,7 @@ signals:
     void sessionChanged();
 
 private:
+    QString format_;
     JamApiManager apiManager_;
     JamSession session_;
 };

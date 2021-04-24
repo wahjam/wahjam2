@@ -3,8 +3,8 @@
 #include "QmlGlobals.h"
 #include "SessionListModel.h"
 
-QmlGlobals::QmlGlobals(AppView *appView, QObject *parent)
-    : QObject(parent), session_{appView}
+QmlGlobals::QmlGlobals(AppView *appView, const QString &format, QObject *parent)
+    : QObject(parent), format_{format}, session_{appView}
 {
 }
 

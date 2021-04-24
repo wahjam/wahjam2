@@ -332,7 +332,7 @@ static void processReplacingCallback(AEffect *aeffect, float **inbuf, float **ou
 
 VstPlugin::VstPlugin(audioMasterCallback masterCallback_)
     : masterCallback{masterCallback_},
-      appView{QUrl{"qrc:/qml/application.qml"}},
+      appView{"vst", QUrl{"qrc:/qml/application.qml"}},
       parent{nullptr}
 {
     memset(&aeffect, 0, sizeof(aeffect));

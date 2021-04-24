@@ -16,7 +16,7 @@ class AppView : public QQuickView
     Q_OBJECT
 
 public:
-    AppView(const QUrl &url, QWindow *parent = nullptr);
+    AppView(const QString &format, const QUrl &url, QWindow *parent = nullptr);
     ~AppView();
 
     // Needed by QmlGlobals::registerQmlTypes()

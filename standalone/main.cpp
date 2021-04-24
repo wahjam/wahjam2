@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     QmlGlobals::registerQmlTypes();
 
     {
-        AppView appView{QUrl{"qrc:/qml/application.qml"}};
+        AppView appView{"standalone", QUrl{"qrc:/qml/application.qml"}};
 
         PortAudioEngine portAudioEngine{
             [&] (float *inOutSamples[CHANNELS_STEREO],
