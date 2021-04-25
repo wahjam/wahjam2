@@ -5,6 +5,10 @@
     <file>qml/LoginScreen.qml</file>
     <file>qml/MainScreen.qml</file>
     <file>qml/Session.qml</file>
+    <file>qml/Settings.qml</file>
+    <file>qml/standalone/PortAudioEngineSettings.qml</file>
+    <file>qml/standalone/FormatSpecificSettings.qml</file>
+    <file>qml/vst/FormatSpecificSettings.qml</file>
     <file>click.raw</file>
 </qresource>
 </RCC>

@@ -43,10 +43,8 @@ Item {
         Session {
             id: sessionTab
         }
-        Item {
+        Settings {
             id: setupTab
-
-            Text { text: qsTr("Setup...") }
         }
     }
 }
