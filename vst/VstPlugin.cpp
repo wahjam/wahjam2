@@ -38,6 +38,7 @@ static void qtThreadRun(std::promise<void> ready)
 
     installMessageHandler();
 
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app{argc, &argv};
 
     globalInit();
