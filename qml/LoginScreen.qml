@@ -46,6 +46,7 @@ Pane {
         Button {
             id: logInButton
             text: qsTr("Log in")
+            highlighted: true
             onClicked: {
                 mouseArea.cursorShape = Qt.WaitCursor
                 Client.apiManager.username = username.text
