@@ -5,9 +5,8 @@
 #endif
 #include "PortAudioEngine.h"
 
-PortAudioEngine::PortAudioEngine(std::function<ProcessFn> processFn_,
-                                 QObject *parent)
-    : QObject{parent}, processFn{processFn_}, stream{nullptr}, now{0},
+PortAudioEngine::PortAudioEngine(QObject *parent)
+    : QObject{parent}, processFn{nullptr}, stream{nullptr}, now{0},
       sampleRate_{44100}, bufferSize_{512}
 {
 #ifdef HAVE_PA_JACK_H
@@ -25,6 +24,17 @@ PortAudioEngine::~PortAudioEngine()
 {
     stop();
     Pa_Terminate();
+}
+
+void PortAudioEngine::setProcessFn(std::function<ProcessFn> processFn_)
+{
+    if (stream != nullptr) {
+        // In theory it's possible, but memory ordering and thread safety needs
+        // to be checked. We won't need it, so forbid it.
+        qFatal("Cannot set processFn() after starting stream");
+    }
+
+    processFn = processFn_;
 }
 
 QStringList PortAudioEngine::availableHostApis() const
@@ -563,6 +573,9 @@ bool PortAudioEngine::fillStreamParameters(PaStreamParameters *inputParams,
 bool PortAudioEngine::start()
 {
     if (stream != nullptr) {
+        return false;
+    }
+    if (processFn == nullptr) {
         return false;
     }
 

@@ -31,9 +31,12 @@ public:
                            size_t nsamples,
                            SampleTime now);
 
-    PortAudioEngine(std::function<ProcessFn> processFn_,
-                    QObject *parent = nullptr);
+    PortAudioEngine(QObject *parent = nullptr);
     ~PortAudioEngine();
+
+    // Call before start(). It's a separate function so the QML GUI can call
+    // start while the C++ code sets the process function.
+    void setProcessFn(std::function<ProcessFn> processFn_);
 
     const QString &hostApi() const { return hostApi_; }
     const QString &inputDevice() const { return inputDevice_; }
