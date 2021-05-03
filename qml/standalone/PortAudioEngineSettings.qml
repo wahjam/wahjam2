@@ -5,6 +5,8 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 import QtQuick.Layouts 1.14
+import Qt.labs.settings 1.0
+import org.wahjam.client 1.0
 
 GridLayout {
     columns: 2
@@ -63,6 +65,26 @@ GridLayout {
     }
     ComboBox {
         id: audioSystem
-        model: ["ALSA", "JACK"]
+        model: PortAudioEngine.availableHostApis
+
+        // The settings stuff is a little convoluted because ComboBox has a
+        // read-only currentText field. We cannot load the audio system name
+        // string from QSettings, so the normal Settings property alias
+        // mechanism cannot be used here.
+        Component.onCompleted: {
+            let idx = audioSystem.find(settings.value('audioSystem', ''))
+            if (idx !== -1) {
+                audioSystem.currentIndex = idx
+            }
+        }
+        onActivated: {
+            PortAudioEngine.hostApi = audioSystem.currentText
+            settings.setValue('audioSystem', PortAudioEngine.hostApi)
+        }
+    }
+
+    Settings {
+        id: settings
+        category: 'portaudio'
     }
 }
