@@ -23,7 +23,8 @@ Item {
             text: qsTr("Session")
         }
         TabButton {
-            text: qsTr("Settings")
+            icon.source: 'qrc:/icons/settings_black_24dp.svg'
+            width: implicitWidth
         }
     }
 
