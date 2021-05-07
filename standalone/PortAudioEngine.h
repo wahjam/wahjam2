@@ -17,12 +17,18 @@ enum class ChannelRoute {
 class PortAudioEngine : public QObject
 {
     Q_OBJECT
+
     Q_PROPERTY(QString hostApi READ hostApi WRITE setHostApi)
     Q_PROPERTY(QStringList availableHostApis READ availableHostApis CONSTANT)
+
     Q_PROPERTY(QString inputDevice READ inputDevice WRITE setInputDevice)
+    Q_PROPERTY(QStringList availableInputDevices READ availableInputDevices NOTIFY availableInputDevicesChanged)
     Q_PROPERTY(QList<ChannelRoute> inputRouting READ inputRouting WRITE setInputRouting)
+
     Q_PROPERTY(QString outputDevice READ outputDevice WRITE setOutputDevice)
+    Q_PROPERTY(QStringList availableOutputDevices READ availableOutputDevices NOTIFY availableOutputDevicesChanged)
     Q_PROPERTY(QList<ChannelRoute> outputRouting READ outputRouting WRITE setOutputRouting)
+
     Q_PROPERTY(int sampleRate READ sampleRate WRITE setSampleRate);
     Q_PROPERTY(int bufferSize READ bufferSize WRITE setBufferSize);
 
@@ -65,6 +71,10 @@ public:
     void stop();
 
 signals:
+    // When hostApi changes the available input/output devices also change
+    void availableInputDevicesChanged();
+    void availableOutputDevicesChanged();
+
     // Emitted when the engine stops due to an error
     void stoppedUnexpectedly();
 

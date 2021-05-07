@@ -202,6 +202,9 @@ void PortAudioEngine::setHostApi(const QString &name)
     hostApi_ = name;
     resetChannelRouting(inputDevice_, true, &inputRouting_);
     resetChannelRouting(outputDevice_, false, &outputRouting_);
+
+    emit availableInputDevicesChanged();
+    emit availableOutputDevicesChanged();
 }
 
 void PortAudioEngine::setInputDevice(const QString &name)

@@ -22,7 +22,12 @@ GridLayout {
     }
     ComboBox {
         id: inputDevice
-        model: ["USB soundcard", "Built-in soundcard"]
+        model: PortAudioEngine.availableInputDevices
+
+        onActivated: {
+            PortAudioEngine.inputDevice = inputDevice.currentText
+            settings.setValue('inputDevice', PortAudioEngine.inputDevice)
+        }
     }
 
     Label {
@@ -30,7 +35,12 @@ GridLayout {
     }
     ComboBox {
         id: outputDevice
-        model: ["USB soundcard", "Built-in soundcard"]
+        model: PortAudioEngine.availableOutputDevices
+
+        onActivated: {
+            PortAudioEngine.outputDevice = outputDevice.currentText
+            settings.setValue('outputDevice', PortAudioEngine.outputDevice)
+        }
     }
 
     CheckBox {
@@ -67,24 +77,38 @@ GridLayout {
         id: audioSystem
         model: PortAudioEngine.availableHostApis
 
-        // The settings stuff is a little convoluted because ComboBox has a
-        // read-only currentText field. We cannot load the audio system name
-        // string from QSettings, so the normal Settings property alias
-        // mechanism cannot be used here.
-        Component.onCompleted: {
-            let idx = audioSystem.find(settings.value('audioSystem', ''))
-            if (idx !== -1) {
-                audioSystem.currentIndex = idx
-            }
-        }
         onActivated: {
             PortAudioEngine.hostApi = audioSystem.currentText
             settings.setValue('audioSystem', PortAudioEngine.hostApi)
         }
     }
 
+    // The settings stuff is a little convoluted because ComboBox has a read-only
+    // currentText field. We cannot load the string from settings and assign
+    // ComboBox.currentText, so the normal Settings property alias mechanism cannot
+    // be used.
     Settings {
         id: settings
         category: 'portaudio'
+    }
+
+    Component.onCompleted: {
+        let idx = audioSystem.find(settings.value('audioSystem', ''))
+        if (idx !== -1) {
+            audioSystem.currentIndex = idx
+            PortAudioEngine.hostApi = audioSystem.currentText
+        }
+
+        idx = inputDevice.find(settings.value('inputDevice', ''))
+        if (idx !== -1) {
+            inputDevice.currentIndex = idx
+            PortAudioEngine.inputDevice = inputDevice.currentText
+        }
+
+        idx = outputDevice.find(settings.value('outputDevice', ''))
+        if (idx !== -1) {
+            outputDevice.currentIndex = idx
+            PortAudioEngine.outputDevice = outputDevice.currentText
+        }
     }
 }
