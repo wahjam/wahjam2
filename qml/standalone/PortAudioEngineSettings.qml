@@ -23,6 +23,7 @@ GridLayout {
     ComboBox {
         id: inputDevice
         model: PortAudioEngine.availableInputDevices
+        Layout.minimumWidth: 400
 
         onActivated: {
             PortAudioEngine.inputDevice = inputDevice.currentText
@@ -36,6 +37,7 @@ GridLayout {
     ComboBox {
         id: outputDevice
         model: PortAudioEngine.availableOutputDevices
+        Layout.minimumWidth: 400
 
         onActivated: {
             PortAudioEngine.outputDevice = outputDevice.currentText
@@ -76,6 +78,7 @@ GridLayout {
     ComboBox {
         id: audioSystem
         model: PortAudioEngine.availableHostApis
+        Layout.minimumWidth: 400
 
         onActivated: {
             PortAudioEngine.hostApi = audioSystem.currentText
