@@ -61,15 +61,25 @@ GridLayout {
     }
     ComboBox {
         id: sampleRate
-        model: ["44100", "48000"]
+        model: [32000, 44100, 48000, 88200, 96000]
+
+        onActivated: {
+            PortAudioEngine.sampleRate = sampleRate.currentText
+            settings.setValue('sampleRate', PortAudioEngine.sampleRate)
+        }
     }
 
     Label {
-        text: "Latency (ms):"
+        text: "Buffer size:"
     }
     ComboBox {
-        id: latency
-        model: ["5.8", "10"]
+        id: bufferSize
+        model: [64, 128, 256, 512, 1024]
+
+        onActivated: {
+            PortAudioEngine.bufferSize = bufferSize.currentText
+            settings.setValue('bufferSize', PortAudioEngine.bufferSize)
+        }
     }
 
     Label {
@@ -112,6 +122,18 @@ GridLayout {
         if (idx !== -1) {
             outputDevice.currentIndex = idx
             PortAudioEngine.outputDevice = outputDevice.currentText
+        }
+
+        idx = sampleRate.find(settings.value('sampleRate', '44100'));
+        if (idx !== -1) {
+            sampleRate.currentIndex = idx
+            PortAudioEngine.sampleRate = sampleRate.currentText;
+        }
+
+        idx = bufferSize.find(settings.value('bufferSize', '256'));
+        if (idx !== -1) {
+            bufferSize.currentIndex = idx
+            PortAudioEngine.bufferSize = bufferSize.currentText;
         }
     }
 }
