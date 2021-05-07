@@ -60,6 +60,7 @@ void globalInit()
     QCoreApplication::setOrganizationName(ORGNAME);
     QCoreApplication::setOrganizationDomain(ORGDOMAIN);
     QCoreApplication::setApplicationName(APPNAME);
+    QCoreApplication::setApplicationVersion(VERSION);
 
     const QDir dataDir{QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation)};
     if (!dataDir.mkpath(dataDir.absolutePath())) {
