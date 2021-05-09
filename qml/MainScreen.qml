@@ -2,6 +2,7 @@
 import QtQuick 2.3
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
+import QtQuick.Controls.Material 2.14
 
 Item {
     id: column
@@ -12,9 +13,12 @@ Item {
 
     TabBar {
         id: bar
+        Material.accent: Material.Red
+        Material.background: Material.Yellow
         y: 0
         width: parent.width
         currentIndex: 0
+
         TabButton {
             text: qsTr("Lobby")
         }

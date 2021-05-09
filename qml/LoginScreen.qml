@@ -2,11 +2,14 @@
 import QtQuick 2.3
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
+import QtQuick.Controls.Material 2.14
 import org.wahjam.client 1.0
 
 Pane {
     id: pane
     signal loggedIn
+
+    Material.background: Material.Yellow
 
     ColumnLayout {
         function loginFinished() {
@@ -40,11 +43,13 @@ Pane {
         }
         CheckBox {
             id: rememberPassword
+            Material.accent: Material.Red
             text: qsTr("Remember password")
             checked: Client.apiManager.rememberPassword
         }
         Button {
             id: logInButton
+            Material.accent: Material.Red
             text: qsTr("Log in")
             highlighted: true
             onClicked: {
