@@ -4,9 +4,10 @@
  */
 
 import QtQuick 2.12
+import QtQuick.Controls 2.14
 import org.wahjam.client 1.0
 
-Item {
+Pane {
     id: lobby
     signal connectToJam(string server)
 
