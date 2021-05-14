@@ -16,12 +16,27 @@ Pane {
         sessionListModel.refresh()
     }
 
+    Label {
+        id: jamSessionsLabel
+        anchors.top: parent.top
+        text: qsTr('Jam sessions')
+        font.pointSize: 20
+    }
+
     ListView {
-        anchors.fill: parent
+        id: jamSessionList
+        anchors.top: jamSessionsLabel.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: createPrivateJamButton.top
+
+        currentIndex: 0 // auto-select first jam
+
         model: SessionListModel {
             id: sessionListModel
             jamApiManager: Client.apiManager
         }
+
         delegate: Rectangle {
             width: parent.width
             height: childrenRect.height
@@ -35,10 +50,33 @@ Pane {
             MouseArea {
                 anchors.fill: parent
                 onClicked: parent.ListView.view.currentIndex = index
-                onDoubleClicked: {
-                    lobby.connectToJam(server)
-                }
+                onDoubleClicked: connect()
+            }
+
+            function connect() {
+                lobby.connectToJam(server)
             }
         }
+    }
+
+    Button {
+        id: createPrivateJamButton
+        anchors.right: connectButton.left
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 8
+
+        text: qsTr('Create private jam')
+
+        // TODO premium feature check
+        // TODO join jam session and go straight to edit jam page
+    }
+
+    Button {
+        id: connectButton
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+
+        text: qsTr('Connect')
+        onClicked: jamSessionList.currentItem.connect()
     }
 }
