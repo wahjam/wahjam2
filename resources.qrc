@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
+    <file>icons/lock_black_24dp.svg</file>
+    <file>icons/public_black_24dp.svg</file>
     <file>icons/settings_black_24dp.svg</file>
     <file>qtquickcontrols2.conf</file>
     <file>qml/application.qml</file>

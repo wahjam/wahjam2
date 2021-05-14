@@ -42,10 +42,18 @@ Pane {
             height: childrenRect.height
             color: ListView.view.currentIndex == index ? 'lightgray' : 'white';
             Column {
-                Text { text: topic }
-                Text { text: tempo }
-                Text { text: slots }
-                Text { text: users }
+                Row {
+                    Image {
+                        source: isPublic ? 'qrc:/icons/public_black_24dp.svg'
+                                         : 'qrc:/icons/lock_black_24dp.svg'
+                    }
+                    Text { text: topic }
+                }
+                Row {
+                    Text { text: tempo }
+                    Text { text: slots }
+                    Text { text: users }
+                }
             }
             MouseArea {
                 anchors.fill: parent
