@@ -25,6 +25,7 @@ Pane {
 
     ListView {
         id: jamSessionList
+        anchors.topMargin: 12
         anchors.top: jamSessionsLabel.bottom
         anchors.left: parent.left
         anchors.right: parent.right
