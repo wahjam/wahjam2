@@ -8,11 +8,12 @@
 #include "SessionListModel.h"
 
 enum {
-    ServerRole  = Qt::UserRole,
-    TopicRole   = Qt::UserRole + 1,
-    TempoRole   = Qt::UserRole + 2,
-    SlotsRole   = Qt::UserRole + 3,
-    UsersRole   = Qt::UserRole + 4,
+    ServerRole   = Qt::UserRole,
+    TopicRole    = Qt::UserRole + 1,
+    TempoRole    = Qt::UserRole + 2,
+    IsPublicRole = Qt::UserRole + 3,
+    SlotsRole    = Qt::UserRole + 4,
+    UsersRole    = Qt::UserRole + 5,
 };
 
 SessionListModel::SessionListModel(QObject *parent)
@@ -48,6 +49,8 @@ QVariant SessionListModel::data(const QModelIndex &index, int role) const
         return item.topic;
     case TempoRole:
         return item.tempo;
+    case IsPublicRole:
+        return item.isPublic;
     case SlotsRole:
         return item.slots_;
     case UsersRole:
@@ -63,6 +66,7 @@ QHash<int, QByteArray> SessionListModel::roleNames() const
     names[ServerRole] = "server";
     names[TopicRole] = "topic";
     names[TempoRole] = "tempo";
+    names[IsPublicRole] = "isPublic";
     names[SlotsRole] = "slots";
     names[UsersRole] = "users";
     return names;
@@ -150,6 +154,7 @@ void SessionListModel::replyFinished()
         QString topic = obj.value("topic").toString();
         double bpm = obj.value("bpm").toDouble();
         double bpi = obj.value("bpi").toDouble();
+        bool is_public = obj.value("is_public").toBool();
         double numUsers = obj.value("numusers").toDouble();
         double maxUsers = obj.value("maxusers").toDouble();
 
@@ -162,6 +167,7 @@ void SessionListModel::replyFinished()
             .server = server,
             .topic = topic,
             .tempo = QString{"%1 BPM/%2 BPI"}.arg(bpm).arg(bpi),
+            .isPublic = is_public,
             .slots_ = QString{"%1/%2"}.arg(numUsers).arg(maxUsers),
             .users = users.join(", "),
         });

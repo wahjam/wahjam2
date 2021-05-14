@@ -32,6 +32,7 @@ private:
         QString server;     // "hostname:port"
         QString topic;      // "Public jam - play nicely"
         QString tempo;      // "120 BPM/16 BPI"
+        bool isPublic;      // true - public jam, false - private jam
         QString slots_;     // "1/8"
         QString users;      // "alex, bob, chris"
     };
