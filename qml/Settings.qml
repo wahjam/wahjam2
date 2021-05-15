@@ -14,8 +14,7 @@ Pane {
         }
 
         Label {
-            text: qsTr('About')
-            font.pointSize: 20
+            text: qsTr('<h2>About</h2>')
         }
         Label {
             text: Qt.application.displayName + ' ' + Qt.application.version

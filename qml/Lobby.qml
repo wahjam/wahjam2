@@ -37,8 +37,7 @@ Pane {
         anchors.fill: parent
 
         Label {
-            text: qsTr('Jam sessions')
-            font.pointSize: 20
+            text: qsTr('<h2>Jam sessions</h2>')
         }
 
         ListView {
@@ -138,9 +137,7 @@ Pane {
                     padding: 5
 
                     Label {
-                        text: qsTr('Failed to create private jam')
-                        font.pointSize: 14
-                        font.bold: true
+                        text: qsTr('<h3>Failed to create private jam</h3>')
                     }
                     Text {
                         id: alertText

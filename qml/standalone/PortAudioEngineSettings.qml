@@ -12,8 +12,7 @@ GridLayout {
     columns: 2
 
     Label {
-        text: "Audio"
-        font.pointSize: 20
+        text: "<h2>Audio</h2>"
         Layout.columnSpan: 2
     }
 
@@ -51,8 +50,7 @@ GridLayout {
     }
 
     Label {
-        text: "Advanced"
-        font.pointSize: 16
+        text: "<h3>Advanced</h3>"
         Layout.columnSpan: 2
     }
 
