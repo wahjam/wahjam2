@@ -6,6 +6,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.14
 import org.wahjam.client 1.0
+import 'globals.js' as Globals
 
 Pane {
     id: lobby
@@ -47,6 +48,21 @@ Pane {
                     Image {
                         source: isPublic ? 'qrc:/icons/public_black_24dp.svg'
                                          : 'qrc:/icons/lock_black_24dp.svg'
+
+                        ToolTip.visible: isPublicMouseArea.containsMouse
+                        ToolTip.text: isPublic ? qsTr('Public')
+                                               : qsTr('Private')
+                        ToolTip.delay: Globals.toolTipDelay
+                        ToolTip.timeout: Globals.toolTipTimeout
+
+                        MouseArea {
+                            id: isPublicMouseArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+
+                            // Let parent MouseArea handle clicks
+                            propagateComposedEvents: true
+                        }
                     }
                     Text { text: topic }
                 }
