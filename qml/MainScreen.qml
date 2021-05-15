@@ -49,7 +49,7 @@ Item {
             id: lobby
             onConnectToJam: {
                 sessionTab.connect(server)
-                bar.currentIndex = 0
+                bar.currentIndex = 1
             }
         }
         Session {
