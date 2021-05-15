@@ -105,8 +105,6 @@ Pane {
             Button {
                 text: qsTr('Create private jam')
 
-                // TODO premium feature check
-
                 onClicked: {
                     creatingPrivateJamPopup.open()
                     Client.apiManager.createPrivateJam()

@@ -63,14 +63,17 @@ signals:
 private:
     QNetworkAccessManager *netManager;
     QUrl apiUrl;
+    QUrl upgradeUrl;
     QString username_;
     QString password_;
     bool rememberPassword_;
     QString hexToken_;
     QString loginError_;
     QNetworkReply *loginReply;
+    QNetworkReply *createPrivateJamReply;
     bool loggedIn;
 
 private slots:
     void loginRequestFinished();
+    void createPrivateJamRequestFinished();
 };

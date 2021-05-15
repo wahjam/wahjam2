@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <QCryptographicHash>
 #include <QEventLoop>
+#include <QJsonObject>
+#include <QJsonParseError>
 #include <QSettings>
 #include <QUuid>
 #include <qt5keychain/keychain.h>
@@ -49,6 +51,8 @@ static void keychainDeletePassword()
 JamApiManager::JamApiManager(QObject *parent)
     : QObject{parent},
       netManager{new QNetworkAccessManager{this}},
+      loginReply{nullptr},
+      createPrivateJamReply{nullptr},
       loggedIn{false}
 {
     QSettings settings;
@@ -56,6 +60,7 @@ JamApiManager::JamApiManager(QObject *parent)
     settings.beginGroup("login");
 
     apiUrl = settings.value("apiUrl", "https://jammr.net/api/").toString();
+    upgradeUrl = settings.value("upgradeUrl", "https://jammr.net/payments/subscribe").toString();
     username_ = settings.value("username").toString();
 
     if (settings.value("passwordSaved", false).toBool()) {
@@ -67,6 +72,11 @@ JamApiManager::JamApiManager(QObject *parent)
 
 void JamApiManager::login()
 {
+    if (loginReply) {
+        qWarning("Only one login operation can run at a time");
+        return;
+    }
+
     QSettings settings;
 
     settings.beginGroup("login");
@@ -215,10 +225,75 @@ QNetworkReply *JamApiManager::post(const QUrl &relativeUrl, const QByteArray &da
                       "application/x-www-form-urlencoded");
     request.setRawHeader("Referer",
                          url.toString(QUrl::RemoveUserInfo).toLatin1().data());
-    return netManager->post(request, data);
+
+    if (data.isEmpty()) {
+        // NetworkAccessManager::post() requires non-empty data
+        return netManager->sendCustomRequest(request, "POST");
+    } else {
+        return netManager->post(request, data);
+    }
 }
 
 void JamApiManager::createPrivateJam()
 {
-    emit privateJamCreationFailed("unimplemented");
+    if (createPrivateJamReply) {
+        qWarning("Only one private jam can be created at a time");
+        return;
+    }
+
+    qDebug("Sending request to create private jam...");
+
+    createPrivateJamReply = post(QUrl("livejams/"), QByteArray{});
+    connect(createPrivateJamReply, &QNetworkReply::finished,
+            this, &JamApiManager::createPrivateJamRequestFinished);
+}
+
+void JamApiManager::createPrivateJamRequestFinished()
+{
+    auto reply = createPrivateJamReply;
+    createPrivateJamReply->deleteLater();
+    createPrivateJamReply = nullptr;
+
+    auto netErr = reply->error();
+    if (netErr != QNetworkReply::NoError) {
+        qCritical("Create private jam network reply failed with error %d",
+                  netErr);
+
+        QString errmsg = netErr == QNetworkReply::AuthenticationRequiredError ?
+            tr("Upgrade to premium <a href=\"%1\">here</a> to create private jams.").arg(upgradeUrl.toString()) :
+            tr("Network error %1. Please ensure you are connected to the internet and try again.").arg(netErr);
+
+        emit createPrivateJamFailed(errmsg);
+        return;
+    }
+
+    QJsonParseError err;
+    QTextStream stream{reply};
+    QJsonDocument doc{QJsonDocument::fromJson(stream.device()->readAll(), &err)};
+
+    if (doc.isNull()) {
+        qCritical("Failed to create private jam: %s",
+                  err.errorString().toLatin1().constData());
+        emit createPrivateJamFailed(err.errorString());
+        return;
+    }
+
+    /* The JSON looks like this:
+     *
+     * {
+     *   "server": "host:port"
+     * }
+     */
+
+    QString server = doc.object().value("server").toString();
+    if (server.isNull()) {
+        QString errmsg = tr("Unable to create private jam due to missing \"server\" field in JSON. Please try again and report this bug if it continues to happen.");
+        qCritical(errmsg.toLatin1().constData());
+        emit createPrivateJamFailed(errmsg);
+        return;
+    }
+
+    qDebug("Successfully created private jam at %s",
+           server.toLatin1().constData());
+    emit createPrivateJamFinished(server);
 }
