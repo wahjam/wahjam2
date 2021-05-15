@@ -14,6 +14,8 @@ Pane {
     id: lobby
     signal connectToJam(string server)
 
+    Material.accent: Material.Red
+
     Component.onCompleted: {
         Client.apiManager.createPrivateJamFinished.connect((server) => {
             creatingPrivateJamPopup.close()
@@ -114,6 +116,7 @@ Pane {
             Button {
                 text: qsTr('Connect')
                 onClicked: jamSessionList.currentItem.connect()
+                highlighted: true
             }
         }
 
