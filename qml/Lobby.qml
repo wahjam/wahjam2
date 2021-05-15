@@ -5,6 +5,8 @@
 
 import QtQuick 2.12
 import QtQuick.Controls 2.14
+import QtQuick.Layouts 1.14
+import QtQuick.Controls.Material 2.12
 import org.wahjam.client 1.0
 import 'globals.js' as Globals
 
@@ -12,96 +14,160 @@ Pane {
     id: lobby
     signal connectToJam(string server)
 
+    Component.onCompleted: {
+        Client.apiManager.createPrivateJamFinished.connect((server) => {
+            creatingPrivateJamPopup.close()
+            connectToJam(server)
+        })
+        Client.apiManager.createPrivateJamFailed.connect((errmsg) => {
+            creatingPrivateJamPopup.close()
+            alertText.text = errmsg
+            alertRectangle.visible = true
+        })
+    }
+
     // Fetch new jam sessions
     function refresh() {
         sessionListModel.refresh()
     }
 
-    Label {
-        id: jamSessionsLabel
-        anchors.top: parent.top
-        text: qsTr('Jam sessions')
-        font.pointSize: 20
-    }
+    ColumnLayout {
+        anchors.fill: parent
 
-    ListView {
-        id: jamSessionList
-        anchors.topMargin: 12
-        anchors.top: jamSessionsLabel.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: createPrivateJamButton.top
-
-        currentIndex: 0 // auto-select first jam
-
-        model: SessionListModel {
-            id: sessionListModel
-            jamApiManager: Client.apiManager
+        Label {
+            text: qsTr('Jam sessions')
+            font.pointSize: 20
         }
 
-        delegate: Rectangle {
-            width: parent.width
-            height: childrenRect.height
-            color: ListView.view.currentIndex == index ? 'lightgray' : 'white';
-            Column {
-                Row {
-                    Image {
-                        source: isPublic ? 'qrc:/icons/public_black_24dp.svg'
-                                         : 'qrc:/icons/lock_black_24dp.svg'
+        ListView {
+            id: jamSessionList
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-                        ToolTip.visible: isPublicMouseArea.containsMouse
-                        ToolTip.text: isPublic ? qsTr('Public')
-                                               : qsTr('Private')
-                        ToolTip.delay: Globals.toolTipDelay
-                        ToolTip.timeout: Globals.toolTipTimeout
+            currentIndex: 0 // auto-select first jam
 
-                        MouseArea {
-                            id: isPublicMouseArea
-                            anchors.fill: parent
-                            hoverEnabled: true
+            model: SessionListModel {
+                id: sessionListModel
+                jamApiManager: Client.apiManager
+            }
 
-                            // Let parent MouseArea handle clicks
-                            propagateComposedEvents: true
+            delegate: Rectangle {
+                width: parent.width
+                height: childrenRect.height
+                color: ListView.view.currentIndex == index ? 'lightgray' : 'white';
+                Column {
+                    Row {
+                        Image {
+                            source: isPublic ? 'qrc:/icons/public_black_24dp.svg'
+                                             : 'qrc:/icons/lock_black_24dp.svg'
+
+                            ToolTip.visible: isPublicMouseArea.containsMouse
+                            ToolTip.text: isPublic ? qsTr('Public')
+                                                   : qsTr('Private')
+                            ToolTip.delay: Globals.toolTipDelay
+                            ToolTip.timeout: Globals.toolTipTimeout
+
+                            MouseArea {
+                                id: isPublicMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+
+                                // Let parent MouseArea handle clicks
+                                propagateComposedEvents: true
+                            }
                         }
+                        Text { text: topic }
                     }
-                    Text { text: topic }
+                    RowLayout {
+                        width: parent.width
+                        height: childrenRect.height
+
+                        Text { text: tempo }
+                        Text { text: slots }
+                        Text { text: users }
+                    }
                 }
-                Row {
-                    Text { text: tempo }
-                    Text { text: slots }
-                    Text { text: users }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: parent.ListView.view.currentIndex = index
+                    onDoubleClicked: connect()
+                }
+
+                function connect() {
+                    lobby.connectToJam(server)
                 }
             }
+        }
+
+        RowLayout {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+
+            Button {
+                text: qsTr('Create private jam')
+
+                // TODO premium feature check
+
+                onClicked: {
+                    creatingPrivateJamPopup.open()
+                    Client.apiManager.createPrivateJam()
+                }
+            }
+
+            Button {
+                text: qsTr('Connect')
+                onClicked: jamSessionList.currentItem.connect()
+            }
+        }
+
+        Rectangle {
+            id: alertRectangle
+            visible: false
+            Layout.fillWidth: true
+            Layout.preferredHeight: childrenRect.height
+            color: Material.background
+
+            Row {
+                Rectangle {
+                    height: parent.height
+                    width: 4
+                    color: Material.accent
+                }
+
+                Column {
+                    padding: 5
+
+                    Label {
+                        text: qsTr('Failed to create private jam')
+                        font.pointSize: 14
+                        font.bold: true
+                    }
+                    Text {
+                        id: alertText
+                    }
+                }
+            }
+
             MouseArea {
                 anchors.fill: parent
-                onClicked: parent.ListView.view.currentIndex = index
-                onDoubleClicked: connect()
-            }
-
-            function connect() {
-                lobby.connectToJam(server)
+                onClicked: parent.visible = false
             }
         }
     }
 
-    Button {
-        id: createPrivateJamButton
-        anchors.right: connectButton.left
-        anchors.bottom: parent.bottom
-        anchors.rightMargin: 8
+    // The busy indicator when creating a private jam
+    Popup {
+        id: creatingPrivateJamPopup
+        parent: Overlay.overlay
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        width: 100
+        height: 100
+        modal: true
+        closePolicy: Popup.NoAutoClose
 
-        text: qsTr('Create private jam')
-
-        // TODO premium feature check
-        // TODO join jam session and go straight to edit jam page
-    }
-
-    Button {
-        id: connectButton
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-
-        text: qsTr('Connect')
-        onClicked: jamSessionList.currentItem.connect()
+        BusyIndicator {
+            anchors.fill: parent
+            running: parent.visible
+        }
     }
 }
