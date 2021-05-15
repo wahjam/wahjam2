@@ -217,3 +217,8 @@ QNetworkReply *JamApiManager::post(const QUrl &relativeUrl, const QByteArray &da
                          url.toString(QUrl::RemoveUserInfo).toLatin1().data());
     return netManager->post(request, data);
 }
+
+void JamApiManager::createPrivateJam()
+{
+    emit privateJamCreationFailed("unimplemented");
+}

@@ -34,6 +34,10 @@ public:
     Q_INVOKABLE void login();
     Q_INVOKABLE bool isLoggedIn() const;
 
+    // Create a new private jam session and emit privateJamCreated() with the
+    // server address on success or privateJamCreationFailed() on failure.
+    Q_INVOKABLE void createPrivateJam();
+
     QString username() const;
     void setUsername(const QString &username);
     QString password() const;
@@ -53,6 +57,8 @@ signals:
     void rememberPasswordChanged();
     void hexTokenChanged();
     void loginFinished();
+    void createPrivateJamFinished(const QString &server);
+    void createPrivateJamFailed(const QString &errmsg);
 
 private:
     QNetworkAccessManager *netManager;
