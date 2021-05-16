@@ -46,13 +46,11 @@ Pane {
 
         TextField {
             Layout.fillWidth: true
-            Layout.preferredHeight: 20
             placeholderText: qsTr('Enter chat message...')
             onAccepted: {
                 Client.session.sendChatMessage(text)
                 clear()
             }
-            // TODO why is the text invisible?
         }
     }
 }
