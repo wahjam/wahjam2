@@ -3,10 +3,12 @@
  * Session - jam session screen
  */
 
-import QtQuick 2.12
+import QtQuick 2.14
+import QtQuick.Controls 2.14
 import org.wahjam.client 1.0
+import 'session/'
 
-Item {
+Pane {
     Component.onCompleted: {
         Client.session.stateChanged.connect((newState) => console.log('jamSession state changed: ' + newState));
         Client.session.error.connect((msg) => console.log('jamSession unexpected error: ' + msg));
@@ -21,7 +23,10 @@ Item {
             // TODO mark server messages to distinguish them from public messages
             chatMessages.append({username: "SERVER", message: msg})
         );
-        Client.session.topicChanged.connect((who, newTopic) => console.log('jamSession topic changed by ' + (who || "server") + ': ' + newTopic));
+        Client.session.topicChanged.connect((who, newTopic) => {
+            console.log('jamSession topic changed by ' + (who || "server") + ': ' + newTopic)
+            editJam.topic = newTopic
+        });
     }
 
     // Connect to a server
@@ -29,6 +34,7 @@ Item {
         Client.session.connectToServer(server,
                                        Client.apiManager.username,
                                        Client.apiManager.hexToken)
+        editJamPopup.open()
     }
 
     ListModel {
@@ -56,6 +62,25 @@ Item {
         onAccepted: {
             Client.session.sendChatMessage(chatMessageInput.text)
             chatMessageInput.clear()
+        }
+    }
+
+    Popup {
+        id: editJamPopup
+        parent: Overlay.overlay
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+        width: childrenRect.width
+        height: childrenRect.height
+
+        EditJam {
+            id: editJam
+            onTopicEditingFinished: {
+                const newTopic = editJam.topic
+                if (Client.session.topic != newTopic) {
+                    Client.session.sendChatMessage('/topic ' + newTopic)
+                }
+            }
         }
     }
 }
