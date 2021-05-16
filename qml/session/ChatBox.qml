@@ -38,8 +38,10 @@ Pane {
             Layout.fillHeight: true
             Layout.fillWidth: true
             model: chatMessages
-            delegate: Text {
-                text: "<b>" + username + "</b>: " + message
+            delegate: Label {
+                text: "**" + username + "**: " + message
+                textFormat: Text.MarkdownText
+                // TODO security: filter username and message to block undesirable markup
             }
             // TODO scroll bar
         }
