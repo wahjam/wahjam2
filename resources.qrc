@@ -1,7 +1,10 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
     <file>icons/lock_black_24dp.svg</file>
+    <file>icons/logout_black_24dp.svg</file>
+    <file>icons/podcasts_black_24dp.svg</file>
     <file>icons/public_black_24dp.svg</file>
+    <file>icons/room_preferences_black_24dp.svg</file>
     <file>icons/settings_black_24dp.svg</file>
     <file>qtquickcontrols2.conf</file>
     <file>qml/application.qml</file>
@@ -10,7 +13,11 @@
     <file>qml/LoginScreen.qml</file>
     <file>qml/MainScreen.qml</file>
     <file>qml/Session.qml</file>
+    <file>qml/session/ChannelStrip.qml</file>
+    <file>qml/session/ChatBox.qml</file>
+    <file>qml/session/ChordChart.qml</file>
     <file>qml/session/EditJam.qml</file>
+    <file>qml/session/JamControls.qml</file>
     <file>qml/Settings.qml</file>
     <file>qml/standalone/PortAudioEngineSettings.qml</file>
     <file>qml/standalone/FormatSpecificSettings.qml</file>

@@ -5,28 +5,23 @@
 
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import QtQuick.Layouts 1.14
 import org.wahjam.client 1.0
 import 'session/'
 
 Pane {
+    id: session
+
     Component.onCompleted: {
-        Client.session.stateChanged.connect((newState) => console.log('jamSession state changed: ' + newState));
-        Client.session.error.connect((msg) => console.log('jamSession unexpected error: ' + msg));
-        Client.session.chatMessageReceived.connect((senderUsername, msg) =>
-            chatMessages.append({username: senderUsername, message: msg})
-        );
-        Client.session.chatPrivMsgReceived.connect((senderUsername, msg) =>
-            // TODO mark private messages to distinguish them from public messages
-            chatMessages.append({username: senderUsername, message: msg})
-        );
-        Client.session.chatServerMsgReceived.connect((msg) =>
-            // TODO mark server messages to distinguish them from public messages
-            chatMessages.append({username: "SERVER", message: msg})
-        );
-        Client.session.topicChanged.connect((who, newTopic) => {
-            console.log('jamSession topic changed by ' + (who || "server") + ': ' + newTopic)
+        Client.session.stateChanged.connect((newState) =>
+            console.log('jamSession state changed: ' + newState)
+        )
+        Client.session.error.connect((msg) =>
+            console.log('jamSession unexpected error: ' + msg)
+        )
+        Client.session.topicChanged.connect((who, newTopic) =>
             editJam.topic = newTopic
-        });
+        )
     }
 
     // Connect to a server
@@ -34,34 +29,35 @@ Pane {
         Client.session.connectToServer(server,
                                        Client.apiManager.username,
                                        Client.apiManager.hexToken)
-        editJamPopup.open()
+
+        // TODO automatically open editJamPopup if private jam ACL is empty
     }
 
-    ListModel {
-        id: chatMessages
-    }
+    RowLayout {
+        anchors.fill: parent
 
-    ListView {
-        id: chatMessagesListView
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: chatMessageInput.top
-        model: chatMessages
-        delegate: Text {
-            text: "<b>" + username + "</b>: " + message
+        ColumnLayout {
+            ChordChart {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+
+            ChannelStrip {
+                Layout.fillWidth: true
+                Layout.minimumHeight: session.height / 3
+            }
         }
-        // TODO scroll bar
-    }
 
-    TextInput {
-        id: chatMessageInput
-        width: parent.width
-        height: 20
-        anchors.bottom: parent.bottom
-        onAccepted: {
-            Client.session.sendChatMessage(chatMessageInput.text)
-            chatMessageInput.clear()
+        ColumnLayout {
+            JamControls {
+                Layout.minimumWidth: session.width / 4
+                Layout.minimumHeight: 200
+            }
+
+            ChatBox {
+                Layout.minimumWidth: session.width / 4
+                Layout.fillHeight: true
+            }
         }
     }
 
