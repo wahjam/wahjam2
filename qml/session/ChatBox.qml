@@ -9,7 +9,7 @@ import QtQuick.Controls.Material 2.14
 import QtQuick.Layouts 1.14
 import org.wahjam.client 1.0
 
-Pane {
+Item {
     Component.onCompleted: {
         Client.session.chatMessageReceived.connect((senderUsername, msg) =>
             chatMessages.append({username: senderUsername, message: msg})

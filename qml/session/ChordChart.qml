@@ -6,7 +6,7 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 
-Pane {
+Item {
     Label {
         anchors.centerIn: parent
         text: qsTr('<h1>Chord Chart</h1>')
