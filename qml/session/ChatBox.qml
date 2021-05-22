@@ -37,13 +37,26 @@ Pane {
         ListView {
             Layout.fillHeight: true
             Layout.fillWidth: true
+            clip: true
             model: chatMessages
-            delegate: Label {
-                text: "**" + username + "**: " + message
-                textFormat: Text.MarkdownText
-                // TODO security: filter username and message to block undesirable markup
+            spacing: 8
+
+            delegate: Column {
+                Label {
+                    text: username
+                    textFormat: Text.PlainText
+                    font.bold: true
+                }
+                Label {
+                    text: message
+                    textFormat: Text.MarkdownText
+                    // TODO security: filter message to block undesirable markup
+                }
             }
-            // TODO scroll bar
+
+            ScrollBar.vertical: ScrollBar {
+                policy: ScrollBar.AlwaysOn
+            }
         }
 
         TextField {
