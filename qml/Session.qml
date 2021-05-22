@@ -51,7 +51,6 @@ Pane {
         ColumnLayout {
             JamControls {
                 Layout.minimumWidth: session.width / 4
-                Layout.minimumHeight: 200
             }
 
             ChatBox {
