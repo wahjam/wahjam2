@@ -2,10 +2,11 @@
 <qresource>
     <file>icons/lock_black_24dp.svg</file>
     <file>icons/logout_black_24dp.svg</file>
-    <file>icons/podcasts_black_24dp.svg</file>
     <file>icons/public_black_24dp.svg</file>
     <file>icons/room_preferences_black_24dp.svg</file>
     <file>icons/settings_black_24dp.svg</file>
+    <file>icons/wifi_tethering_black_24dp.svg</file>
+    <file>icons/wifi_tethering_off_black_24dp.svg</file>
     <file>qtquickcontrols2.conf</file>
     <file>qml/application.qml</file>
     <file>qml/globals.js</file>
