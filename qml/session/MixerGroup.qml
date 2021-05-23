@@ -20,5 +20,6 @@ Column {
 
     Row {
         id: channels
+        spacing: 8
     }
 }

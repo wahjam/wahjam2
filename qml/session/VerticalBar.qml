@@ -5,6 +5,7 @@
  * Similar to QtQuick.Controls ProgressBar, except vertical.
  */
 import QtQuick 2.14
+import QtQuick.Controls.Material 2.14
 
 Rectangle {
     property real value: 0
@@ -13,13 +14,13 @@ Rectangle {
 
     width: 20
     height: 120
-    border.color: 'black'
+    color: Material.color(Material.Grey)
 
     Rectangle {
-        x: 2
-        y: 2 + (parent.height - 4) * (1 - (value - from) / (to - from))
-        width: parent.width - 4
-        height: (parent.height - 4) * (value - from) / (to - from)
-        color: 'black'
+        x: 0
+        y: parent.height * (1 - (parent.value - parent.from) / (parent.to - parent.from))
+        width: parent.width
+        height: parent.height * (parent.value - parent.from) / (parent.to - parent.from)
+        color: Material.accent
     }
 }

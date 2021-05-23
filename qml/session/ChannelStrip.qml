@@ -6,9 +6,12 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
 
-Item {
-    Label {
-        anchors.centerIn: parent
-        text: qsTr('<h1>Channel Strip</h1>')
+Row {
+    spacing: 8
+
+    MixerGroup {
+        name: ''
+        MetronomeMixer {}
+        OutputMixer {}
     }
 }

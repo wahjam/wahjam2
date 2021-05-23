@@ -4,30 +4,48 @@
  */
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import '../globals.js' as Globals
 
 Row {
     Column {
-        id: channelStrip
         Text {
-            width: parent.width
             horizontalAlignment: Text.AlignHCenter
-            text: qsTr("Metronome")
+            text: qsTr('Metronome')
         }
         VerticalBar {
+            anchors.horizontalCenter: parent.horizontalCenter
             from: -100
             to: 10
             value: -6
         }
         Button {
-            text: qsTr("Mute")
+            anchors.horizontalCenter: parent.horizontalCenter
+            icon.source: checked ?
+                'qrc:/icons/volume_off_black_24dp.svg' :
+                'qrc:/icons/volume_up_black_24dp.svg'
+            flat: true
+            checkable: true
+            checked: false
+            hoverEnabled: true
+            ToolTip.visible: hovered
+            ToolTip.text: checked ? qsTr('Muted') : qsTr('Unmuted')
+            ToolTip.delay: Globals.toolTipDelay
+            ToolTip.timeout: Globals.toolTipTimeout
         }
         Button {
-            text: qsTr("...")
+            anchors.horizontalCenter: parent.horizontalCenter
+            icon.source: 'qrc:/icons/more_horiz_black_24dp.svg'
+            flat: true
             onClicked: {
                 let show = !sidePanel.visible;
                 highlighted = show;
                 sidePanel.visible = show;
             }
+            hoverEnabled: true
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr('More channel controls')
+            ToolTip.delay: Globals.toolTipDelay
+            ToolTip.timeout: Globals.toolTipTimeout
         }
     }
     Column {
@@ -36,7 +54,7 @@ Row {
         visible: false
 
         Text {
-            text: qsTr("Volume:")
+            text: qsTr('Volume:')
         }
         Slider {
             from: -24
