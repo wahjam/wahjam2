@@ -2,6 +2,7 @@
 <qresource>
     <file>icons/delete_black_24dp.svg</file>
     <file>icons/lock_black_24dp.svg</file>
+    <file>icons/login.png</file>
     <file>icons/logout_black_24dp.svg</file>
     <file>icons/public_black_24dp.svg</file>
     <file>icons/more_horiz_black_24dp.svg</file>

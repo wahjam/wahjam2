@@ -22,8 +22,8 @@ Pane {
         anchors.centerIn: parent
         Component.onCompleted: Client.apiManager.loginFinished.connect(loginFinished)
 
-        Text {
-            text: qsTr("Login")
+        Image {
+            source: 'qrc:/icons/login.png'
         }
         Text {
             id: errorField
