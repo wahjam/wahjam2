@@ -9,20 +9,11 @@ import org.wahjam.client 1.0
 import '../globals.js' as Globals
 
 Row {
-    Button {
-        icon.source: checked ?
-            'qrc:/icons/wifi_tethering_off_black_24dp.svg' :
-            'qrc:/icons/wifi_tethering_black_24dp.svg'
-        flat: true
-        checkable: true
-        checked: false
-        hoverEnabled: true
-        ToolTip.visible: hovered
-        ToolTip.text: checked ?
-            qsTr('Not sending audio to other users') :
-            qsTr('Sending audio to other users')
-        ToolTip.delay: Globals.toolTipDelay
-        ToolTip.timeout: Globals.toolTipTimeout
+    IconToggleButton {
+        onIconSource: 'qrc:/icons/wifi_tethering_off_black_24dp.svg'
+        offIconSource: 'qrc:/icons/wifi_tethering_black_24dp.svg'
+        onToolTipText: qsTr('Not sending audio to other users')
+        offToolTipText: qsTr('Sending audio to other users')
         // TODO toggle send
     }
 
