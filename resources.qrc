@@ -29,6 +29,7 @@
     <file>qml/session/LocalChannel.qml</file>
     <file>qml/session/MetronomeMixer.qml</file>
     <file>qml/session/MixerGroup.qml</file>
+    <file>qml/session/MoreButton.qml</file>
     <file>qml/session/MuteButton.qml</file>
     <file>qml/session/OutputMixer.qml</file>
     <file>qml/session/SoloButton.qml</file>

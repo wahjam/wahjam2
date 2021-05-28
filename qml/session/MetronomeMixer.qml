@@ -21,20 +21,10 @@ Row {
         MuteButton {
             anchors.horizontalCenter: parent.horizontalCenter
         }
-        Button {
+        MoreButton {
             anchors.horizontalCenter: parent.horizontalCenter
-            icon.source: 'qrc:/icons/more_horiz_black_24dp.svg'
-            flat: true
-            onClicked: {
-                let show = !sidePanel.visible;
-                highlighted = show;
-                sidePanel.visible = show;
-            }
-            hoverEnabled: true
-            ToolTip.visible: hovered
-            ToolTip.text: qsTr('More channel controls')
-            ToolTip.delay: Globals.toolTipDelay
-            ToolTip.timeout: Globals.toolTipTimeout
+            target: sidePanel
+            toolTipText: qsTr('More channel controls')
         }
     }
     Column {
