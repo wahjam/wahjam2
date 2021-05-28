@@ -21,9 +21,7 @@ Row {
             to: 10
             value: -6
         }
-        Button {
-            text: qsTr("Mute")
-        }
+        MuteButton {}
         Button {
             text: qsTr("Solo")
         }

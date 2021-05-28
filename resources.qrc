@@ -24,10 +24,12 @@
     <file>qml/session/ChatBox.qml</file>
     <file>qml/session/ChordChart.qml</file>
     <file>qml/session/EditJam.qml</file>
+    <file>qml/session/IconToggleButton.qml</file>
     <file>qml/session/JamControls.qml</file>
     <file>qml/session/LocalChannel.qml</file>
     <file>qml/session/MetronomeMixer.qml</file>
     <file>qml/session/MixerGroup.qml</file>
+    <file>qml/session/MuteButton.qml</file>
     <file>qml/session/OutputMixer.qml</file>
     <file>qml/session/VerticalBar.qml</file>
     <file>qml/Settings.qml</file>

@@ -18,19 +18,8 @@ Row {
             to: 10
             value: -6
         }
-        Button {
+        MuteButton {
             anchors.horizontalCenter: parent.horizontalCenter
-            icon.source: checked ?
-                'qrc:/icons/volume_off_black_24dp.svg' :
-                'qrc:/icons/volume_up_black_24dp.svg'
-            flat: true
-            checkable: true
-            checked: false
-            hoverEnabled: true
-            ToolTip.visible: hovered
-            ToolTip.text: checked ? qsTr('Muted') : qsTr('Unmuted')
-            ToolTip.delay: Globals.toolTipDelay
-            ToolTip.timeout: Globals.toolTipTimeout
         }
         Button {
             anchors.horizontalCenter: parent.horizontalCenter
