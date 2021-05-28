@@ -31,6 +31,7 @@
     <file>qml/session/MixerGroup.qml</file>
     <file>qml/session/MuteButton.qml</file>
     <file>qml/session/OutputMixer.qml</file>
+    <file>qml/session/SoloButton.qml</file>
     <file>qml/session/VerticalBar.qml</file>
     <file>qml/Settings.qml</file>
     <file>qml/standalone/PortAudioEngineSettings.qml</file>

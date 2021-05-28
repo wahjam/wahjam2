@@ -22,19 +22,8 @@ Row {
         MuteButton {
             anchors.horizontalCenter: parent.horizontalCenter
         }
-        Button {
+        SoloButton {
             anchors.horizontalCenter: parent.horizontalCenter
-            icon.source: checked ?
-                'qrc:/icons/star_black_24dp.svg' :
-                'qrc:/icons/star_outline_black_24dp.svg'
-            flat: true
-            checkable: true
-            checked: false
-            hoverEnabled: true
-            ToolTip.visible: hovered
-            ToolTip.text: checked ? qsTr('Solo on') : qsTr('Solo off')
-            ToolTip.delay: Globals.toolTipDelay
-            ToolTip.timeout: Globals.toolTipTimeout
         }
         Button {
             anchors.horizontalCenter: parent.horizontalCenter

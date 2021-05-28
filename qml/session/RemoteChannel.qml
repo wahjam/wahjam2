@@ -22,9 +22,7 @@ Row {
             value: -6
         }
         MuteButton {}
-        Button {
-            text: qsTr("Solo")
-        }
+        SoloButton {}
         Button {
             text: qsTr("...")
             onClicked: {
