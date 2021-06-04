@@ -4,6 +4,7 @@
  */
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import '../globals.js' as Globals
 
 Row {
     property string name: qsTr('Local channel')
