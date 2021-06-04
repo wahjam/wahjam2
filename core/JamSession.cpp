@@ -3,7 +3,7 @@
 
 JamSession::JamSession(AppView *appView_, QObject *parent)
     : QObject{parent}, appView{appView_}, state_{JamSession::Unconnected},
-      metronome{appView}
+      metronome_{appView}
 {
     connect(&conn, &JamConnection::connected,
             this, &JamSession::connConnected);
@@ -23,7 +23,7 @@ JamSession::JamSession(AppView *appView_, QObject *parent)
             this, &JamSession::connChatMessageReceived);
 
     connect(appView, &AppView::processAudioStreams,
-            &metronome, &Metronome::processAudioStreams);
+            &metronome_, &Metronome::processAudioStreams);
 }
 
 // Local channels currently only live while the jam session is connected.
@@ -87,12 +87,12 @@ JamSession::~JamSession()
 
 SampleTime JamSession::nextIntervalTime() const
 {
-    return metronome.nextIntervalTime();
+    return metronome_.nextIntervalTime();
 }
 
 SampleTime JamSession::remainingIntervalTime(SampleTime pos) const
 {
-    return metronome.remainingIntervalTime(pos);
+    return metronome_.remainingIntervalTime(pos);
 }
 
 JamSession::State JamSession::state() const
@@ -114,6 +114,11 @@ void JamSession::setState(State newState)
 {
     state_ = newState;
     emit stateChanged(state_);
+}
+
+Metronome *JamSession::metronome()
+{
+    return &metronome_;
 }
 
 void JamSession::abort()
@@ -152,7 +157,7 @@ void JamSession::disconnectFromServer()
     qDebug("Disconnecting from server %s...",
            server_.toLatin1().constData());
 
-    metronome.stop();
+    metronome_.stop();
     deleteLocalChannels();
     setState(JamSession::Closing);
     conn.disconnectFromServer();
@@ -165,7 +170,7 @@ void JamSession::connConnected()
 
 void JamSession::connDisconnected()
 {
-    metronome.stop();
+    metronome_.stop();
     server_.clear();
     remoteIntervals.clear();
     deleteRemoteUsers();
@@ -207,8 +212,8 @@ void JamSession::connChatMessageReceived(const QString &command,
 void JamSession::connConfigChanged(int bpm, int bpi)
 {
     qDebug("Server config changed bpm=%d bpi=%d", bpm, bpi);
-    metronome.setNextBpmBpi(bpm, bpi);
-    metronome.start();
+    metronome_.setNextBpmBpi(bpm, bpi);
+    metronome_.start();
     addLocalChannels();
 }
 

@@ -19,6 +19,7 @@ class JamSession : public QObject, public IIntervalTime
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
     Q_PROPERTY(QString server READ server)
     Q_PROPERTY(QString topic READ server NOTIFY topicChanged)
+    Q_PROPERTY(Metronome *metronome READ metronome NOTIFY metronomeChanged)
 
 public:
     enum State {
@@ -35,6 +36,7 @@ public:
     State state() const;
     QString server() const;
     QString topic() const;
+    Metronome *metronome();
 
     // Connect to a server, aborting any previous connection first. The state
     // will change to Connecting.
@@ -68,6 +70,9 @@ public:
 signals:
     void stateChanged(State newState);
 
+    // Never emitted, but defined since QML wants Q_PROPERTY(NOTIFY)
+    void metronomeChanged();
+
     // For error reporting, stateChanged() is emitted for actual state change
     void error(const QString &msg);
 
@@ -91,7 +96,7 @@ private:
     State state_;
     QString server_;
     QString topic_;
-    Metronome metronome;
+    Metronome metronome_;
     QVector<LocalChannel*> localChannels;
     QHash<QString, RemoteUser*> remoteUsers;
 

@@ -5,10 +5,13 @@
 
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import org.wahjam.client 1.0
 
 Item {
     Label {
         anchors.centerIn: parent
-        text: qsTr('<h1>Chord Chart</h1>')
+        text: Client.session.metronome.beat + '/' +
+              Client.session.metronome.bpi + ' ' +
+              Client.session.metronome.bpm + ' BPM'
     }
 }
