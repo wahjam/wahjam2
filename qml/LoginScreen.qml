@@ -23,18 +23,22 @@ Pane {
         Component.onCompleted: Client.apiManager.loginFinished.connect(loginFinished)
 
         Image {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             source: 'qrc:/icons/login.png'
         }
         Text {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             id: errorField
             text: Client.apiManager.loginError
         }
         TextField {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             id: username
             placeholderText: qsTr("Username")
             text: Client.apiManager.username
         }
         TextField {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             id: password
             placeholderText: qsTr("Password")
             text: Client.apiManager.password
@@ -42,12 +46,14 @@ Pane {
             onAccepted: logInButton.clicked()
         }
         CheckBox {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             id: rememberPassword
             Material.accent: Material.Red
             text: qsTr("Remember password")
             checked: Client.apiManager.rememberPassword
         }
         Button {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             id: logInButton
             Material.accent: Material.Red
             text: qsTr("Log in")
@@ -61,6 +67,7 @@ Pane {
             }
         }
         Text {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             text: '<a href="https://jammr.net/accounts/register/">' + qsTr("Click here") + '</a> ' + qsTr("to create a new account")
             onLinkActivated: Qt.openUrlExternally(link)
             MouseArea {
@@ -70,6 +77,7 @@ Pane {
             }
         }
         MouseArea {
+            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             id: mouseArea
             x: 0
             y: 0
