@@ -4,6 +4,7 @@
  */
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import org.wahjam.client 1.0
 import '../globals.js' as Globals
 
 Row {
@@ -20,6 +21,11 @@ Row {
         }
         MuteButton {
             anchors.horizontalCenter: parent.horizontalCenter
+            checked: !Client.session.metronome.monitor
+            onClicked: {
+                const metronome = Client.session.metronome
+                metronome.monitor = !metronome.monitor
+            }
         }
         MoreButton {
             anchors.horizontalCenter: parent.horizontalCenter
