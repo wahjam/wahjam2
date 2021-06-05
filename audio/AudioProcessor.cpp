@@ -66,9 +66,14 @@ SampleTime AudioProcessor::getNextSampleTime() const
 void AudioProcessor::processInputs(float *inOutSamples[CHANNELS_STEREO], size_t nsamples, SampleTime now)
 {
     for (int ch = 0; ch < CHANNELS_STEREO; ch++) {
-        captureStreams[ch].write(now, inOutSamples[ch], nsamples);
+        AudioStream &input = captureStream(ch);
 
-        if (!captureStreams[ch].monitorEnabled()) {
+        input.write(now, inOutSamples[ch], nsamples);
+
+        // Apply gain to monitor signal
+        if (input.monitorEnabled()) {
+            applyGain(inOutSamples[ch], inOutSamples[ch], nsamples, input.getGain());
+        } else {
             memset(inOutSamples[ch], 0, nsamples * sizeof(float));
         }
     }

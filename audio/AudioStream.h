@@ -44,6 +44,14 @@ inline void mixSamples(const float *in, float *out, size_t nsamples, float vol)
     }
 }
 
+inline void applyGain(const float *in, float *out, size_t nsamples, float vol)
+{
+    while (nsamples > 0) {
+        *out++ = *in++ * vol;
+        nsamples--;
+    }
+}
+
 // Mark a method safe to call from real-time code
 #define realtime
 
@@ -90,6 +98,8 @@ public:
     // Throw away all available samples
     realtime void readDiscardAll();
 
+    realtime float getGain() const;
+    realtime void setGain(float gain_);
     realtime float getPan() const;
     realtime void setPan(float pan_);
     realtime bool monitorEnabled() const;
@@ -113,6 +123,7 @@ private:
     size_t sampleBufferSize;
     size_t writeIndex;
     std::atomic<size_t> samplesQueued;
+    std::atomic<float> gain; // out / in ratio
     std::atomic<float> pan; // -1 - left, 0 - center,  1 - right
     std::atomic<bool> monitor; // mix into output?
     bool wasReset;

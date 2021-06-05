@@ -9,7 +9,7 @@ enum
 };
 
 AudioStream::AudioStream(size_t sampleBufferSize_)
-    : sampleBuffer{nullptr}, pan{0.f}, monitor{true}
+    : sampleBuffer{nullptr}, gain{1.f}, pan{0.f}, monitor{true}
 {
     setSampleBufferSize(sampleBufferSize_);
 }
@@ -156,9 +156,11 @@ size_t AudioStream::readDiscard(SampleTime now, size_t nsamples)
 
 size_t AudioStream::read(SampleTime now, float *samples, size_t nsamples)
 {
+    const float vol = getGain();
+
     return readInternal(now,
-        [samples](size_t offset, const float *input, size_t n) {
-            memcpy(&samples[offset], input, n * sizeof(float));
+        [samples, vol](size_t offset, const float *input, size_t n) {
+            applyGain(input, &samples[offset], n, vol);
         },
         nsamples);
 }
@@ -169,8 +171,9 @@ size_t AudioStream::readMixStereo(SampleTime now,
 {
     // TODO use -4.5 dB pan law instead of linear panning?
     const float pan = getPan();
-    const float volLeft = (1.f - pan) / 2;
-    const float volRight = (pan + 1.f) / 2;
+    const float vol = getGain();
+    const float volLeft = vol * (1.f - pan) / 2;
+    const float volRight = vol * (pan + 1.f) / 2;
 
     return readInternal(now,
         [samples, volLeft, volRight](size_t offset, const float *input, size_t n) {
@@ -188,6 +191,16 @@ void AudioStream::readDiscardAll()
         ring.readNext();
         samplesQueued.fetch_sub(dequeued);
     }
+}
+
+float AudioStream::getGain() const
+{
+    return gain.load();
+}
+
+void AudioStream::setGain(float gain_)
+{
+    gain.store(gain_);
 }
 
 float AudioStream::getPan() const
