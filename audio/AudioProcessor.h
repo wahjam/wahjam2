@@ -38,6 +38,9 @@ public:
     int getSampleRate() const;
     void setSampleRate(int rate);
 
+    realtime float getMasterGain() const;
+    realtime void setMasterGain(float gain);
+
     // Enable/disable processing
     void setRunning(bool enabled);
     bool isRunning() const;
@@ -59,6 +62,7 @@ private:
     std::atomic<int> sampleRate;
     std::atomic<bool> running;
     std::atomic<SampleTime> nextSampleTime;
+    std::atomic<float> masterGain;
 
     void setSampleBufferSize(size_t nsamples);
     void processInputs(float *inOutSamples[CHANNELS_STEREO],

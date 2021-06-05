@@ -8,7 +8,8 @@ AudioProcessor::AudioProcessor()
       playbackStreams{&rcu, new PlaybackStreams},
       sampleRate{44100},
       running{false},
-      nextSampleTime{0}
+      nextSampleTime{0},
+      masterGain{1.f}
 {
 }
 
@@ -112,6 +113,11 @@ void AudioProcessor::process(float *inOutSamples[CHANNELS_STEREO],
 
     processInputs(inOutSamples, nsamples, now);
     mixPlaybackStreams(inOutSamples, nsamples, now);
+
+    const float gain = getMasterGain();
+    for (int ch = 0; ch < CHANNELS_STEREO; ch++) {
+        applyGain(inOutSamples[ch], inOutSamples[ch], nsamples, gain);
+    }
 }
 
 int AudioProcessor::getSampleRate() const
@@ -122,6 +128,16 @@ int AudioProcessor::getSampleRate() const
 void AudioProcessor::setSampleRate(int rate)
 {
     sampleRate.store(rate);
+}
+
+float AudioProcessor::getMasterGain() const
+{
+    return masterGain.load();
+}
+
+void AudioProcessor::setMasterGain(float gain)
+{
+    masterGain.store(gain);
 }
 
 void AudioProcessor::setSampleBufferSize(size_t nsamples)
