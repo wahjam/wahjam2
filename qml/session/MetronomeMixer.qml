@@ -15,9 +15,9 @@ Row {
         }
         VerticalBar {
             anchors.horizontalCenter: parent.horizontalCenter
-            from: -100
-            to: 10
-            value: -6
+            from: 0
+            to: 1
+            value: Client.session.metronome.peakVolume
         }
         MuteButton {
             anchors.horizontalCenter: parent.horizontalCenter

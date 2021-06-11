@@ -171,6 +171,9 @@ void Metronome::processAudioStreams()
 
     stream->write(writeSampleTime, buf.data(), nsamples);
     writeSampleTime += nsamples;
+
+    // Periodically emit signal since peak volume is always changing
+    emit peakVolumeChanged(stream->getPeakVolume());
 }
 
 bool Metronome::monitorEnabled() const
@@ -189,4 +192,12 @@ void Metronome::setMonitorEnabled(bool monitor_)
     if (stream) {
         stream->setMonitorEnabled(monitor);
     }
+}
+
+float Metronome::peakVolume() const
+{
+    if (!stream) {
+        return 0.f;
+    }
+    return stream->getPeakVolume();
 }

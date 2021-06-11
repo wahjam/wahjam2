@@ -12,12 +12,14 @@ class Metronome : public QObject
     Q_PROPERTY(int bpm MEMBER bpm_ NOTIFY bpmChanged)
     Q_PROPERTY(int bpi MEMBER bpi_ NOTIFY bpiChanged)
     Q_PROPERTY(bool monitor READ monitorEnabled WRITE setMonitorEnabled NOTIFY monitorChanged)
+    Q_PROPERTY(float peakVolume READ peakVolume NOTIFY peakVolumeChanged)
 
 public:
     Metronome(AppView *appView, QObject *parent = nullptr);
     ~Metronome();
 
     bool monitorEnabled() const;
+    float peakVolume() const;
 
     SampleTime nextIntervalTime() const;
     SampleTime remainingIntervalTime(SampleTime pos) const;
@@ -27,6 +29,7 @@ signals:
     void bpmChanged(int bpm);
     void bpiChanged(int bpi);
     void monitorChanged(bool monitor);
+    void peakVolumeChanged(float peakVolume);
 
 public slots:
     void start();
