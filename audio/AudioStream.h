@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
+#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <functional>
@@ -52,6 +53,21 @@ inline void applyGain(const float *in, float *out, size_t nsamples, float vol)
     }
 }
 
+inline float updatePeakVolume(const float *in, size_t nsamples, float decay,
+                              float peakVolume)
+{
+    for (size_t i = 0; i < nsamples; i++) {
+        const float val = fabs(in[i]);
+        if (val >= peakVolume) {
+            peakVolume = val;
+        } else {
+            peakVolume *= decay;
+        }
+    }
+
+    return peakVolume;
+}
+
 // Mark a method safe to call from real-time code
 #define realtime
 
@@ -64,11 +80,19 @@ inline void applyGain(const float *in, float *out, size_t nsamples, float vol)
 class AudioStream
 {
 public:
-    AudioStream(size_t sampleBufferSize = 0);
+    enum Type {
+        CAPTURE,
+        PLAYBACK,
+    };
+
+    AudioStream(Type type = PLAYBACK, size_t sampleBufferSize = 0);
     ~AudioStream();
 
     // Call from non-real-time thread, discards queued data
     void setSampleBufferSize(size_t nsamples);
+
+    // Call from non-real-time thread
+    void setPeakVolumeDecay(float decay);
 
     // Returns true if stream has been reset (time has restarted from zero and
     // the sample rate may have changed).  Call from non-real-time thread.
@@ -105,6 +129,9 @@ public:
     realtime bool monitorEnabled() const;
     realtime void setMonitorEnabled(bool enabled);
 
+    // Peak volume for VU meters
+    realtime float getPeakVolume() const;
+
 private:
     /*
      * Audio is transferred in a packet called AudioDescriptor.  Each descriptor
@@ -118,12 +145,15 @@ private:
         SampleTime time;
     };
 
+    Type type;
     RingBuffer<AudioDescriptor> ring;
     float *sampleBuffer;
     size_t sampleBufferSize;
     size_t writeIndex;
     std::atomic<size_t> samplesQueued;
     std::atomic<float> gain; // out / in ratio
+    std::atomic<float> peakVolume;
+    float peakVolumeDecay;
     std::atomic<float> pan; // -1 - left, 0 - center,  1 - right
     std::atomic<bool> monitor; // mix into output?
     bool wasReset;
@@ -134,6 +164,8 @@ private:
     realtime size_t readInternal(SampleTime now,
                                  std::function<ReadFn> fn,
                                  size_t nsamples);
+
+    void updatePeakVolume(const float *samples, size_t nsamples);
 };
 
 #undef realtime

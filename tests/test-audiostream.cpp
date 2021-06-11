@@ -7,7 +7,7 @@ const size_t blockSize = 64 /* samples */;
 
 void testWriteFull()
 {
-    AudioStream stream{4 * blockSize};
+    AudioStream stream{AudioStream::PLAYBACK, 4 * blockSize};
     float samples[blockSize] = {};
 
     for (int i = 0; i < 4; i++) {
@@ -19,7 +19,7 @@ void testWriteFull()
 
 void testReadEmpty()
 {
-    AudioStream stream{4 * blockSize};
+    AudioStream stream{AudioStream::PLAYBACK, 4 * blockSize};
     float samples[blockSize] = {};
 
     assert(stream.read(0, samples, blockSize) == 0);
@@ -29,7 +29,7 @@ void testWrapBuffer()
 {
     float samples[blockSize];
 
-    AudioStream stream{4 * blockSize};
+    AudioStream stream{AudioStream::PLAYBACK, 4 * blockSize};
 
     // Almost fill buffer
     const size_t nzeroes = 3 * blockSize + blockSize / 2;
@@ -61,7 +61,7 @@ void testWrapBuffer()
 
 void testNumSamplesWritable()
 {
-    AudioStream stream{4 * blockSize};
+    AudioStream stream{AudioStream::PLAYBACK, 4 * blockSize};
     float samples[blockSize] = {};
 
     assert(stream.numSamplesWritable() == 4 * blockSize);

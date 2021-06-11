@@ -40,6 +40,7 @@ public:
 
     realtime float getMasterGain() const;
     realtime void setMasterGain(float gain);
+    realtime float getMasterPeakVolume(int channel) const;
 
     // Enable/disable processing
     void setRunning(bool enabled);
@@ -63,8 +64,11 @@ private:
     std::atomic<bool> running;
     std::atomic<SampleTime> nextSampleTime;
     std::atomic<float> masterGain;
+    std::atomic<float> masterPeakVolume[CHANNELS_STEREO];
+    float peakVolumeDecay;
 
     void setSampleBufferSize(size_t nsamples);
+    void setPeakVolumeDecay();
     void processInputs(float *inOutSamples[CHANNELS_STEREO],
                        size_t nsamples, SampleTime now);
     void mixPlaybackStreams(float *inOutSamples[CHANNELS_STEREO],

@@ -6,10 +6,16 @@
 AudioProcessor::AudioProcessor()
     : rcu{},
       playbackStreams{&rcu, new PlaybackStreams},
+      captureStreams{
+          {AudioStream::CAPTURE, false},
+          {AudioStream::CAPTURE, false}
+      },
       sampleRate{44100},
       running{false},
       nextSampleTime{0},
-      masterGain{1.f}
+      masterGain{1.f},
+      masterPeakVolume{{0.f}, {0.f}},
+      peakVolumeDecay{1.f}
 {
 }
 
@@ -28,6 +34,7 @@ void AudioProcessor::addPlaybackStream(AudioStream *stream)
     size_t nsamples = running.load() ?
         msecToSamples(getSampleRate(), GENEROUS_BUFFER_MSEC) : 0;
     stream->setSampleBufferSize(nsamples);
+    stream->setPeakVolumeDecay(peakVolumeDecay);
 
     auto newStreams = new PlaybackStreams{*playbackStreams.load()};
     newStreams->push_back(RCUPointer<AudioStream>{&rcu, stream});
@@ -117,6 +124,11 @@ void AudioProcessor::process(float *inOutSamples[CHANNELS_STEREO],
     const float gain = getMasterGain();
     for (int ch = 0; ch < CHANNELS_STEREO; ch++) {
         applyGain(inOutSamples[ch], inOutSamples[ch], nsamples, gain);
+
+        float peak = getMasterPeakVolume(ch);
+        peak = updatePeakVolume(inOutSamples[ch], nsamples,
+                                peakVolumeDecay, peak);
+        masterPeakVolume[ch].store(peak);
     }
 }
 
@@ -128,6 +140,8 @@ int AudioProcessor::getSampleRate() const
 void AudioProcessor::setSampleRate(int rate)
 {
     sampleRate.store(rate);
+
+    peakVolumeDecay = powf(0.01, 1 / (float)rate); // -40 dB/sec decay
 }
 
 float AudioProcessor::getMasterGain() const
@@ -138,6 +152,11 @@ float AudioProcessor::getMasterGain() const
 void AudioProcessor::setMasterGain(float gain)
 {
     masterGain.store(gain);
+}
+
+float AudioProcessor::getMasterPeakVolume(int channel) const
+{
+    return masterPeakVolume[channel].load();
 }
 
 void AudioProcessor::setSampleBufferSize(size_t nsamples)
@@ -153,6 +172,19 @@ void AudioProcessor::setSampleBufferSize(size_t nsamples)
     }
 }
 
+void AudioProcessor::setPeakVolumeDecay()
+{
+    for (int ch = 0; ch < CHANNELS_STEREO; ch++) {
+        captureStreams[ch].setPeakVolumeDecay(peakVolumeDecay);
+    }
+
+    for (auto streamPointer : *playbackStreams.load()) {
+        AudioStream *stream = streamPointer.load();
+
+        stream->setPeakVolumeDecay(peakVolumeDecay);
+    }
+}
+
 void AudioProcessor::setRunning(bool enabled)
 {
     if (running.load() == enabled) {
@@ -162,12 +194,16 @@ void AudioProcessor::setRunning(bool enabled)
     if (enabled) {
         size_t nsamples = msecToSamples(getSampleRate(), GENEROUS_BUFFER_MSEC);
         setSampleBufferSize(nsamples);
+        setPeakVolumeDecay();
     }
 
     running.store(enabled);
 
     if (!enabled) {
         setSampleBufferSize(0);
+
+        masterPeakVolume[CHANNEL_LEFT].store(0.f);
+        masterPeakVolume[CHANNEL_RIGHT].store(0.f);
     }
 }
 

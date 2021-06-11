@@ -8,8 +8,9 @@ enum
     SMALL_BLOCK_SIZE = 64 /* samples */,
 };
 
-AudioStream::AudioStream(size_t sampleBufferSize_)
-    : sampleBuffer{nullptr}, gain{1.f}, pan{0.f}, monitor{true}
+AudioStream::AudioStream(AudioStream::Type type_, size_t sampleBufferSize_)
+    : type{type_}, sampleBuffer{nullptr}, gain{1.f}, peakVolume{0.f},
+      peakVolumeDecay{0.f}, pan{0.f}, monitor{true}
 {
     setSampleBufferSize(sampleBufferSize_);
 }
@@ -28,6 +29,11 @@ void AudioStream::setSampleBufferSize(size_t nsamples)
     sampleBufferSize = nsamples;
     writeIndex = 0;
     samplesQueued.store(0);
+}
+
+void AudioStream::setPeakVolumeDecay(float decay)
+{
+    peakVolumeDecay = decay;
 }
 
 bool AudioStream::checkResetAndClear()
@@ -58,9 +64,25 @@ size_t AudioStream::numSamplesReadable() const
     return samplesQueued.load();
 }
 
+void AudioStream::updatePeakVolume(const float *samples, size_t nsamples)
+{
+    float peak = peakVolume.load();
+    peak = ::updatePeakVolume(samples, nsamples, peakVolumeDecay, peak);
+    peakVolume.store(peak);
+}
+
+float AudioStream::getPeakVolume() const
+{
+    return peakVolume.load();
+}
+
 size_t AudioStream::write(SampleTime now, const float *samples, size_t nsamples)
 {
     size_t nwritten = 0;
+
+    if (type == CAPTURE) {
+        updatePeakVolume(samples, nsamples);
+    }
 
     // Writes may cross the end of the sample buffer...
     while (nsamples > 0) {
@@ -127,6 +149,11 @@ size_t AudioStream::readInternal(SampleTime now,
         }
 
         size_t n = std::min(desc.nsamples - seek, nsamples);
+
+        if (type == PLAYBACK) {
+            updatePeakVolume(&desc.samples[seek], n);
+        }
+
         fn(nread, &desc.samples[seek], n);
 
         // Complete a descriptor

@@ -68,8 +68,8 @@ static void testSilentIntervals()
     intervalTime.nextIntervalTime_ = sampleRate; // 1 second
 
     size_t sampleBufferSize = msecToSamples(sampleRate, 1000);
-    AudioStream captureLeft{sampleBufferSize};
-    AudioStream captureRight{sampleBufferSize};
+    AudioStream captureLeft{AudioStream::CAPTURE, sampleBufferSize};
+    AudioStream captureRight{AudioStream::CAPTURE, sampleBufferSize};
 
     SampleTime now = 0;
     LocalChannel chan{"channel0", 0, &captureLeft, &captureRight, sampleRate,
@@ -128,8 +128,8 @@ static void testSendIntervals()
     intervalTime.nextIntervalTime_ = sampleRate; // 1 second
 
     size_t sampleBufferSize = msecToSamples(sampleRate, 1000);
-    AudioStream captureLeft{sampleBufferSize};
-    AudioStream captureRight{sampleBufferSize};
+    AudioStream captureLeft{AudioStream::CAPTURE, sampleBufferSize};
+    AudioStream captureRight{AudioStream::CAPTURE, sampleBufferSize};
 
     SampleTime now = 0;
     LocalChannel chan{"channel0", 0, &captureLeft, &captureRight, sampleRate,
