@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
-      - run: brew install libsamplerate qt5 portaudio libvorbis
+      - run: brew install libsamplerate qt5 qtkeychain portaudio libvorbis
       - uses: BSFishy/meson-build@v1.0.1
         with:
           action: test
