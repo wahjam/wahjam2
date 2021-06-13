@@ -18,7 +18,7 @@ AppView::AppView(const QString &format, const QUrl &url, QWindow *parent)
 
     // Install Quick error logger
     QObject::connect(this, &QQuickView::statusChanged,
-        [=] (QQuickView::Status) { showViewErrors(this); });
+        [this] (QQuickView::Status) { showViewErrors(this); });
 
     setTitle(APPNAME);
     setResizeMode(QQuickView::SizeRootObjectToView);
