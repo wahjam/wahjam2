@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 project('wahjam2', 'cpp',
         default_options : [
+          'cpp_args=-Wall -Werror=format-security -Wno-unused-parameter',
           'cpp_std=gnu++14',
+          'optimization=2',
+          'warning_level=3',
+          'werror=true'
         ],
         license : 'Apache-2.0',
         version : '0.0.1')
