@@ -93,7 +93,10 @@ bool OggVorbisDecoder::tryOpen()
     }
 
     ov_callbacks callbacks = {
-        .read_func = &OggVorbisDecoder::readFunc_,
+        &OggVorbisDecoder::readFunc_,
+        nullptr,
+        nullptr,
+        nullptr,
     };
     int ret;
 
