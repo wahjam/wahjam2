@@ -116,7 +116,9 @@ void VstPlugin::editOpen(void *ptrarg)
 
     parent = QWindow::fromWinId((WId)(uintptr_t)ptrarg);
 
-    qDebug("%s parent %p threadID %p", __func__, parent, QThread::currentThreadId());
+    qDebug("%s parent %p threadID %p", __func__,
+           static_cast<void*>(parent),
+           QThread::currentThreadId());
 
     if (parent) {
         /*
@@ -136,7 +138,7 @@ void VstPlugin::editOpen(void *ptrarg)
 
 void VstPlugin::editClose()
 {
-    qDebug("%s parent %p", __func__, parent);
+    qDebug("%s parent %p", __func__, static_cast<void*>(parent));
 
     appView.hide();
     appView.setParent(nullptr);
@@ -201,7 +203,7 @@ static void printDispatcher(AEffect *aeffect, int op, int intarg, intptr_t intpt
         }
     }
     qDebug("vst op %s (%#x) aeffect %p %#08x %p %p %f threadId %p",
-           name, op, aeffect, intarg,
+           name, op, static_cast<void*>(aeffect), intarg,
            (void*)intptrarg, ptrarg, floatarg,
            QThread::currentThreadId());
 }
