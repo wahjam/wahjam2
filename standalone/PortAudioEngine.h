@@ -50,8 +50,8 @@ public:
     const QList<ChannelRoute> &inputRouting() const { return inputRouting_; }
     const QString &outputDevice() const { return outputDevice_; }
     const QList<ChannelRoute> &outputRouting() const { return outputRouting_; }
-    const int sampleRate() const { return sampleRate_; }
-    const int bufferSize() const { return bufferSize_; }
+    int sampleRate() const { return sampleRate_; }
+    int bufferSize() const { return bufferSize_; }
 
     void setHostApi(const QString &name);
     void setInputDevice(const QString &name);
