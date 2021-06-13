@@ -29,8 +29,8 @@ class PortAudioEngine : public QObject
     Q_PROPERTY(QStringList availableOutputDevices READ availableOutputDevices NOTIFY availableOutputDevicesChanged)
     Q_PROPERTY(QList<ChannelRoute> outputRouting READ outputRouting WRITE setOutputRouting)
 
-    Q_PROPERTY(int sampleRate READ sampleRate WRITE setSampleRate);
-    Q_PROPERTY(int bufferSize READ bufferSize WRITE setBufferSize);
+    Q_PROPERTY(int sampleRate READ sampleRate WRITE setSampleRate)
+    Q_PROPERTY(int bufferSize READ bufferSize WRITE setBufferSize)
 
 public:
     // Real-time audio processing callback

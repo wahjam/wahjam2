@@ -10,17 +10,17 @@
 class RemoteChannel : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged);
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     // TODO mono or stereo?
     // TODO gain?
-    Q_PROPERTY(float pan READ pan WRITE setPan);
-    Q_PROPERTY(bool monitorEnabled READ monitorEnabled WRITE setMonitorEnabled);
+    Q_PROPERTY(float pan READ pan WRITE setPan)
+    Q_PROPERTY(bool monitorEnabled READ monitorEnabled WRITE setMonitorEnabled)
 
     // Playback stream is out of remote audio samples
-    Q_PROPERTY(bool underflow READ underflow NOTIFY underflowChanged);
+    Q_PROPERTY(bool underflow READ underflow NOTIFY underflowChanged)
 
     // Remote client is sending audio
-    Q_PROPERTY(bool remoteSending READ remoteSending NOTIFY remoteSendingChanged);
+    Q_PROPERTY(bool remoteSending READ remoteSending NOTIFY remoteSendingChanged)
 
 public:
     typedef std::shared_ptr<RemoteInterval> SharedRemoteInterval;

@@ -7,7 +7,7 @@
 class RemoteUser : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString username READ username);
+    Q_PROPERTY(QString username READ username)
 
 public:
     RemoteUser(const QString &username,

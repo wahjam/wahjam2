@@ -13,8 +13,8 @@
 class LocalChannel : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString name READ name WRITE setName);
-    Q_PROPERTY(bool send READ send WRITE setSend);
+    Q_PROPERTY(QString name READ name WRITE setName)
+    Q_PROPERTY(bool send READ send WRITE setSend)
     // TODO pan, gain, monitoring
 
 public:
