@@ -85,7 +85,7 @@ static void testSilentIntervals()
     chan.processAudioStreams();
 
     // The second interval has one signal
-    expectedUploadData.push_back((ExpectedUploadData){
+    expectedUploadData.push_back({
         .channelIdx = 0,
         .zeroGuid = true,
         .first = true,
@@ -99,7 +99,7 @@ static void testSilentIntervals()
     assert(expectedUploadData.empty());
 
     // The third interval has one signal but three processAudioStreams() calls
-    expectedUploadData.push_back((ExpectedUploadData){
+    expectedUploadData.push_back({
         .channelIdx = 0,
         .zeroGuid = true,
         .first = true,
@@ -145,7 +145,7 @@ static void testSendIntervals()
     intervalTime.nextIntervalTime_ += sampleRate;
 
     // The second interval has one signal
-    expectedUploadData.push_back((ExpectedUploadData){
+    expectedUploadData.push_back({
         .channelIdx = 0,
         .zeroGuid = false,
         .first = true,
@@ -159,7 +159,7 @@ static void testSendIntervals()
     assert(expectedUploadData.empty());
 
     // The third interval
-    expectedUploadData.push_back((ExpectedUploadData){
+    expectedUploadData.push_back({
         .channelIdx = 0,
         .zeroGuid = false,
         .first = true,
@@ -178,7 +178,7 @@ static void testSendIntervals()
     now += sampleBufferSize / 3;
     chan.processAudioStreams();
 
-    expectedUploadData.push_back((ExpectedUploadData){
+    expectedUploadData.push_back({
         .channelIdx = 0,
         .zeroGuid = false,
         .first = false,
