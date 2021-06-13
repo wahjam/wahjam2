@@ -53,7 +53,7 @@ void JamSession::addLocalChannels()
     localChannels.push_back(chan);
 
     conn.sendChannelInfo({
-        (JamConnection::ChannelInfo){
+        {
             .name = chan->name(),
             .volume = 0,
             .pan = 0,
