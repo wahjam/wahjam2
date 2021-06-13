@@ -560,10 +560,10 @@ void JamConnection::socketReadyRead()
 bool JamConnection::send(quint8 type, const char *data, size_t len,
                          size_t extraDataLen)
 {
-    const MessageHeader header = {
-        .type = noEndian8Bit(type),
-        .length = qToLittleEndian(static_cast<quint32>(len) +
-                                  static_cast<quint32>(extraDataLen)),
+    const MessageHeader header{
+        noEndian8Bit(type),
+        qToLittleEndian(static_cast<quint32>(len) +
+                        static_cast<quint32>(extraDataLen)),
     };
 
     if (socket.write(reinterpret_cast<const char*>(&header),

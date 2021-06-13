@@ -501,11 +501,11 @@ bool PortAudioEngine::fillStreamParameters(PaStreamParameters *inputParams,
         }
 
         PaStreamParameters params = {
-            .device = i,
-            .channelCount = 0, // filled in below
-            .sampleFormat = paFloat32 | paNonInterleaved,
-            .suggestedLatency = 0, // filled in below
-            .hostApiSpecificStreamInfo = nullptr,
+            i,
+            0, // filled in below
+            paFloat32 | paNonInterleaved,
+            0, // filled in below
+            nullptr,
         };
 
         if (inputDevice_ == info->name && inputParams != nullptr) {

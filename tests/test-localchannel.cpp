@@ -85,13 +85,7 @@ static void testSilentIntervals()
     chan.processAudioStreams();
 
     // The second interval has one signal
-    expectedUploadData.push_back({
-        .channelIdx = 0,
-        .zeroGuid = true,
-        .first = true,
-        .last = true,
-        .intervalTimeStep = sampleRate,
-    });
+    expectedUploadData.push_back({0, true, true, true, sampleRate});
     generateAudioSamples(&captureLeft, now, 1);
     generateAudioSamples(&captureRight, now, 1);
     now += 1;
@@ -99,13 +93,7 @@ static void testSilentIntervals()
     assert(expectedUploadData.empty());
 
     // The third interval has one signal but three processAudioStreams() calls
-    expectedUploadData.push_back({
-        .channelIdx = 0,
-        .zeroGuid = true,
-        .first = true,
-        .last = true,
-        .intervalTimeStep = sampleRate,
-    });
+    expectedUploadData.push_back({0, true, true, true, sampleRate});
     generateAudioSamples(&captureLeft, now, sampleBufferSize);
     generateAudioSamples(&captureRight, now, sampleBufferSize);
     now += sampleBufferSize;
@@ -145,13 +133,7 @@ static void testSendIntervals()
     intervalTime.nextIntervalTime_ += sampleRate;
 
     // The second interval has one signal
-    expectedUploadData.push_back({
-        .channelIdx = 0,
-        .zeroGuid = false,
-        .first = true,
-        .last = true,
-        .intervalTimeStep = sampleRate,
-    });
+    expectedUploadData.push_back({0, false, true, true, sampleRate});
     generateAudioSamples(&captureLeft, now, sampleBufferSize);
     generateAudioSamples(&captureRight, now, sampleBufferSize);
     now += sampleBufferSize;
@@ -159,13 +141,7 @@ static void testSendIntervals()
     assert(expectedUploadData.empty());
 
     // The third interval
-    expectedUploadData.push_back({
-        .channelIdx = 0,
-        .zeroGuid = false,
-        .first = true,
-        .last = false,
-        .intervalTimeStep = 0,
-    });
+    expectedUploadData.push_back({0, false, true, false, 0});
     generateAudioSamples(&captureLeft, now, sampleBufferSize / 3);
     generateAudioSamples(&captureRight, now, sampleBufferSize / 3);
     now += sampleBufferSize / 3;
@@ -178,13 +154,7 @@ static void testSendIntervals()
     now += sampleBufferSize / 3;
     chan.processAudioStreams();
 
-    expectedUploadData.push_back({
-        .channelIdx = 0,
-        .zeroGuid = false,
-        .first = false,
-        .last = true,
-        .intervalTimeStep = sampleRate,
-    });
+    expectedUploadData.push_back({0, false, false, true, sampleRate});
     generateAudioSamples(&captureLeft, now, sampleBufferSize / 3);
     generateAudioSamples(&captureRight, now, sampleBufferSize / 3);
     now += sampleBufferSize / 3;

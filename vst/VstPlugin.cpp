@@ -348,12 +348,7 @@ VstPlugin::VstPlugin(audioMasterCallback masterCallback_)
     aeffect.uniqueID            = ('W' << 24) | ('J' << 16) | ('A' << 8) | 'M';
     aeffect.processReplacing    = processReplacingCallback;
 
-    viewRect = {
-        .top = 0,
-        .left = 0,
-        .bottom = 600,
-        .right = 800,
-    };
+    viewRect = {0, 0, 600, 800};
 }
 
 VstPlugin::~VstPlugin()

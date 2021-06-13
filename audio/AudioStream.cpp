@@ -95,11 +95,7 @@ size_t AudioStream::write(SampleTime now, const float *samples, size_t nsamples)
             return nwritten;
         }
 
-        AudioDescriptor desc{
-            .samples = &sampleBuffer[writeIndex],
-            .nsamples = n,
-            .time = now,
-        };
+        AudioDescriptor desc{&sampleBuffer[writeIndex], n, now};
 
         memcpy(desc.samples, samples, n * sizeof(float));
 

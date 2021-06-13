@@ -52,14 +52,7 @@ void JamSession::addLocalChannels()
             this, &JamSession::uploadData);
     localChannels.push_back(chan);
 
-    conn.sendChannelInfo({
-        {
-            .name = chan->name(),
-            .volume = 0,
-            .pan = 0,
-            .flags = 0,
-        }
-    });
+    conn.sendChannelInfo({{chan->name(), 0, 0, 0}});
 
     chan->start();
 }

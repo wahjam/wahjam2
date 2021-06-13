@@ -164,12 +164,12 @@ void SessionListModel::replyFinished()
         }
 
         newItems.append({
-            .server = server,
-            .topic = topic,
-            .tempo = QString{"%1 BPM/%2 BPI"}.arg(bpm).arg(bpi),
-            .isPublic = is_public,
-            .slots_ = QString{"%1/%2"}.arg(numUsers).arg(maxUsers),
-            .users = users.join(", "),
+            server,
+            topic,
+            QString{"%1 BPM/%2 BPI"}.arg(bpm).arg(bpi),
+            is_public,
+            QString{"%1/%2"}.arg(numUsers).arg(maxUsers),
+            users.join(", "),
         });
         qDebug("Got server %s", server.toLatin1().constData());
     }

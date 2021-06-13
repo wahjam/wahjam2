@@ -52,14 +52,14 @@ size_t Resampler::resample(QByteArray *output, size_t nsamples)
     output->resize(oldOutputSize + nsamples * sizeof(float));
 
     SRC_DATA srcData = {
-        .data_in = reinterpret_cast<float*>(input.data()),
-        .data_out = reinterpret_cast<float*>(output->data() + oldOutputSize),
-        .input_frames = static_cast<long>(input.size() / sizeof(float)),
-        .output_frames = static_cast<long>(nsamples),
-        .input_frames_used = 0,
-        .output_frames_gen = 0,
-        .end_of_input = endOfInput,
-        .src_ratio = ratio,
+        reinterpret_cast<float*>(input.data()),
+        reinterpret_cast<float*>(output->data() + oldOutputSize),
+        static_cast<long>(input.size() / sizeof(float)),
+        static_cast<long>(nsamples),
+        0,
+        0,
+        endOfInput,
+        ratio,
     };
 
     int error = src_process(srcState, &srcData);
