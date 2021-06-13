@@ -288,7 +288,8 @@ void JamApiManager::createPrivateJamRequestFinished()
     QString server = doc.object().value("server").toString();
     if (server.isNull()) {
         QString errmsg = tr("Unable to create private jam due to missing \"server\" field in JSON. Please try again and report this bug if it continues to happen.");
-        qCritical(errmsg.toLatin1().constData());
+        qCritical("Failed to parse \"server\" field from JSON: %s",
+                  errmsg.toLatin1().constData());
         emit createPrivateJamFailed(errmsg);
         return;
     }
