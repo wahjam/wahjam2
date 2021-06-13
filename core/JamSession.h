@@ -65,7 +65,7 @@ public:
     // BPM/BPI
 
     SampleTime nextIntervalTime() const;
-    SampleTime remainingIntervalTime(SampleTime pos) const;
+    size_t remainingIntervalTime(SampleTime pos) const;
 
 signals:
     void stateChanged(State newState);

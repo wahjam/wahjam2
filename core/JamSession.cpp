@@ -90,7 +90,7 @@ SampleTime JamSession::nextIntervalTime() const
     return metronome_.nextIntervalTime();
 }
 
-SampleTime JamSession::remainingIntervalTime(SampleTime pos) const
+size_t JamSession::remainingIntervalTime(SampleTime pos) const
 {
     return metronome_.remainingIntervalTime(pos);
 }

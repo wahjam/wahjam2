@@ -106,7 +106,7 @@ bool RemoteChannel::fillPlaybackStreams()
     size_t nwritable =
         qMin(playbackStreams[CHANNEL_LEFT]->numSamplesWritable(),
              playbackStreams[CHANNEL_RIGHT]->numSamplesWritable());
-    SampleTime remaining = session->remainingIntervalTime(nextPlaybackTime);
+    size_t remaining = session->remainingIntervalTime(nextPlaybackTime);
     size_t n = qMin(nwritable, remaining);
 
     if (intervals.isEmpty() || nextPlaybackTime < intervalStartTime){

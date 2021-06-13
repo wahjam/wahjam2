@@ -17,7 +17,7 @@ public:
         return nextIntervalTime_;
     }
 
-    SampleTime remainingIntervalTime(SampleTime pos) const
+    size_t remainingIntervalTime(SampleTime pos) const
     {
         // The interval time is always 1 second in our test cases
         return sampleRate - (pos % sampleRate);

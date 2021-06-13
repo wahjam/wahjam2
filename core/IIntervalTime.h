@@ -18,5 +18,5 @@ public:
 
     // Returns the number of samples remaining in this interval given an
     // absolute time
-    virtual SampleTime remainingIntervalTime(SampleTime pos) const = 0;
+    virtual size_t remainingIntervalTime(SampleTime pos) const = 0;
 };

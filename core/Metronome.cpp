@@ -40,7 +40,7 @@ SampleTime Metronome::nextIntervalTime() const
     return nextIntervalTime_;
 }
 
-SampleTime Metronome::remainingIntervalTime(SampleTime pos) const
+size_t Metronome::remainingIntervalTime(SampleTime pos) const
 {
     SampleTime intervalTime;
     SampleTime intervalDuration;

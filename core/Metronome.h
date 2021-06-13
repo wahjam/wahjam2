@@ -22,7 +22,7 @@ public:
     float peakVolume() const;
 
     SampleTime nextIntervalTime() const;
-    SampleTime remainingIntervalTime(SampleTime pos) const;
+    size_t remainingIntervalTime(SampleTime pos) const;
 
 signals:
     void beatChanged(int beat);

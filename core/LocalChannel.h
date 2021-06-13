@@ -57,6 +57,6 @@ private:
     QUuid guid;
     OggVorbisEncoder encoder;
     SampleTime nextCaptureTime;
-    SampleTime remainingIntervalTime;
+    size_t remainingIntervalTime;
     bool nextCaptureTimeValid;
 };
