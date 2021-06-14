@@ -622,8 +622,9 @@ bool PortAudioEngine::start()
 
         // Update our settings
         sampleRate_ = streamInfo->sampleRate;
-        bufferSize_ = qMax(sampleRate_ * streamInfo->inputLatency,
-                           sampleRate_ * streamInfo->outputLatency);
+        int newBufferSize = qMax(sampleRate_ * streamInfo->inputLatency,
+                                 sampleRate_ * streamInfo->outputLatency);
+        bufferSize_ = qMax(bufferSize_, newBufferSize);
     }
 
     err = Pa_SetStreamFinishedCallback(stream, streamFinishedCallback);
