@@ -636,6 +636,8 @@ bool PortAudioEngine::start()
         return false;
     }
 
+    emit runningChanged();
+
     // Allocate buffers with plenty of space
     sampleBuf[CHANNEL_LEFT].resize(bufferSize_ * 2);
     sampleBuf[CHANNEL_RIGHT].resize(bufferSize_ * 2);
@@ -672,4 +674,6 @@ void PortAudioEngine::stop()
 
     stream = nullptr;
     stopping = false;
+
+    emit runningChanged();
 }

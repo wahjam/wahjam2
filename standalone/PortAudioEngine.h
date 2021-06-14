@@ -18,6 +18,8 @@ class PortAudioEngine : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool running READ running NOTIFY runningChanged)
+
     Q_PROPERTY(QString hostApi READ hostApi WRITE setHostApi)
     Q_PROPERTY(QStringList availableHostApis READ availableHostApis CONSTANT)
 
@@ -45,6 +47,7 @@ public:
     // start while the C++ code sets the process function.
     void setProcessFn(std::function<ProcessFn> processFn_);
 
+    bool running() const { return stream; }
     const QString &hostApi() const { return hostApi_; }
     const QString &inputDevice() const { return inputDevice_; }
     const QList<ChannelRoute> &inputRouting() const { return inputRouting_; }
@@ -74,6 +77,9 @@ signals:
     // When hostApi changes the available input/output devices also change
     void availableInputDevicesChanged();
     void availableOutputDevicesChanged();
+
+    // Emitted when audio starts/stops
+    void runningChanged();
 
     // Emitted when the engine stops due to an error
     void stoppedUnexpectedly();
