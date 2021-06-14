@@ -486,7 +486,7 @@ bool PortAudioEngine::fillStreamParameters(PaStreamParameters *inputParams,
         return false;
     }
     if (bufferSize_ <= 0) {
-        qCritical("Invalid buffer size %d", sampleRate_);
+        qCritical("Invalid buffer size %d", bufferSize_);
         return false;
     }
 
