@@ -48,7 +48,7 @@ QStringList PortAudioEngine::availableHostApis() const
     return names;
 }
 
-// Look up the PostAudio host API index (not the same as the type ID)
+// Look up the PortAudio host API index (not the same as the type ID)
 static PaHostApiIndex findHostApiIndex(const QString &name)
 {
     const PaHostApiInfo *info;
