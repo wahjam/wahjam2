@@ -70,8 +70,8 @@ public:
     QStringList availableOutputDevices() const;
     void logDeviceInfo() const;
 
-    bool start();
-    void stop();
+    Q_INVOKABLE bool start();
+    Q_INVOKABLE void stop();
 
 signals:
     // When hostApi changes the available input/output devices also change
