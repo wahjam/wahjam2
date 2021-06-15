@@ -29,7 +29,10 @@ int main(int argc, char **argv)
     portAudioEngine.logDeviceInfo();
 
     {
-        AppView appView{"standalone", QUrl{"qrc:/qml/application.qml"}};
+        AppView appView{"standalone"};
+
+        QObject::connect(&portAudioEngine, &PortAudioEngine::runningChanged,
+                         &appView, &AppView::setAudioRunning);
 
         portAudioEngine.setProcessFn(
             [&](float *inOutSamples[CHANNELS_STEREO],
@@ -39,12 +42,12 @@ int main(int argc, char **argv)
             }
         );
 
+        appView.setSource({"qrc:/qml/application.qml"});
         appView.show();
 
         rc = app.exec();
 
-        appView.setAudioRunning(false);
-        portAudioEngine.stop();
+        portAudioEngine.stop(false);
     }
 
     globalCleanup();

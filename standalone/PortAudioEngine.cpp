@@ -579,6 +579,7 @@ bool PortAudioEngine::start()
         return false;
     }
     if (processFn == nullptr) {
+        qCritical("PortAudioEngine::start() called with null processFn");
         return false;
     }
 
@@ -636,7 +637,7 @@ bool PortAudioEngine::start()
         return false;
     }
 
-    emit runningChanged();
+    emit runningChanged(true);
 
     // Allocate buffers with plenty of space
     sampleBuf[CHANNEL_LEFT].resize(bufferSize_ * 2);
@@ -655,7 +656,7 @@ bool PortAudioEngine::start()
     return true;
 }
 
-void PortAudioEngine::stop()
+void PortAudioEngine::stop(bool emitRunningChanged)
 {
     if (stream == nullptr) {
         return;
@@ -675,5 +676,7 @@ void PortAudioEngine::stop()
     stream = nullptr;
     stopping = false;
 
-    emit runningChanged();
+    if (emitRunningChanged) {
+        emit runningChanged(false);
+    }
 }

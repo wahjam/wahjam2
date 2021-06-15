@@ -71,7 +71,7 @@ public:
     void logDeviceInfo() const;
 
     Q_INVOKABLE bool start();
-    Q_INVOKABLE void stop();
+    Q_INVOKABLE void stop(bool emitRunningChanged = true);
 
 signals:
     // When hostApi changes the available input/output devices also change
@@ -79,7 +79,7 @@ signals:
     void availableOutputDevicesChanged();
 
     // Emitted when audio starts/stops
-    void runningChanged();
+    void runningChanged(bool enabled);
 
     // Emitted when the engine stops due to an error
     void stoppedUnexpectedly();

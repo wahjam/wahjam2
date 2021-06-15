@@ -16,7 +16,7 @@ class AppView : public QQuickView
     Q_OBJECT
 
 public:
-    AppView(const QString &format, const QUrl &url, QWindow *parent = nullptr);
+    AppView(const QString &format, const QUrl &url = {}, QWindow *parent = nullptr);
     ~AppView();
 
     // Needed by QmlGlobals::registerQmlTypes()
@@ -30,9 +30,6 @@ public:
         return &processor;
     }
 
-    // Start/stop audio processing, can be called from any thread
-    void setAudioRunning(bool enabled);
-
     // Can be called from any thread
     void setSampleRate(int sampleRate) {
         processor.setSampleRate(sampleRate);
@@ -45,6 +42,10 @@ public:
     void process(float *inOutSamples[CHANNELS_STEREO],
                  size_t nsamples,
                  SampleTime now);
+
+public slots:
+    // Start/stop audio processing, can be called from any thread
+    void setAudioRunning(bool enabled);
 
 signals:
     // Emitted periodically to allow draining capture streams and refilling
