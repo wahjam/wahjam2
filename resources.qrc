@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
+    <file>data/accent.ogg</file>
+    <file>data/click.ogg</file>
     <file>icons/delete_black_24dp.svg</file>
     <file>icons/lock_black_24dp.svg</file>
     <file>icons/login.png</file>
@@ -39,6 +41,5 @@
     <file>qml/standalone/PortAudioEngineSettings.qml</file>
     <file>qml/standalone/FormatSpecificSettings.qml</file>
     <file>qml/vst/FormatSpecificSettings.qml</file>
-    <file>click.raw</file>
 </qresource>
 </RCC>

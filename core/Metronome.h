@@ -13,6 +13,8 @@ class Metronome : public QObject
     Q_PROPERTY(int bpi MEMBER bpi_ NOTIFY bpiChanged)
     Q_PROPERTY(bool monitor READ monitorEnabled WRITE setMonitorEnabled NOTIFY monitorChanged)
     Q_PROPERTY(float peakVolume READ peakVolume NOTIFY peakVolumeChanged)
+    Q_PROPERTY(QString accentFilename READ accentFilename WRITE setAccentFilename NOTIFY accentFilenameChanged)
+    Q_PROPERTY(QString clickFilename READ clickFilename WRITE setClickFilename NOTIFY clickFilenameChanged)
 
 public:
     Metronome(AppView *appView, QObject *parent = nullptr);
@@ -20,6 +22,11 @@ public:
 
     bool monitorEnabled() const;
     float peakVolume() const;
+    QString accentFilename() const;
+    QString clickFilename() const;
+
+    void setAccentFilename(const QString &filename);
+    void setClickFilename(const QString &filename);
 
     SampleTime nextIntervalTime() const;
     size_t remainingIntervalTime(SampleTime pos) const;
@@ -30,6 +37,8 @@ signals:
     void bpiChanged(int bpi);
     void monitorChanged(bool monitor);
     void peakVolumeChanged(float peakVolume);
+    void accentFilenameChanged(const QString &filename);
+    void clickFilenameChanged(const QString &filename);
 
 public slots:
     void start();
@@ -46,6 +55,9 @@ private:
     QTimer nextBeatTimer;
     AppView *appView;
     AudioStream *stream;
+    QString accentFilename_;
+    QString clickFilename_;
+    std::vector<float> accent;
     std::vector<float> click;
     int beat_;
     int bpm_;
@@ -57,6 +69,8 @@ private:
     SampleTime writeIntervalPos; // number of samples from start of interval
     SampleTime writeSampleTime; // stream write position
     bool monitor;
+
+    void loadSamples();
 
 private slots:
     void nextBeat();
