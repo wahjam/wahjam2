@@ -12,6 +12,12 @@ Rectangle {
     property real from: 0
     property real to: 1
 
+    Behavior on value {
+        NumberAnimation {
+            duration: 25
+        }
+    }
+
     width: 20
     height: 120
     color: Material.color(Material.Grey)
