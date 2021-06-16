@@ -32,7 +32,13 @@ int main(int argc, char **argv)
         AppView appView{"standalone"};
 
         QObject::connect(&portAudioEngine, &PortAudioEngine::runningChanged,
-                         &appView, &AppView::setAudioRunning);
+            [&](bool enabled) {
+                if (enabled) {
+                    appView.setSampleRate(portAudioEngine.sampleRate());
+                }
+                appView.setAudioRunning(enabled);
+            }
+        );
 
         portAudioEngine.setProcessFn(
             [&](float *inOutSamples[CHANNELS_STEREO],
