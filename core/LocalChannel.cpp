@@ -42,6 +42,13 @@ void LocalChannel::setSend(bool enable)
     nextSend = enable;
 }
 
+float LocalChannel::peakVolume() const
+{
+    // TODO make peak volume monitoring stereo?
+    return (captureStreams[CHANNEL_LEFT]->getPeakVolume() +
+            captureStreams[CHANNEL_RIGHT]->getPeakVolume()) / 2.f;
+}
+
 // TODO start sending right away?
 void LocalChannel::start()
 {
@@ -120,4 +127,7 @@ void LocalChannel::processAudioStreams()
             remainingIntervalTime = intervalTime->remainingIntervalTime(nextCaptureTime);
         }
     }
+
+    // Periodically emit signal since peak volume is always changing
+    emit peakVolumeChanged();
 }

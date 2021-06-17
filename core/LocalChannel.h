@@ -15,7 +15,8 @@ class LocalChannel : public QObject
     Q_OBJECT
     Q_PROPERTY(QString name READ name WRITE setName)
     Q_PROPERTY(bool send READ send WRITE setSend)
-    // TODO pan, gain, monitoring
+    Q_PROPERTY(float peakVolume READ peakVolume NOTIFY peakVolumeChanged)
+    // TODO pan, gain
 
 public:
     // Does not take ownership of captureLeft and captureRight
@@ -31,6 +32,7 @@ public:
     void setName(const QString &name);
     bool send() const;
     void setSend(bool enable);
+    float peakVolume() const;
 
     // Begin uploading data from the capture streams
     void start();
@@ -45,6 +47,8 @@ signals:
     // signal is emitted each interval 'last' is true. 'data' may be empty.
     void uploadData(int channelIdx, const QUuid &uuid, const QByteArray &data,
                     bool first, bool last);
+
+    void peakVolumeChanged();
 
 private:
     IIntervalTime *intervalTime;
