@@ -7,12 +7,13 @@ import QtQuick.Controls 2.14
 import '../globals.js' as Globals
 
 Row {
-    property string name: qsTr('Local channel')
+    // The LocalChannel C++ object
+    property var channel
 
     Column {
         Text {
             horizontalAlignment: Text.AlignHCenter
-            text: name
+            text: channel.name
         }
         VerticalBar {
             anchors.horizontalCenter: parent.horizontalCenter

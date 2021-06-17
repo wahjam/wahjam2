@@ -12,7 +12,21 @@ Row {
 
     MixerGroup {
         name: Client.apiManager.username
-        LocalChannel {}
+
+        Component.onCompleted: {
+            const session = Client.session
+            const component = Qt.createComponent('LocalChannel.qml')
+
+            session.localChannelsChanged.connect(() => {
+                let controls = []
+                for (const channel of session.localChannels) {
+                    controls.push(component.createObject(
+                        this, {channel: channel}
+                    ))
+                }
+                content = controls
+            })
+        }
     }
 
     MixerGroup {
