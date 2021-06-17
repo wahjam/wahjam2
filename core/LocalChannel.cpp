@@ -30,6 +30,7 @@ QString LocalChannel::name() const
 void LocalChannel::setName(const QString &name)
 {
     name_ = name;
+    emit nameChanged();
 }
 
 bool LocalChannel::send() const
