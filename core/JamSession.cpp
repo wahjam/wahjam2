@@ -61,15 +61,12 @@ void JamSession::addLocalChannels()
 
 void JamSession::deleteLocalChannels()
 {
-    // Clear and notify property first so the UI lets go before we delete
-    // channel instances.
-    auto tmp = localChannels_;
+    for (auto chan : localChannels_) {
+        chan->deleteLater();
+    }
+
     localChannels_.clear();
     emit localChannelsChanged();
-
-    for (auto chan : tmp) {
-        delete chan;
-    }
 }
 
 const QVector<LocalChannel*> JamSession::localChannels() const
