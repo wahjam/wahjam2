@@ -33,7 +33,7 @@ JamSession::JamSession(AppView *appView_, QObject *parent)
 // user can still monitor and adjust audio outside a jam session.
 void JamSession::addLocalChannels()
 {
-    if (!localChannels.isEmpty()) {
+    if (!localChannels_.isEmpty()) {
         return;
     }
 
@@ -50,19 +50,31 @@ void JamSession::addLocalChannels()
             chan, &LocalChannel::processAudioStreams);
     connect(chan, &LocalChannel::uploadData,
             this, &JamSession::uploadData);
-    localChannels.push_back(chan);
+    localChannels_.push_back(chan);
 
     conn.sendChannelInfo({{chan->name(), 0, 0, 0}});
 
     chan->start();
+
+    emit localChannelsChanged();
 }
 
 void JamSession::deleteLocalChannels()
 {
-    for (auto chan : localChannels) {
+    // Clear and notify property first so the UI lets go before we delete
+    // channel instances.
+    auto tmp = localChannels_;
+    localChannels_.clear();
+    emit localChannelsChanged();
+
+    for (auto chan : tmp) {
         delete chan;
     }
-    localChannels.clear();
+}
+
+const QVector<LocalChannel*> JamSession::localChannels() const
+{
+    return localChannels_;
 }
 
 void JamSession::deleteRemoteUsers()
