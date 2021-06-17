@@ -9,6 +9,7 @@ Column {
     default property alias content: channels.children
     property string name: qsTr("Group")
 
+    visible: content.length > 0
     width: channels.width
 
     Text {
