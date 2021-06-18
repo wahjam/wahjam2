@@ -4,39 +4,25 @@
  */
 import QtQuick 2.14
 
-MixerGroup {
+Column {
     // The RemoteUser C++ object
     property var user
 
-    name: user.username
+    Text {
+        text: user.username
+    }
 
-    function destroyChannelControls() {
-        for (let i = 0; i < content.length; i++) {
-            const control = content[i]
-            control.cleanup()
+    AutoSizedListView {
+        model: user.channels
+        orientation: ListView.Horizontal
+        spacing: 8
+        delegate: RemoteChannel {
+            channel: modelData
         }
     }
 
     function cleanup() {
-        user.channelsChanged.disconnect(updateChannels)
-        destroyChannelControls()
-        user = {username: ''}
+        user = {username: '', channels: []}
         destroy()
-    }
-
-    function updateChannels() {
-        destroyChannelControls()
-
-        const component = Qt.createComponent('RemoteChannel.qml')
-        let controls = []
-        for (const channel of user.channels) {
-            controls.push(component.createObject(this, {channel: channel}))
-        }
-        content = controls
-    }
-
-    Component.onCompleted: {
-        user.channelsChanged.connect(updateChannels)
-        updateChannels()
     }
 }
