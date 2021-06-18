@@ -74,12 +74,26 @@ const QVector<LocalChannel*> JamSession::localChannels() const
     return localChannels_;
 }
 
+const QVector<RemoteUser*> JamSession::remoteUsers() const
+{
+    // Always return users in alphabetical order
+    auto keys = remoteUsers_.keys();
+    keys.sort();
+
+    QVector<RemoteUser*> result;
+    for (auto key : qAsConst(keys)) {
+        result.append(remoteUsers_[key]);
+    }
+    return result;
+}
+
 void JamSession::deleteRemoteUsers()
 {
-    for (auto remoteUser : qAsConst(remoteUsers)) {
-        delete remoteUser;
+    for (auto remoteUser : qAsConst(remoteUsers_)) {
+        remoteUser->deleteLater();
     }
-    remoteUsers.clear();
+    remoteUsers_.clear();
+    emit remoteUsersChanged();
 }
 
 JamSession::~JamSession()
@@ -231,9 +245,13 @@ void JamSession::sendChatPrivMsg(const QString &username, const QString &msg)
 
 void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &changes)
 {
+    bool emitRemoteUsersChanged = false;
+
     for (auto userInfo : changes) {
-        if (!remoteUsers.contains(userInfo.username)) {
-            remoteUsers[userInfo.username] =
+        if (!remoteUsers_.contains(userInfo.username)) {
+            emitRemoteUsersChanged = true;
+
+            remoteUsers_[userInfo.username] =
                 new RemoteUser{userInfo.username, appView};
 
             /* Subscribe to all channels */
@@ -247,7 +265,7 @@ void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &chang
                userInfo.channelIndex);
 
         // Note that clients don't send volume and pan so the fields are unused
-        RemoteUser *remoteUser = remoteUsers[userInfo.username];
+        RemoteUser *remoteUser = remoteUsers_[userInfo.username];
         remoteUser->setChannelInfo(userInfo.channelIndex,
                                    userInfo.channelName,
                                    userInfo.active);
@@ -255,8 +273,8 @@ void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &chang
 
     // Delete remote users with no channels
     QVector<QString> usersToRemove;
-    for (auto i = remoteUsers.constKeyValueBegin();
-         i != remoteUsers.constKeyValueEnd();
+    for (auto i = remoteUsers_.constKeyValueBegin();
+         i != remoteUsers_.constKeyValueEnd();
          ++i) {
         RemoteUser *remoteUser = (*i).second;
         if (remoteUser->numActiveChannels() == 0) {
@@ -264,9 +282,11 @@ void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &chang
         }
     }
     while (!usersToRemove.isEmpty()) {
+        emitRemoteUsersChanged = true;
+
         auto username = usersToRemove.takeLast();
         qDebug("Deleting user \"%s\"", username.toLatin1().constData());
-        delete remoteUsers.take(username);
+        delete remoteUsers_.take(username);
 
         QVector<QUuid> intervalsToRemove;
         for (auto remoteInterval : qAsConst(remoteIntervals)) {
@@ -279,6 +299,10 @@ void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &chang
             remoteIntervals.remove(guid);
         }
     }
+
+    if (emitRemoteUsersChanged) {
+        emit remoteUsersChanged();
+    }
 }
 
 void JamSession::connDownloadIntervalBegan(const QUuid &guid,
@@ -287,7 +311,7 @@ void JamSession::connDownloadIntervalBegan(const QUuid &guid,
                                            quint8 channelIndex,
                                            const QString &username)
 {
-    if (!remoteUsers.contains(username)) {
+    if (!remoteUsers_.contains(username)) {
         qWarning("Ignoring download interval for unknown user \"%s\"",
                  username.toLatin1().constData());
         return;
@@ -296,7 +320,7 @@ void JamSession::connDownloadIntervalBegan(const QUuid &guid,
     auto remoteInterval =
         std::make_shared<RemoteInterval>(username, guid, fourCC);
 
-    RemoteUser *remoteUser = remoteUsers[username];
+    RemoteUser *remoteUser = remoteUsers_[username];
     if (!remoteUser->enqueueRemoteInterval(channelIndex, remoteInterval)) {
         return; // invalid channel index, throw away this interval
     }

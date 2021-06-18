@@ -7,7 +7,7 @@
 class RemoteUser : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString username READ username)
+    Q_PROPERTY(QString username READ username NOTIFY usernameChanged)
 
 public:
     RemoteUser(const QString &username,
@@ -22,6 +22,9 @@ public:
     // Returns true on success, false on failure
     bool enqueueRemoteInterval(int channelIndex,
                                std::shared_ptr<RemoteInterval> remoteInterval);
+
+signals:
+    void usernameChanged();
 
 private:
     AppView *appView;

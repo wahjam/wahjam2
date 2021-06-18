@@ -21,6 +21,7 @@ class JamSession : public QObject, public IIntervalTime
     Q_PROPERTY(QString topic READ server NOTIFY topicChanged)
     Q_PROPERTY(Metronome *metronome READ metronome NOTIFY metronomeChanged)
     Q_PROPERTY(QVector<LocalChannel*> localChannels READ localChannels NOTIFY localChannelsChanged)
+    Q_PROPERTY(QVector<RemoteUser*> remoteUsers READ remoteUsers NOTIFY remoteUsersChanged)
 
 public:
     enum State {
@@ -39,6 +40,7 @@ public:
     QString topic() const;
     Metronome *metronome();
     const QVector<LocalChannel*> localChannels() const;
+    const QVector<RemoteUser*> remoteUsers() const;
 
     // Connect to a server, aborting any previous connection first. The state
     // will change to Connecting.
@@ -78,6 +80,9 @@ signals:
     // When a local channel is added or removed
     void localChannelsChanged();
 
+    // When a remote user is added or removed
+    void remoteUsersChanged();
+
     // For error reporting, stateChanged() is emitted for actual state change
     void error(const QString &msg);
 
@@ -103,7 +108,7 @@ private:
     QString topic_;
     Metronome metronome_;
     QVector<LocalChannel*> localChannels_;
-    QHash<QString, RemoteUser*> remoteUsers;
+    QHash<QString, RemoteUser*> remoteUsers_;
 
     // Remote intervals with downloads in progress
     QHash<QUuid, std::shared_ptr<RemoteInterval> > remoteIntervals;
