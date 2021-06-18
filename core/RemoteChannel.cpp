@@ -70,6 +70,13 @@ bool RemoteChannel::remoteSending() const
     return !intervals.last()->isSilence();
 }
 
+float RemoteChannel::peakVolume() const
+{
+    // TODO make peak volume monitoring stereo?
+    return (playbackStreams[CHANNEL_LEFT]->getPeakVolume() +
+            playbackStreams[CHANNEL_RIGHT]->getPeakVolume()) / 2.f;
+}
+
 // Play nsamples of silence
 void RemoteChannel::fillWithSilence(size_t nsamples)
 {
@@ -142,6 +149,9 @@ void RemoteChannel::processAudioStreams()
     while (!fillPlaybackStreams()) {
         // Do nothing
     }
+
+    // Periodically emit signal since peak volume is always changing
+    emit peakVolumeChanged();
 }
 
 void RemoteChannel::enqueueRemoteInterval(SharedRemoteInterval remoteInterval)

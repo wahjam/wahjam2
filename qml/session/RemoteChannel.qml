@@ -10,7 +10,7 @@ Row {
     property var channel
 
     function cleanup() {
-        channel = {name: '', monitorEnabled: false}
+        channel = {name: '', monitorEnabled: false, peakVolume: 0}
         destroy()
     }
 
@@ -23,7 +23,7 @@ Row {
             anchors.horizontalCenter: parent.horizontalCenter
             from: 0
             to: 1
-            value: 0
+            value: channel.peakVolume
         }
         MuteButton {
             anchors.horizontalCenter: parent.horizontalCenter

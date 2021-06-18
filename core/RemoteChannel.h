@@ -21,6 +21,7 @@ class RemoteChannel : public QObject
 
     // Remote client is sending audio
     Q_PROPERTY(bool remoteSending READ remoteSending NOTIFY remoteSendingChanged)
+    Q_PROPERTY(float peakVolume READ peakVolume NOTIFY peakVolumeChanged)
 
 public:
     typedef std::shared_ptr<RemoteInterval> SharedRemoteInterval;
@@ -38,12 +39,14 @@ public:
     void setMonitorEnabled(bool enable);
     bool underflow() const;
     bool remoteSending() const;
+    float peakVolume() const;
 
 signals:
     void nameChanged(const QString &newName);
     void monitorEnabledChanged(bool newValue);
     void underflowChanged(bool newValue);
     void remoteSendingChanged(bool newValue);
+    void peakVolumeChanged();
 
 public slots:
     void processAudioStreams();
