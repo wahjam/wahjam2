@@ -13,31 +13,13 @@ Row {
     MixerGroup {
         name: Client.apiManager.username
 
-        Component.onCompleted: {
-            const session = Client.session
-            const component = Qt.createComponent('LocalChannel.qml')
-
-            session.localChannelsChanged.connect(() => {
-                // Destroy existing LocalChannel controls
-                for (let i = 0; i < content.length; i++) {
-                    const control = content[i]
-
-                    // Assign a dummy object to prevent property binding errors
-                    // before the control is finally deleted.
-                    control.channel = {name: '', peakVolume: 0}
-
-                    control.destroy()
-                }
-
-                // Instantiate new LocalChannel controls
-                let controls = []
-                for (const channel of session.localChannels) {
-                    controls.push(component.createObject(
-                        this, {channel: channel}
-                    ))
-                }
-                content = controls
-            })
+        AutoSizedListView {
+            model: Client.session.localChannels
+            orientation: ListView.Horizontal
+            spacing: 8
+            delegate: LocalChannel {
+                channel: modelData
+            }
         }
     }
 
