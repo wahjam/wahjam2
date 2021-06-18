@@ -9,11 +9,6 @@ Row {
     // The RemoteChannel C++ object
     property var channel
 
-    function cleanup() {
-        channel = {name: '', monitorEnabled: false, peakVolume: 0}
-        destroy()
-    }
-
     Column {
         Text {
             horizontalAlignment: Text.AlignHCenter

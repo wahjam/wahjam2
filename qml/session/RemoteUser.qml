@@ -20,9 +20,4 @@ Column {
             channel: modelData
         }
     }
-
-    function cleanup() {
-        user = {username: '', channels: []}
-        destroy()
-    }
 }
