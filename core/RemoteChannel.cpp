@@ -47,12 +47,14 @@ void RemoteChannel::setPan(float pan)
 
 bool RemoteChannel::monitorEnabled() const
 {
-    return true; // TODO
+    return playbackStreams[CHANNEL_LEFT]->monitorEnabled();
 }
 
 void RemoteChannel::setMonitorEnabled(bool enable)
 {
-    // TODO
+    playbackStreams[CHANNEL_LEFT]->setMonitorEnabled(enable);
+    playbackStreams[CHANNEL_RIGHT]->setMonitorEnabled(enable);
+    emit monitorEnabledChanged(enable);
 }
 
 bool RemoteChannel::underflow() const

@@ -10,7 +10,7 @@ Row {
     property var channel
 
     function cleanup() {
-        channel = {name: ''}
+        channel = {name: '', monitorEnabled: false}
         destroy()
     }
 
@@ -27,6 +27,10 @@ Row {
         }
         MuteButton {
             anchors.horizontalCenter: parent.horizontalCenter
+            checked: !channel.monitorEnabled
+            onClicked: {
+                channel.monitorEnabled = !channel.monitorEnabled
+            }
         }
         SoloButton {
             anchors.horizontalCenter: parent.horizontalCenter

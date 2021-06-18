@@ -14,7 +14,7 @@ class RemoteChannel : public QObject
     // TODO mono or stereo?
     // TODO gain?
     Q_PROPERTY(float pan READ pan WRITE setPan)
-    Q_PROPERTY(bool monitorEnabled READ monitorEnabled WRITE setMonitorEnabled)
+    Q_PROPERTY(bool monitorEnabled READ monitorEnabled WRITE setMonitorEnabled NOTIFY monitorEnabledChanged)
 
     // Playback stream is out of remote audio samples
     Q_PROPERTY(bool underflow READ underflow NOTIFY underflowChanged)
@@ -41,6 +41,7 @@ public:
 
 signals:
     void nameChanged(const QString &newName);
+    void monitorEnabledChanged(bool newValue);
     void underflowChanged(bool newValue);
     void remoteSendingChanged(bool newValue);
 
