@@ -4,13 +4,11 @@
  */
 import QtQuick 2.14
 
-Column {
+MixerGroup {
     // The RemoteUser C++ object
     property var user
 
-    Text {
-        text: user.username
-    }
+    name: user.username
 
     AutoSizedListView {
         model: user.channels
