@@ -55,12 +55,7 @@ Row {
             // Destroy existing RemoteUser controls
             for (let i = 1; i < children.length - 1; i++) {
                 const control = children[i]
-
-                // Assign a dummy object to prevent property binding errors
-                // before the control is finally deleted.
-                control.user = {username: ''}
-
-                control.destroy()
+                control.cleanup()
             }
 
             // Instantiate new RemoteUser controls

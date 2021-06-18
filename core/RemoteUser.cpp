@@ -10,10 +10,10 @@ RemoteUser::RemoteUser(const QString &username,
 
 RemoteUser::~RemoteUser()
 {
-    for (auto channel : qAsConst(channels)) {
+    for (auto channel : qAsConst(channels_)) {
         delete channel;
     }
-    channels.clear();
+    channels_.clear();
 }
 
 QString RemoteUser::username() const
@@ -24,7 +24,7 @@ QString RemoteUser::username() const
 int RemoteUser::numActiveChannels() const
 {
     int num = 0;
-    for (auto channel : qAsConst(channels)) {
+    for (auto channel : qAsConst(channels_)) {
         if (channel) {
             num++;
         }
@@ -35,26 +35,32 @@ int RemoteUser::numActiveChannels() const
 void RemoteUser::setChannelInfo(int channelIndex, const QString &channelName,
                                 bool active)
 {
-    RemoteChannel *channel = channels.value(channelIndex, nullptr);
+    RemoteChannel *channel = channels_.value(channelIndex, nullptr);
 
-    // TODO emit notifications for UI?
     if (channel && !active) {
-        channels.remove(channelIndex);
+        channels_.remove(channelIndex);
+        emit channelsChanged();
         delete channel;
     } else if (channel && active) {
         channel->setName(channelName);
     } else if (!channel && active) {
         channel = new RemoteChannel{channelName, appView};
-        channels.insert(channelIndex, channel);
+        channels_.insert(channelIndex, channel);
         connect(appView, &AppView::processAudioStreams,
                 channel, &RemoteChannel::processAudioStreams);
+        emit channelsChanged();
     }
+}
+
+const QVector<RemoteChannel*> RemoteUser::channels() const
+{
+    return channels_;
 }
 
 bool RemoteUser::enqueueRemoteInterval(int channelIndex,
                                        std::shared_ptr<RemoteInterval> remoteInterval)
 {
-    RemoteChannel *channel = channels.value(channelIndex, nullptr);
+    RemoteChannel *channel = channels_.value(channelIndex, nullptr);
     if (!channel) {
         return false;
     }

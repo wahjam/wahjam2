@@ -6,30 +6,34 @@ import QtQuick 2.14
 import QtQuick.Controls 2.14
 
 Row {
-    id: root
-    property string name: qsTr("Remote channel")
+    // The RemoteChannel C++ object
+    property var channel
+
+    function cleanup() {
+        channel = {name: ''}
+        destroy()
+    }
 
     Column {
-        id: channelStrip
         Text {
-            width: parent.width
             horizontalAlignment: Text.AlignHCenter
-            text: name
+            text: channel.name
         }
         VerticalBar {
-            from: -100
-            to: 10
-            value: -6
+            anchors.horizontalCenter: parent.horizontalCenter
+            from: 0
+            to: 1
+            value: 0
         }
-        MuteButton {}
-        SoloButton {}
-        Button {
-            text: qsTr("...")
-            onClicked: {
-                let show = !sidePanel.visible;
-                highlighted = show;
-                sidePanel.visible = show;
-            }
+        MuteButton {
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+        SoloButton {
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+        MoreButton {
+            anchors.horizontalCenter: parent.horizontalCenter
+            target: sidePanel
         }
     }
     Column {

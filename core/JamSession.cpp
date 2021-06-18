@@ -89,11 +89,12 @@ const QVector<RemoteUser*> JamSession::remoteUsers() const
 
 void JamSession::deleteRemoteUsers()
 {
-    for (auto remoteUser : qAsConst(remoteUsers_)) {
-        remoteUser->deleteLater();
-    }
+    auto tmp = remoteUsers_;
     remoteUsers_.clear();
     emit remoteUsersChanged();
+    for (auto remoteUser : qAsConst(tmp)) {
+        delete remoteUser;
+    }
 }
 
 JamSession::~JamSession()
