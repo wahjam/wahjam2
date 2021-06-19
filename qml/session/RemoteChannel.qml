@@ -16,6 +16,7 @@ Row {
         }
         VerticalBar {
             anchors.horizontalCenter: parent.horizontalCenter
+            enabled: channel.monitorEnabled
             from: 0
             to: 1
             value: channel.peakVolume

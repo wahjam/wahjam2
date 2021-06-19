@@ -27,6 +27,6 @@ Rectangle {
         y: parent.height * (1 - (parent.value - parent.from) / (parent.to - parent.from))
         width: parent.width
         height: parent.height * (parent.value - parent.from) / (parent.to - parent.from)
-        color: Material.accent
+        color: enabled ? Material.accent : Qt.darker(Material.color(Material.Grey))
     }
 }

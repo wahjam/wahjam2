@@ -15,6 +15,7 @@ Row {
         }
         VerticalBar {
             anchors.horizontalCenter: parent.horizontalCenter
+            enabled: Client.session.metronome.monitor
             from: 0
             to: 1
             value: Client.session.metronome.peakVolume
