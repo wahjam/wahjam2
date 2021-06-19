@@ -21,7 +21,8 @@ int main(int argc, char **argv)
 
     PortAudioEngine portAudioEngine;
     QQmlEngine::setObjectOwnership(&portAudioEngine, QQmlEngine::CppOwnership);
-    qmlRegisterSingletonType<QmlGlobals>("org.wahjam.client", 1, 0, "PortAudioEngine",
+    qmlRegisterSingletonType<PortAudioEngine>("org.wahjam.client", 1, 0,
+            "PortAudioEngine",
             [&](QQmlEngine *engine, QJSEngine *) -> QObject * {
         return &portAudioEngine;
     });
