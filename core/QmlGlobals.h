@@ -17,6 +17,8 @@ class QmlGlobals : public QObject
 
     Q_PROPERTY(JamSession *session READ session NOTIFY sessionChanged)
 
+    Q_PROPERTY(float masterPeakVolume READ masterPeakVolume NOTIFY masterPeakVolumeChanged)
+
 public:
     QmlGlobals(AppView *appView, const QString &format, QObject *parent = nullptr);
 
@@ -35,15 +37,22 @@ public:
         return &session_;
     }
 
+    float masterPeakVolume() const;
+
     // Register C++ classes with QML engine
     static void registerQmlTypes();
 
 signals:
     void apiManagerChanged();
     void sessionChanged();
+    void masterPeakVolumeChanged();
 
 private:
+    AppView *appView;
     QString format_;
     JamApiManager apiManager_;
     JamSession session_;
+
+private slots:
+    void processAudioStreams();
 };

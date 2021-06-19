@@ -1,5 +1,6 @@
 import QtQuick 2.14
 import QtQuick.Controls 2.14
+import org.wahjam.client 1.0
 
 Column {
     Text {
@@ -8,8 +9,8 @@ Column {
     }
     VerticalBar {
         anchors.horizontalCenter: parent.horizontalCenter
-        from: -100
-        to: 10
-        value: -6
+        from: 0
+        to: 1
+        value: Client.masterPeakVolume
     }
 }

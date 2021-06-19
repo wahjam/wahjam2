@@ -3,9 +3,24 @@
 #include "QmlGlobals.h"
 #include "SessionListModel.h"
 
-QmlGlobals::QmlGlobals(AppView *appView, const QString &format, QObject *parent)
-    : QObject(parent), format_{format}, session_{appView}
+QmlGlobals::QmlGlobals(AppView *appView_, const QString &format, QObject *parent)
+    : QObject(parent), appView{appView_}, format_{format}, session_{appView}
 {
+    connect(appView, &AppView::processAudioStreams,
+            this, &QmlGlobals::processAudioStreams);
+}
+
+float QmlGlobals::masterPeakVolume() const
+{
+    // TODO make peak volume monitoring stereo?
+    return (appView->audioProcessor()->getMasterPeakVolume(CHANNEL_LEFT) +
+            appView->audioProcessor()->getMasterPeakVolume(CHANNEL_RIGHT)) / 2.f;
+}
+
+void QmlGlobals::processAudioStreams()
+{
+    // Periodically emit signal since peak volume is always changing
+    emit masterPeakVolumeChanged();
 }
 
 void QmlGlobals::registerQmlTypes()
