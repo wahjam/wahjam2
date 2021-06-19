@@ -13,12 +13,23 @@ Row {
             horizontalAlignment: Text.AlignHCenter
             text: qsTr('Metronome')
         }
-        VerticalBar {
+        Slider {
             anchors.horizontalCenter: parent.horizontalCenter
-            enabled: Client.session.metronome.monitor
+            width: background.width
+            height: background.height
+            orientation: Qt.Vertical
             from: 0
-            to: 1
-            value: Client.session.metronome.peakVolume
+            to: 1.5
+            value: Client.session.metronome.gain
+
+            onMoved: Client.session.metronome.gain = value
+
+            background: VerticalBar {
+                enabled: Client.session.metronome.monitor
+                from: 0
+                to: 1
+                value: Client.session.metronome.peakVolume
+            }
         }
         MuteButton {
             anchors.horizontalCenter: parent.horizontalCenter

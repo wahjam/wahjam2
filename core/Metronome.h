@@ -13,6 +13,7 @@ class Metronome : public QObject
     Q_PROPERTY(int bpi MEMBER bpi_ NOTIFY bpiChanged)
     Q_PROPERTY(bool monitor READ monitorEnabled WRITE setMonitorEnabled NOTIFY monitorChanged)
     Q_PROPERTY(float peakVolume READ peakVolume NOTIFY peakVolumeChanged)
+    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(QString accentFilename READ accentFilename WRITE setAccentFilename NOTIFY accentFilenameChanged)
     Q_PROPERTY(QString clickFilename READ clickFilename WRITE setClickFilename NOTIFY clickFilenameChanged)
 
@@ -22,9 +23,11 @@ public:
 
     bool monitorEnabled() const;
     float peakVolume() const;
+    float gain() const;
     QString accentFilename() const;
     QString clickFilename() const;
 
+    void setGain(float value);
     void setAccentFilename(const QString &filename);
     void setClickFilename(const QString &filename);
 
@@ -36,7 +39,8 @@ signals:
     void bpmChanged(int bpm);
     void bpiChanged(int bpi);
     void monitorChanged(bool monitor);
-    void peakVolumeChanged(float peakVolume);
+    void peakVolumeChanged();
+    void gainChanged();
     void accentFilenameChanged(const QString &filename);
     void clickFilenameChanged(const QString &filename);
 

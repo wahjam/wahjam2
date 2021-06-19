@@ -185,6 +185,7 @@ void Metronome::start()
 
     appView->audioProcessor()->addPlaybackStream(stream);
     processAudioStreams();
+    emit gainChanged();
 }
 
 void Metronome::stop()
@@ -192,6 +193,8 @@ void Metronome::stop()
     if (stream) {
         appView->audioProcessor()->removePlaybackStream(stream);
         stream = nullptr;
+        emit peakVolumeChanged();
+        emit gainChanged();
     }
 
     nextBeatTimer.stop();
@@ -236,7 +239,7 @@ void Metronome::processAudioStreams()
     writeSampleTime += nsamples;
 
     // Periodically emit signal since peak volume is always changing
-    emit peakVolumeChanged(stream->getPeakVolume());
+    emit peakVolumeChanged();
 }
 
 bool Metronome::monitorEnabled() const
@@ -263,4 +266,21 @@ float Metronome::peakVolume() const
         return 0.f;
     }
     return stream->getPeakVolume();
+}
+
+float Metronome::gain() const
+{
+    if (!stream) {
+        return 0.f;
+    }
+    return stream->getGain();
+}
+
+void Metronome::setGain(float gain)
+{
+    if (stream) {
+        qDebug("setGain %g", (double)gain);
+        stream->setGain(gain);
+        emit gainChanged();
+    }
 }
