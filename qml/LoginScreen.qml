@@ -28,8 +28,9 @@ Pane {
         }
         Text {
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-            id: errorField
+            Layout.maximumWidth: 400
             text: Client.apiManager.loginError
+            wrapMode: Text.Wrap
         }
         TextField {
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
