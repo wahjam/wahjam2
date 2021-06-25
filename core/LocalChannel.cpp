@@ -70,6 +70,15 @@ void LocalChannel::processAudioStreams()
         if (!captureStreams[CHANNEL_LEFT]->peekReadSampleTime(&nextCaptureTime)) {
             return;
         }
+
+        // Discard any samples from before the current interval
+        SampleTime start = intervalTime->currentIntervalTime();
+        if (nextCaptureTime < start) {
+            size_t numDiscard = start - nextCaptureTime;
+            captureStreams[CHANNEL_LEFT]->readDiscard(nextCaptureTime, numDiscard);
+            captureStreams[CHANNEL_RIGHT]->readDiscard(nextCaptureTime, numDiscard);
+        }
+
         remainingIntervalTime = intervalTime->remainingIntervalTime(nextCaptureTime);
         firstUploadData = true;
         nextCaptureTimeValid = true;
