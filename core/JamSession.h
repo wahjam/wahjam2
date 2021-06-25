@@ -68,6 +68,7 @@ public:
     // Local channels
     // BPM/BPI
 
+    SampleTime currentIntervalTime() const;
     SampleTime nextIntervalTime() const;
     size_t remainingIntervalTime(SampleTime pos) const;
 

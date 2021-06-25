@@ -13,6 +13,9 @@ class IIntervalTime
 public:
     virtual ~IIntervalTime() {}
 
+    // Returns the sample time when the current interval started
+    virtual SampleTime currentIntervalTime() const = 0;
+
     // Returns the sample time when the next interval starts
     virtual SampleTime nextIntervalTime() const = 0;
 

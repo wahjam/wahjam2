@@ -12,6 +12,12 @@ public:
     // Set this field to control the interval time that is reported
     SampleTime nextIntervalTime_;
 
+    SampleTime currentIntervalTime() const
+    {
+        // The interval time is always 1 second in our test cases
+        return nextIntervalTime_ - sampleRate;
+    }
+
     SampleTime nextIntervalTime() const
     {
         return nextIntervalTime_;

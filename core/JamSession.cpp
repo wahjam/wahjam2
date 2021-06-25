@@ -102,6 +102,11 @@ JamSession::~JamSession()
     abort();
 }
 
+SampleTime JamSession::currentIntervalTime() const
+{
+    return metronome_.currentIntervalTime();
+}
+
 SampleTime JamSession::nextIntervalTime() const
 {
     return metronome_.nextIntervalTime();

@@ -47,6 +47,13 @@ void Metronome::setClickFilename(const QString &filename)
     emit clickFilenameChanged(filename);
 }
 
+SampleTime Metronome::currentIntervalTime() const
+{
+    int sampleRate = appView->audioProcessor()->getSampleRate();
+    SampleTime intervalDuration = bpi_ * 60.f / bpm_ * sampleRate;
+    return nextIntervalTime_ - intervalDuration;
+}
+
 SampleTime Metronome::nextIntervalTime() const
 {
     return nextIntervalTime_;

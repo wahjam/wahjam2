@@ -31,6 +31,7 @@ public:
     void setAccentFilename(const QString &filename);
     void setClickFilename(const QString &filename);
 
+    SampleTime currentIntervalTime() const;
     SampleTime nextIntervalTime() const;
     size_t remainingIntervalTime(SampleTime pos) const;
 
