@@ -40,6 +40,7 @@ Item {
             clip: true
             model: chatMessages
             spacing: 8
+            id: messageList
 
             delegate: Column {
                 Label {
@@ -48,6 +49,8 @@ Item {
                     font.bold: true
                 }
                 Label {
+                    width: messageList.width
+                    wrapMode: Text.Wrap
                     text: message
                     textFormat: Text.MarkdownText
                     // TODO security: filter message to block undesirable markup
