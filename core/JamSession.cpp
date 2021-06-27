@@ -278,21 +278,26 @@ void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &chang
     }
 
     // Delete remote users with no channels
-    QVector<QString> usersToRemove;
-    for (auto i = remoteUsers_.constKeyValueBegin();
-         i != remoteUsers_.constKeyValueEnd();
-         ++i) {
-        RemoteUser *remoteUser = (*i).second;
+    QVector<RemoteUser*> usersToRemove;
+    for (RemoteUser *remoteUser : qAsConst(remoteUsers_)) {
         if (remoteUser->numActiveChannels() == 0) {
-            usersToRemove.append((*i).first);
+            usersToRemove.append(remoteUser);
         }
     }
-    while (!usersToRemove.isEmpty()) {
+    for (RemoteUser *remoteUser : qAsConst(usersToRemove)) {
+        remoteUsers_.remove(remoteUser->username());
         emitRemoteUsersChanged = true;
+    }
 
-        auto username = usersToRemove.takeLast();
+    if (emitRemoteUsersChanged) {
+        emit remoteUsersChanged();
+    }
+
+    for (RemoteUser *remoteUser : qAsConst(usersToRemove)) {
+        QString username = remoteUser->username();
         qDebug("Deleting user \"%s\"", username.toLatin1().constData());
-        delete remoteUsers_.take(username);
+
+        delete remoteUser;
 
         QVector<QUuid> intervalsToRemove;
         for (auto remoteInterval : qAsConst(remoteIntervals)) {
@@ -304,10 +309,6 @@ void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &chang
             auto guid = intervalsToRemove.takeLast();
             remoteIntervals.remove(guid);
         }
-    }
-
-    if (emitRemoteUsersChanged) {
-        emit remoteUsersChanged();
     }
 }
 
