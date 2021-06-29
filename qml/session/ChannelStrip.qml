@@ -13,20 +13,16 @@ Row {
     MixerGroup {
         name: Client.apiManager.username
 
-        AutoSizedListView {
+        Repeater {
             model: Client.session.localChannels
-            orientation: ListView.Horizontal
-            spacing: 8
             delegate: LocalChannel {
                 channel: modelData
             }
         }
     }
 
-    AutoSizedListView {
+    Repeater {
         model: Client.session.remoteUsers
-        orientation: ListView.Horizontal
-        spacing: 8
         delegate: RemoteUser {
             user: modelData
         }

@@ -10,10 +10,8 @@ MixerGroup {
 
     name: user.username
 
-    AutoSizedListView {
+    Repeater {
         model: user.channels
-        orientation: ListView.Horizontal
-        spacing: 8
         delegate: RemoteChannel {
             channel: modelData
         }
