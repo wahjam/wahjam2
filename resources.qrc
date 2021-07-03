@@ -23,7 +23,6 @@
     <file>qml/LoginScreen.qml</file>
     <file>qml/MainScreen.qml</file>
     <file>qml/Session.qml</file>
-    <file>qml/session/AutoSizedListView.qml</file>
     <file>qml/session/ChannelStrip.qml</file>
     <file>qml/session/ChatBox.qml</file>
     <file>qml/session/ChordChart.qml</file>
