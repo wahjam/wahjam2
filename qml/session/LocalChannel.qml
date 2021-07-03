@@ -24,6 +24,7 @@ Row {
         SendButton {
             anchors.horizontalCenter: parent.horizontalCenter
             checked: !channel.send
+            onClicked: channel.send = !channel.send
         }
         MoreButton {
             anchors.horizontalCenter: parent.horizontalCenter

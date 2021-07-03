@@ -40,7 +40,11 @@ bool LocalChannel::send() const
 
 void LocalChannel::setSend(bool enable)
 {
+    if (nextSend == enable) {
+        return;
+    }
     nextSend = enable;
+    emit sendChanged();
 }
 
 float LocalChannel::peakVolume() const

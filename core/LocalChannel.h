@@ -14,7 +14,7 @@ class LocalChannel : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
-    Q_PROPERTY(bool send READ send WRITE setSend)
+    Q_PROPERTY(bool send READ send WRITE setSend NOTIFY sendChanged)
     Q_PROPERTY(float peakVolume READ peakVolume NOTIFY peakVolumeChanged)
     // TODO pan, gain
 
@@ -48,6 +48,7 @@ signals:
     void uploadData(int channelIdx, const QUuid &uuid, const QByteArray &data,
                     bool first, bool last);
 
+    void sendChanged();
     void nameChanged();
     void peakVolumeChanged();
 
