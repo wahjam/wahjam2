@@ -37,6 +37,7 @@
     <file>qml/session/OutputMixer.qml</file>
     <file>qml/session/RemoteChannel.qml</file>
     <file>qml/session/RemoteUser.qml</file>
+    <file>qml/session/SendButton.qml</file>
     <file>qml/session/SoloButton.qml</file>
     <file>qml/session/VerticalBar.qml</file>
     <file>qml/Settings.qml</file>

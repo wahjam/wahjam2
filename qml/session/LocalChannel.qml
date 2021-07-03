@@ -21,11 +21,9 @@ Row {
             to: 1
             value: channel.peakVolume
         }
-        MuteButton {
+        SendButton {
             anchors.horizontalCenter: parent.horizontalCenter
-        }
-        SoloButton {
-            anchors.horizontalCenter: parent.horizontalCenter
+            checked: !channel.send
         }
         MoreButton {
             anchors.horizontalCenter: parent.horizontalCenter
