@@ -110,12 +110,12 @@ private:
     Metronome metronome_;
     QVector<LocalChannel*> localChannels_;
     QHash<QString, RemoteUser*> remoteUsers_;
+    bool started;
 
     // Remote intervals with downloads in progress
     QHash<QUuid, std::shared_ptr<RemoteInterval> > remoteIntervals;
 
-    void addLocalChannels();
-    void deleteLocalChannels();
+    void createLocalChannels();
 
     void deleteRemoteUsers();
 

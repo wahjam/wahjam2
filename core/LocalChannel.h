@@ -37,6 +37,9 @@ public:
     // Begin uploading data from the capture streams
     void start();
 
+    // Stop uploading data from capture streams
+    void stop();
+
 public slots:
     void processAudioStreams();
 
@@ -60,6 +63,7 @@ private:
     bool send_;
     bool nextSend;
     bool firstUploadData;
+    bool started;
     QUuid guid;
     OggVorbisEncoder encoder;
     SampleTime nextCaptureTime;

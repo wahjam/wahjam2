@@ -16,6 +16,7 @@ LocalChannel::LocalChannel(const QString &name,
       send_{false},
       nextSend{true},
       firstUploadData{true},
+      started{false},
       encoder{1, sampleRate},
       nextCaptureTime{0},
       nextCaptureTimeValid{false}
@@ -54,21 +55,33 @@ float LocalChannel::peakVolume() const
             captureStreams[CHANNEL_RIGHT]->getPeakVolume()) / 2.f;
 }
 
-// TODO start sending right away?
 void LocalChannel::start()
 {
-    captureStreams[CHANNEL_LEFT]->checkResetAndClear();
-    captureStreams[CHANNEL_RIGHT]->checkResetAndClear();
-
-    // Discard stale audio data
-    captureStreams[CHANNEL_LEFT]->readDiscardAll();
-    captureStreams[CHANNEL_RIGHT]->readDiscardAll();
-
+    started = true;
     nextCaptureTimeValid = false;
+}
+
+void LocalChannel::stop()
+{
+    started = false;
 }
 
 void LocalChannel::processAudioStreams()
 {
+    // Periodically emit signal since peak volume is always changing
+    emit peakVolumeChanged();
+
+    if (captureStreams[CHANNEL_LEFT]->checkResetAndClear() ||
+        captureStreams[CHANNEL_RIGHT]->checkResetAndClear()) {
+        // TODO
+    }
+
+    if (!started) {
+        captureStreams[CHANNEL_LEFT]->readDiscardAll();
+        captureStreams[CHANNEL_RIGHT]->readDiscardAll();
+        return;
+    }
+
     // Synchronize time to the capture stream
     if (!nextCaptureTimeValid) {
         if (!captureStreams[CHANNEL_LEFT]->peekReadSampleTime(&nextCaptureTime)) {
@@ -81,6 +94,7 @@ void LocalChannel::processAudioStreams()
             size_t numDiscard = start - nextCaptureTime;
             captureStreams[CHANNEL_LEFT]->readDiscard(nextCaptureTime, numDiscard);
             captureStreams[CHANNEL_RIGHT]->readDiscard(nextCaptureTime, numDiscard);
+            nextCaptureTime = start;
         }
 
         remainingIntervalTime = intervalTime->remainingIntervalTime(nextCaptureTime);
@@ -141,7 +155,4 @@ void LocalChannel::processAudioStreams()
             remainingIntervalTime = intervalTime->remainingIntervalTime(nextCaptureTime);
         }
     }
-
-    // Periodically emit signal since peak volume is always changing
-    emit peakVolumeChanged();
 }
