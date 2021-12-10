@@ -36,7 +36,7 @@ void JamSession::createLocalChannels()
         0,
         &processor->captureStream(CHANNEL_LEFT),
         &processor->captureStream(CHANNEL_RIGHT),
-        processor->getSampleRate(),
+        processor,
         this
     };
     connect(appView, &AppView::processAudioStreams,

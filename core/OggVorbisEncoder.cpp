@@ -91,10 +91,13 @@ void OggVorbisEncoder::cleanup()
     ogg_stream_clear(&os);
 }
 
-void OggVorbisEncoder::reset()
+void OggVorbisEncoder::reset(int sampleRate)
 {
     if (ready_) {
         cleanup();
+    }
+    if (sampleRate != -1) {
+        sampleRate_ = sampleRate;
     }
     ready_ = init();
 }

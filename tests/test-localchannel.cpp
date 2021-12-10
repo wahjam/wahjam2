@@ -4,6 +4,7 @@
 #include "core/LocalChannel.h"
 
 static const int sampleRate = 44100;
+static AudioProcessor processor;
 
 // A fake IIntervalTime that can be controlled by test cases
 class MockIntervalTime : public IIntervalTime
@@ -78,7 +79,7 @@ static void testSilentIntervals()
     AudioStream captureRight{AudioStream::CAPTURE, sampleBufferSize};
 
     SampleTime now = 0;
-    LocalChannel chan{"channel0", 0, &captureLeft, &captureRight, sampleRate,
+    LocalChannel chan{"channel0", 0, &captureLeft, &captureRight, &processor,
                       &intervalTime};
     QObject::connect(&chan, &LocalChannel::uploadData, uploadData);
     chan.setSend(false);
@@ -126,7 +127,7 @@ static void testSendIntervals()
     AudioStream captureRight{AudioStream::CAPTURE, sampleBufferSize};
 
     SampleTime now = 0;
-    LocalChannel chan{"channel0", 0, &captureLeft, &captureRight, sampleRate,
+    LocalChannel chan{"channel0", 0, &captureLeft, &captureRight, &processor,
                       &intervalTime};
     QObject::connect(&chan, &LocalChannel::uploadData, uploadData);
     chan.start();
@@ -170,6 +171,8 @@ static void testSendIntervals()
 
 int main(int argc, char **argv)
 {
+    processor.setSampleRate(sampleRate);
+
     testSilentIntervals();
     testSendIntervals();
 

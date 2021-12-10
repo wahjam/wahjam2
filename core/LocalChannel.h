@@ -2,6 +2,7 @@
 #pragma once
 
 #include <QUuid>
+#include "audio/AudioProcessor.h"
 #include "audio/AudioStream.h"
 #include "IIntervalTime.h"
 #include "OggVorbisEncoder.h"
@@ -24,7 +25,7 @@ public:
                  int channelIdx,
                  AudioStream *captureLeft,
                  AudioStream *captureRight,
-                 int sampleRate,
+                 AudioProcessor *processor,
                  IIntervalTime *intervalTime,
                  QObject *parent = nullptr);
 
@@ -56,6 +57,7 @@ signals:
     void peakVolumeChanged();
 
 private:
+    AudioProcessor *processor;
     IIntervalTime *intervalTime;
     AudioStream *captureStreams[CHANNELS_STEREO];
     QString name_;

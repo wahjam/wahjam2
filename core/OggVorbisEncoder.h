@@ -25,7 +25,7 @@ public:
     int sampleRate() const;
 
     // Discard any state and reset the encoder
-    void reset();
+    void reset(int sampleRate = -1);
 
     // Encode uncompressed audio samples and return compressed audio data.
     QByteArray encode(const float *left, const float *right, size_t nsamples);

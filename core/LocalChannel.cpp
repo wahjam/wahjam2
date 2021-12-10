@@ -5,10 +5,11 @@ LocalChannel::LocalChannel(const QString &name,
                            int channelIdx_,
                            AudioStream *captureLeft,
                            AudioStream *captureRight,
-                           int sampleRate,
+                           AudioProcessor *processor_,
                            IIntervalTime *intervalTime_,
                            QObject *parent)
     : QObject(parent),
+      processor{processor_},
       intervalTime{intervalTime_},
       captureStreams{captureLeft, captureRight},
       name_{name},
@@ -17,7 +18,7 @@ LocalChannel::LocalChannel(const QString &name,
       nextSend{true},
       firstUploadData{true},
       started{false},
-      encoder{1, sampleRate},
+      encoder{1, processor_->getSampleRate()},
       nextCaptureTime{0},
       nextCaptureTimeValid{false}
 {
@@ -59,6 +60,7 @@ void LocalChannel::start()
 {
     started = true;
     nextCaptureTimeValid = false;
+    // TODO sample-accurate way to sync up to start of interval
 }
 
 void LocalChannel::stop()
@@ -73,7 +75,7 @@ void LocalChannel::processAudioStreams()
 
     if (captureStreams[CHANNEL_LEFT]->checkResetAndClear() ||
         captureStreams[CHANNEL_RIGHT]->checkResetAndClear()) {
-        // TODO
+        encoder.reset(processor->getSampleRate());
     }
 
     if (!started) {
