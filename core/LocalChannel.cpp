@@ -99,6 +99,11 @@ void LocalChannel::processAudioStreams()
             nextCaptureTime = start;
         }
 
+        // Don't start capturing if we haven't reached the start of the interval yet
+        if (!captureStreams[CHANNEL_LEFT]->peekReadSampleTime(&nextCaptureTime)) {
+            return;
+        }
+
         remainingIntervalTime = intervalTime->remainingIntervalTime(nextCaptureTime);
         firstUploadData = true;
         nextCaptureTimeValid = true;
