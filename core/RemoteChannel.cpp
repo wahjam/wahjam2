@@ -115,13 +115,15 @@ bool RemoteChannel::fillPlaybackStreams()
     size_t nwritable =
         qMin(playbackStreams[CHANNEL_LEFT]->numSamplesWritable(),
              playbackStreams[CHANNEL_RIGHT]->numSamplesWritable());
-    size_t remaining = session->remainingIntervalTime(nextPlaybackTime);
+    size_t remaining = nextPlaybackTime < intervalStartTime ?
+                       intervalStartTime - nextPlaybackTime :
+                       session->remainingIntervalTime(nextPlaybackTime);
     size_t n = qMin(nwritable, remaining);
 
     if (intervals.isEmpty() || nextPlaybackTime < intervalStartTime){
         fillWithSilence(n);
     } else {
-        n = fillFromInterval(n);
+        n = fillFromInterval(qMin(n, remaining));
 
         // Remove interval when finished or upon underflow
         if (n == remaining || n < nwritable) {
