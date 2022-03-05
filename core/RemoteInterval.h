@@ -24,6 +24,9 @@ public:
                    const JamConnection::FourCC fourCC,
                    QObject *parent = nullptr);
 
+    // This must be called before decode()
+    void setResampler(Resampler *left, Resampler *right);
+
     QString username() const;
     QUuid guid() const;
 
@@ -49,7 +52,7 @@ public slots:
 
 private:
     OggVorbisDecoder decoder;
-    Resampler resampler[CHANNELS_STEREO];
+    Resampler *resampler[CHANNELS_STEREO];
     QString username_;
     QUuid guid_;
     JamConnection::FourCC fourCC;

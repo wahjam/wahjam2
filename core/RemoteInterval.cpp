@@ -5,10 +5,21 @@ RemoteInterval::RemoteInterval(const QString &username,
                                const QUuid &guid,
                                const JamConnection::FourCC fourCC_,
                                QObject *parent)
-    : QObject{parent}, username_{username}, guid_{guid},
-      outputSampleRate{44100}, decodeStarted{false}, finished{false}
+    : QObject{parent},
+      resampler{nullptr, nullptr},
+      username_{username},
+      guid_{guid},
+      outputSampleRate{44100},
+      decodeStarted{false},
+      finished{false}
 {
     memcpy(fourCC, fourCC_, sizeof(fourCC));
+}
+
+void RemoteInterval::setResampler(Resampler *left, Resampler *right)
+{
+    resampler[CHANNEL_LEFT] = left;
+    resampler[CHANNEL_RIGHT] = right;
 }
 
 QString RemoteInterval::username() const
@@ -33,15 +44,15 @@ void RemoteInterval::setSampleRate(int rate)
 
 bool RemoteInterval::appendingFinished() const
 {
-    return isSilence() || finished;
+    return finished;
 }
 
 // Returns number of output samples
 size_t RemoteInterval::drainResampler(QByteArray *left, QByteArray *right,
                                       size_t nsamples)
 {
-    size_t n = resampler[CHANNEL_LEFT].resample(left, nsamples);
-    size_t m = resampler[CHANNEL_RIGHT].resample(right, n);
+    size_t n = resampler[CHANNEL_LEFT]->resample(left, nsamples);
+    size_t m = resampler[CHANNEL_RIGHT]->resample(right, n);
     if (n != m) {
         qWarning("Stereo channels out of sync, resamplers produced %zu and %zu samples",
                  n, m);
@@ -65,8 +76,8 @@ size_t RemoteInterval::fillResampler(size_t nsamples)
     if (n > 0) {
         double ratio = static_cast<double>(outputSampleRate) /
                        decoder.sampleRate();
-        resampler[CHANNEL_LEFT].setRatio(ratio);
-        resampler[CHANNEL_RIGHT].setRatio(ratio);
+        resampler[CHANNEL_LEFT]->setRatio(ratio);
+        resampler[CHANNEL_RIGHT]->setRatio(ratio);
         decodeStarted = true;
     }
 
@@ -75,19 +86,18 @@ size_t RemoteInterval::fillResampler(size_t nsamples)
         return 0;
     }
 
-    resampler[CHANNEL_LEFT].appendData(tmpLeft);
-    resampler[CHANNEL_RIGHT].appendData(tmpRight);
-
-    if (n == 0 && finished) {
-        resampler[CHANNEL_LEFT].finishAppendingData();
-        resampler[CHANNEL_RIGHT].finishAppendingData();
-    }
+    resampler[CHANNEL_LEFT]->appendData(tmpLeft);
+    resampler[CHANNEL_RIGHT]->appendData(tmpRight);
     return n;
 }
 
 size_t RemoteInterval::decode(QByteArray *left, QByteArray *right,
                               size_t nsamples)
 {
+    // setResampler() must have been called
+    assert(resampler[CHANNEL_LEFT] != nullptr);
+    assert(resampler[CHANNEL_RIGHT] != nullptr);
+
     /* Infinite silence, caller will stop decoding when interval expires */
     if (isSilence()) {
         left->fill(0, nsamples * sizeof(float));

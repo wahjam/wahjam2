@@ -123,15 +123,25 @@ bool RemoteChannel::fillPlaybackStreams()
     if (intervals.isEmpty() || nextPlaybackTime < intervalStartTime){
         fillWithSilence(n);
     } else {
-        n = fillFromInterval(qMin(n, remaining));
+        size_t fill = n;
+        n = fillFromInterval(fill);
 
         // Remove interval when finished or upon underflow
-        if (n == remaining || n < nwritable) {
-            // TODO signal underflow
-            intervalStartTime = nextPlaybackTime + remaining;
+        if (n < fill) {
+            bool underflow = !intervals.first()->isSilence() &&
+                             !intervals.first()->appendingFinished();
+            if (underflow) {
+                // TODO signal underflow
+                intervalStartTime = nextPlaybackTime + remaining;
+            }
+
             intervals.removeFirst();
+
             if (intervals.isEmpty()) {
                 emit remoteSendingChanged(false);
+            } else if (intervals.first()->isSilence()) {
+                resampler[CHANNEL_LEFT].reset();
+                resampler[CHANNEL_RIGHT].reset();
             }
         }
     }
@@ -146,6 +156,8 @@ void RemoteChannel::processAudioStreams()
     bool wasResetRight = playbackStreams[CHANNEL_RIGHT]->checkResetAndClear();
     if (wasResetLeft || wasResetRight) {
         nextPlaybackTime = appView->currentSampleTime();
+        resampler[CHANNEL_LEFT].reset();
+        resampler[CHANNEL_RIGHT].reset();
     }
 
     while (!fillPlaybackStreams()) {
@@ -166,6 +178,10 @@ void RemoteChannel::enqueueRemoteInterval(SharedRemoteInterval remoteInterval)
     } else {
         oldSilence = intervals.last()->isSilence();
     }
+
+    // Resampling is stateful so all intervals share one resampler
+    remoteInterval->setResampler(&resampler[CHANNEL_LEFT],
+                                 &resampler[CHANNEL_RIGHT]);
 
     intervals.append(remoteInterval);
 

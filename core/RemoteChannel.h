@@ -4,6 +4,7 @@
 #include "audio/AudioStream.h"
 #include "AppView.h"
 #include "RemoteInterval.h"
+#include "Resampler.h"
 
 // A remote audio channel. Handles remote interval playback, including
 // controlling pan and monitoring.
@@ -55,6 +56,7 @@ public slots:
 private:
     AppView *appView;
     AudioStream *playbackStreams[CHANNELS_STEREO];
+    Resampler resampler[CHANNELS_STEREO];
     QVector<SharedRemoteInterval> intervals;
     QString name_;
     SampleTime nextPlaybackTime;
