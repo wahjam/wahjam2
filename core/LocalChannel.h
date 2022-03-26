@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #pragma once
 
+#include <QFile>
 #include <QUuid>
 #include "audio/AudioProcessor.h"
 #include "audio/AudioStream.h"
@@ -71,4 +72,9 @@ private:
     SampleTime nextCaptureTime;
     size_t remainingIntervalTime;
     bool nextCaptureTimeValid;
+
+    // Uploaded audio can be written to local files for debugging
+    QFile dumpFile;
+    bool dumpFileEnabled;
+    unsigned dumpFileNum;
 };

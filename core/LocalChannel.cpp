@@ -1,5 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
+#include <QSettings>
 #include "LocalChannel.h"
+
+static bool dumpLocalChannelsEnabled()
+{
+    QSettings settings;
+    return settings.value("debug/dumpLocalChannels").toBool();
+}
 
 LocalChannel::LocalChannel(const QString &name,
                            int channelIdx_,
@@ -20,7 +27,9 @@ LocalChannel::LocalChannel(const QString &name,
       started{false},
       encoder{1, processor_->getSampleRate()},
       nextCaptureTime{0},
-      nextCaptureTimeValid{false}
+      nextCaptureTimeValid{false},
+      dumpFileEnabled{dumpLocalChannelsEnabled()},
+      dumpFileNum{0}
 {
 }
 
@@ -137,8 +146,23 @@ void LocalChannel::processAudioStreams()
             QByteArray data = encoder.encode(samples.data() + i, nullptr, n);
             if (remainingIntervalTime == 0) {
                 data.append(encoder.encode(nullptr, nullptr, 0)); // drain encoder
+                if (dumpFileEnabled) {
+                    dumpFile.write(data);
+                }
                 emit uploadData(channelIdx, guid, data, firstUploadData, true);
             } else if (data.size() > 0) {
+                if (dumpFileEnabled) {
+                    if (firstUploadData) {
+                        dumpFile.close();
+                        dumpFile.setFileName(QString("dump-%1-%2.ogg").arg(name_).arg(dumpFileNum++));
+                        if (!dumpFile.open(QIODevice::WriteOnly)) {
+                            qWarning("Failed to open dump file \"%s\"",
+                                     dumpFile.fileName().toLatin1().constData());
+                        }
+                    }
+                    dumpFile.write(data);
+                }
+
                 emit uploadData(channelIdx, guid, data, firstUploadData, false);
                 firstUploadData = false;
             }
