@@ -125,6 +125,11 @@ static void testDecodeFileStereo()
     decodeWholeFile("data/sine-44_1kHz-stereo.ogg", 8, 44100);
 }
 
+static void testDecodeFileMono48k()
+{
+    decodeWholeFile("data/test-48kHz-mono.ogg", 8, 48000);
+}
+
 int main(int argc, char **argv)
 {
     testEmptyInput();
@@ -134,6 +139,7 @@ int main(int argc, char **argv)
     testSmallReadsStereo();
     testDecodeFileMono();
     testDecodeFileStereo();
+    testDecodeFileMono48k();
 
     printf("ok\n");
     return 0;
