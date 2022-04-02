@@ -73,6 +73,8 @@ size_t RemoteInterval::fillResampler(size_t nsamples)
                           outputSampleRate + 0.5;
 
     size_t n = decoder.decode(&tmpLeft, &tmpRight, inputSamples);
+    assert(tmpLeft.size() == tmpRight.size());
+    assert(static_cast<size_t>(tmpLeft.size()) == n * sizeof(float));
     if (n > 0) {
         double ratio = static_cast<double>(outputSampleRate) /
                        decoder.sampleRate();
