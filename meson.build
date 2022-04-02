@@ -12,12 +12,21 @@ project('wahjam2', 'cpp',
 
 cxx = meson.get_compiler('cpp')
 
+# Qt5Keychain does not having working qmake detection or pkg-config support.
+# Find it manually.
+qt5keychain = cxx.find_library(
+  'qt5keychain',
+  has_headers : ['qt5keychain/keychain.h'],
+  required : false,
+)
+
 conf_data = configuration_data()
 conf_data.set_quoted('APPNAME', 'Wahjam2')
 conf_data.set_quoted('ORGNAME', 'Wahjam Project')
 conf_data.set_quoted('ORGDOMAIN', 'wahjam.org')
 conf_data.set_quoted('VERSION', meson.project_version())
 conf_data.set('HAVE_PA_JACK_H', cxx.has_header('pa_jack.h'))
+conf_data.set('HAVE_QT5KEYCHAIN_H', qt5keychain.found())
 
 configure_file(output : 'config.h', configuration : conf_data)
 
@@ -35,13 +44,7 @@ dependencies = [
   dependency('vorbis'),
   dependency('vorbisenc'),
   dependency('vorbisfile'),
-
-  # Qt5Keychain does not having working qmake detection or pkg-config support.
-  # Find it manually.
-  meson.get_compiler('cpp').find_library(
-      'qt5keychain',
-      has_headers : ['qt5keychain/keychain.h'],
-  ),
+  qt5keychain,
 ]
 
 resources = qt5.preprocess(qresources : 'resources.qrc')

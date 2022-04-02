@@ -5,10 +5,13 @@
 #include <QJsonParseError>
 #include <QSettings>
 #include <QUuid>
+#ifdef HAVE_QT5KEYCHAIN_H
 #include <qt5keychain/keychain.h>
+#endif
 #include "config.h"
 #include "JamApiManager.h"
 
+#if HAVE_QT5KEYCHAIN_H
 static QString keychainGetPassword()
 {
   QKeychain::ReadPasswordJob job(ORGDOMAIN);
@@ -23,7 +26,7 @@ static QString keychainGetPassword()
   return job.textData();
 }
 
-static void keychainSetPassword(const QString &password)
+static bool keychainSetPassword(const QString &password)
 {
   QKeychain::WritePasswordJob job(ORGDOMAIN);
   QEventLoop loop;
@@ -34,9 +37,10 @@ static void keychainSetPassword(const QString &password)
   job.setTextData(password);
   job.start();
   loop.exec();
+  return true;
 }
 
-static void keychainDeletePassword()
+static bool keychainDeletePassword()
 {
   QKeychain::DeletePasswordJob job(ORGDOMAIN);
   QEventLoop loop;
@@ -46,7 +50,24 @@ static void keychainDeletePassword()
   job.setKey("password");
   job.start();
   loop.exec();
+  return true;
 }
+#else
+static QString keychainGetPassword()
+{
+    return {};
+}
+
+static bool keychainSetPassword(const QString &password)
+{
+    return false;
+}
+
+static bool keychainDeletePassword()
+{
+    return false;
+}
+#endif // HAVE_QT5KEYCHAIN_H
 
 JamApiManager::JamApiManager(QObject *parent)
     : QObject{parent},
@@ -83,12 +104,14 @@ void JamApiManager::login()
     settings.setValue("username", username_);
 
     if (rememberPassword_) {
-        keychainSetPassword(password_);
-        settings.setValue("passwordSaved", true);
+        if (keychainSetPassword(password_)) {
+            settings.setValue("passwordSaved", true);
+        }
     } else if (settings.value("passwordSaved", false).toBool()) {
         /* If it was previously saved, delete it now */
-        keychainDeletePassword();
-        settings.setValue("passwordSaved", false);
+        if (keychainDeletePassword()) {
+            settings.setValue("passwordSaved", false);
+        }
     }
 
     settings.setValue("rememberPassword", rememberPassword_);
