@@ -69,6 +69,7 @@ private:
     QMutex processorWriteLock;
 
     QTimer processAudioStreamsTimer;
+    qint64 lastProcessAudioStreamsTick;
 
     QmlGlobals *qmlGlobals_;
 };

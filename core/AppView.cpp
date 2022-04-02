@@ -42,6 +42,16 @@ AppView::~AppView()
 
 void AppView::processAudioStreamsTick()
 {
+    // Warn if timer jitter might cause performance problems
+    qint64 now = audioRunningTimer.nsecsElapsed();
+    if (lastProcessAudioStreamsTick != 0) {
+        int64_t duration = now - lastProcessAudioStreamsTick;
+        if (duration > 2 * SAFE_PERIODIC_TICK_MSEC * 1000 * 1000) {
+            qWarning("%s called %" PRId64 " ns after last time", __func__, duration);
+        }
+    }
+    lastProcessAudioStreamsTick = now;
+
     if (!processor.isRunning()) {
         return;
     }
@@ -71,6 +81,7 @@ void AppView::startProcessAudioStreamsTimer()
         emit processAudioStreams();
     }
 
+    lastProcessAudioStreamsTick = 0;
     connect(&processAudioStreamsTimer, &QTimer::timeout,
             this, &AppView::processAudioStreamsTick);
     processAudioStreamsTimer.start(SAFE_PERIODIC_TICK_MSEC);
