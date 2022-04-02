@@ -226,8 +226,8 @@ void PortAudioEngine::setInputRouting(const QList<ChannelRoute> &routing)
     }
     if (routing.size() != inputRouting_.size()) {
         qDebug("Got input routing with size %d, expected %d",
-               routing.size(),
-               inputRouting_.size());
+               static_cast<int>(routing.size()),
+               static_cast<int>(inputRouting_.size()));
         return;
     }
 
@@ -252,8 +252,8 @@ void PortAudioEngine::setOutputRouting(const QList<ChannelRoute> &routing)
     }
     if (routing.size() != outputRouting_.size()) {
         qDebug("Got output routing with size %d, expected %d",
-               routing.size(),
-               outputRouting_.size());
+               static_cast<int>(routing.size()),
+               static_cast<int>(outputRouting_.size()));
         return;
     }
 
@@ -516,7 +516,7 @@ bool PortAudioEngine::fillStreamParameters(PaStreamParameters *inputParams,
             if (inputRouting_.size() != params.channelCount) {
                 qCritical("Expected %d input channel routes, got %d",
                           params.channelCount,
-                          inputRouting_.size());
+                          static_cast<int>(inputRouting_.size()));
                 return false;
             }
 
@@ -531,7 +531,7 @@ bool PortAudioEngine::fillStreamParameters(PaStreamParameters *inputParams,
             if (outputRouting_.size() != params.channelCount) {
                 qCritical("Expected %d output channel routes, got %d",
                           params.channelCount,
-                          outputRouting_.size());
+                          static_cast<int>(outputRouting_.size()));
                 return false;
             }
 

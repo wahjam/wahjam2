@@ -36,6 +36,6 @@ sources = files(
 
 libcore = static_library('core',
                          sources,
-                         qt5.preprocess(moc_headers : moc_headers),
+                         qt6.preprocess(moc_headers : moc_headers),
                          dependencies : dependencies,
                          include_directories : inc)

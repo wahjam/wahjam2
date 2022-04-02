@@ -47,7 +47,7 @@ Item {
 
         Lobby {
             id: lobby
-            onConnectToJam: {
+            onConnectToJam: (server) => {
                 sessionTab.connect(server)
                 bar.currentIndex = 1
             }

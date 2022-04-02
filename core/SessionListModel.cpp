@@ -113,7 +113,7 @@ void SessionListModel::replyFinished()
 {
     QJsonParseError err;
     QTextStream stream{reply};
-    QJsonDocument doc{QJsonDocument::fromJson(stream.device()->readAll(), &err)};
+    const QJsonDocument doc{QJsonDocument::fromJson(stream.device()->readAll(), &err)};
 
     reply = nullptr;
 
@@ -144,7 +144,7 @@ void SessionListModel::replyFinished()
 
     QList<SessionItem> newItems;
 
-    foreach (QJsonValue jam, doc.array()) {
+    for (const QJsonValue jam : doc.array()) {
         QJsonObject obj{jam.toObject()};
         QString server = obj.value("server").toString();
         if (server.isEmpty()) {
@@ -159,7 +159,7 @@ void SessionListModel::replyFinished()
         double maxUsers = obj.value("maxusers").toDouble();
 
         QStringList users;
-        foreach (QJsonValue user, obj.value("users").toArray()) {
+        for (const QJsonValue user : obj.value("users").toArray()) {
             users << user.toString();
         }
 

@@ -15,12 +15,12 @@ Row {
         }
         Slider {
             anchors.horizontalCenter: parent.horizontalCenter
-            width: background.width
-            height: background.height
             orientation: Qt.Vertical
             from: 0
             to: 1.5
             value: Client.session.metronome.gain
+            width: 20
+            height: 120
 
             onMoved: Client.session.metronome.gain = value
 

@@ -2,7 +2,7 @@
 project('wahjam2', 'cpp',
         default_options : [
           'cpp_args=-Wall -Werror=format-security -Wno-unused-parameter',
-          'cpp_std=gnu++14',
+          'cpp_std=gnu++17',
           'optimization=2',
           'warning_level=3',
           'werror=true'
@@ -32,11 +32,11 @@ configure_file(output : 'config.h', configuration : conf_data)
 
 inc = include_directories('.')
 
-qt5 = import('qt5')
+qt6 = import('qt6')
 
 dependencies = [
   dependency('ogg'),
-  dependency('qt5', modules : [
+  dependency('qt6', modules : [
     'Core', 'Gui', 'Network', 'Quick', 'QuickControls2', 'Qml'
   ]),
   dependency('samplerate'),
@@ -47,7 +47,7 @@ dependencies = [
   qt5keychain,
 ]
 
-resources = qt5.preprocess(qresources : 'resources.qrc')
+resources = qt6.preprocess(qresources : 'resources.qrc')
 
 subdir('audio')
 subdir('core')

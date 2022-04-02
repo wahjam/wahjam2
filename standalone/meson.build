@@ -10,7 +10,7 @@ sources = files(
 
 executable(meson.project_name(),
            sources,
-	   qt5.preprocess(moc_headers : moc_headers),
+	   qt6.preprocess(moc_headers : moc_headers),
 	   resources,
 	   dependencies : [
 	     dependencies,
