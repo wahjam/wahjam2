@@ -6,12 +6,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
-      - run: sudo apt-get install -qy clang libsamplerate0-dev portaudio19-dev qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev qt5keychain-dev libvorbis-dev
-      - uses: BSFishy/meson-build@v1.0.1
+      - run: sudo apt-get install -qy clang libsamplerate0-dev portaudio19-dev libvorbis-dev
+      - uses: jurplel/install-qt-action@v2
+        with:
+          version: 6.2.4
+      - uses: BSFishy/meson-build@v1.0.3
         with:
           action: test
+          meson-version: 0.62.0
         env:
           CXX: clang++
+          PATH: /home/runner/work/wahjam2/Qt/6.2.4/gcc_64/libexec:/usr/bin:/bin
       - uses: actions/upload-artifact@v2
         with:
           name: testlog-ubuntu.txt
@@ -23,12 +28,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
-      - run: brew install libsamplerate qt5 qtkeychain portaudio libvorbis
+      - run: brew install libsamplerate qt6 qtkeychain portaudio libvorbis
+      - run: ls -l /usr/local/Cellar
       - uses: BSFishy/meson-build@v1.0.1
         with:
           action: test
+          meson-version: 0.62.0
         env:
-          PKG_CONFIG_PATH: /usr/local/opt/qt@5/lib/pkgconfig
+          PKG_CONFIG_PATH: /usr/local/opt/qt@6/lib/pkgconfig
+          PATH: /usr/local/Cellar/qt/6.2.3_1/share/qt/libexec:/Users/runner/hostedtoolcache/Python/3.10.4/x64/bin:/Users/runner/hostedtoolcache/Python/3.10.4/x64:/usr/local/lib/ruby/gems/2.7.0/bin:/usr/local/opt/ruby@2.7/bin:/usr/local/opt/pipx_bin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/hostedtoolcache/stack/2.7.5/x64
       - uses: actions/upload-artifact@v2
         with:
           name: testlog-macos.txt
