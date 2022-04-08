@@ -14,4 +14,5 @@ shared_library(meson.project_name(),
 	       dependencies : dependencies,
 	       include_directories : inc,
 	       link_with : [libaudio, libcore],
-	       name_prefix : '')
+	       name_prefix : '',
+           install : true)

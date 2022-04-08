@@ -17,4 +17,5 @@ executable(meson.project_name(),
 	     dependency('portaudio-2.0'),
 	   ],
 	   include_directories : inc,
-	   link_with : [libaudio, libcore])
+	   link_with : [libaudio, libcore],
+       install : true)
