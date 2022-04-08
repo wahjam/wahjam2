@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
+#include "config.h"
 #include <QCryptographicHash>
 #include <QEventLoop>
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QSettings>
 #include <QUuid>
-#ifdef HAVE_QT5KEYCHAIN_H
-#include <qt5keychain/keychain.h>
+#ifdef HAVE_QT6KEYCHAIN_H
+#include <qt6keychain/keychain.h>
 #endif
-#include "config.h"
 #include "JamApiManager.h"
 
-#if HAVE_QT5KEYCHAIN_H
+#ifdef HAVE_QT6KEYCHAIN_H
 static QString keychainGetPassword()
 {
   QKeychain::ReadPasswordJob job(ORGDOMAIN);
@@ -67,7 +67,7 @@ static bool keychainDeletePassword()
 {
     return false;
 }
-#endif // HAVE_QT5KEYCHAIN_H
+#endif // HAVE_QT6KEYCHAIN_H
 
 JamApiManager::JamApiManager(QObject *parent)
     : QObject{parent},
