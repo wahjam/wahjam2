@@ -55,16 +55,6 @@ GridLayout {
         }
     }
 
-    CheckBox {
-        id: monitorInput
-        text: "Play back my audio"
-        Layout.columnSpan: 2
-        onToggled: {
-            settings.setValue('monitorInput', checked)
-            // TODO connect to input channel monitoring
-        }
-    }
-
     Label {
         text: "<h3>Advanced</h3>"
         Layout.columnSpan: 2
@@ -161,9 +151,6 @@ GridLayout {
             outputDevice.currentIndex = idx
         }
         PortAudioEngine.outputDevice = outputDevice.currentText
-
-        monitorInput.checked = settings.value('monitorInput', true)
-        monitorInput.onToggled();
 
         idx = sampleRate.find(settings.value('sampleRate', '44100'));
         if (idx !== -1) {
