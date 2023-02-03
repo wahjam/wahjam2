@@ -678,7 +678,7 @@ bool JamConnection::sendUploadIntervalBegin(const QUuid &guid,
     UploadIntervalBegin msg;
     memcpy(msg.guid, guid.toRfc4122().constData(), sizeof(msg.guid));
     msg.estimatedSize = qToLittleEndian(estimatedSize);
-    memcpy(msg.fourCC, fourCC, sizeof(FourCC));
+    msg.fourCC = fourCC;
     msg.channelIndex = noEndian8Bit(channelIndex);
 
     return send(MSG_TYPE_CLIENT_UPLOAD_INTERVAL_BEGIN,

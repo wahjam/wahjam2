@@ -15,7 +15,11 @@ class JamConnection : public QObject
     Q_OBJECT
 
 public:
-    typedef quint8 FourCC[4];
+    // Audio codec identifier ('O', 'g', 'g', 'V' is Ogg Vorbis)
+    struct FourCC
+    {
+        quint8 val[4];
+    };
 
     // Used to notify server of channels with sendChannelInfo()
     struct ChannelInfo

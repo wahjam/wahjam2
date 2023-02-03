@@ -9,11 +9,11 @@ RemoteInterval::RemoteInterval(const QString &username,
       resampler{nullptr, nullptr},
       username_{username},
       guid_{guid},
+      fourCC{fourCC_},
       outputSampleRate{44100},
       decodeStarted{false},
       finished{false}
 {
-    memcpy(fourCC, fourCC_, sizeof(fourCC));
 }
 
 void RemoteInterval::setResampler(Resampler *left, Resampler *right)
