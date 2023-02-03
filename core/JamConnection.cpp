@@ -611,10 +611,10 @@ bool JamConnection::sendAuthUser(quint32 protocolVersion, const quint8 challenge
     QCryptographicHash inner{QCryptographicHash::Sha1};
     QCryptographicHash outer{QCryptographicHash::Sha1};
     inner.addData(username);
-    inner.addData(":", 1);
+    inner.addData(QByteArrayView{":", 1});
     inner.addData(hexToken_.toUtf8());
     outer.addData(inner.result());
-    outer.addData(reinterpret_cast<const char*>(challenge), 8);
+    outer.addData(QByteArrayView{reinterpret_cast<const char *>(challenge), 8});
     const QByteArray passwordHash{outer.result()};
 
     // Build message
