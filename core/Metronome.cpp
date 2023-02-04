@@ -50,8 +50,7 @@ void Metronome::setClickFilename(const QString &filename)
 SampleTime Metronome::currentIntervalTime() const
 {
     int sampleRate = appView->audioProcessor()->getSampleRate();
-    SampleTime intervalDuration = bpi_ * 60.f / bpm_ * sampleRate;
-    return nextIntervalTime_ - intervalDuration;
+    return nextIntervalTime_ - (bpi_ * 60.f / bpm_ * sampleRate);
 }
 
 SampleTime Metronome::nextIntervalTime() const
@@ -61,27 +60,21 @@ SampleTime Metronome::nextIntervalTime() const
 
 size_t Metronome::remainingIntervalTime(SampleTime pos) const
 {
-    SampleTime intervalTime;
-    SampleTime intervalDuration;
     int sampleRate = appView->audioProcessor()->getSampleRate();
 
     if (pos < nextIntervalTime_) {
-        SampleTime samplesPerBeat = 60.f / bpm_ * sampleRate;
-        intervalDuration = bpi_ * samplesPerBeat;
-        intervalTime = nextIntervalTime_ - intervalDuration;
+        // We don't keep bpi/bpm history of earlier intervals
+        assert(pos >= (SampleTime)(nextIntervalTime_ - (bpi_ * 60.f / bpm_ * sampleRate)));
+
+        return nextIntervalTime_ - pos;
     } else {
-        SampleTime samplesPerBeat = 60.f / nextBpm * sampleRate;
-        intervalDuration = nextBpi * samplesPerBeat;
-        intervalTime = nextIntervalTime_;
+        SampleTime end = nextIntervalTime_ + (nextBpi * 60.f / nextBpm * sampleRate);
+
+        // We don't know future interval bpi/bpm
+        assert(pos <= end);
+
+        return end - pos;
     }
-
-    // Check that pos is within the interval that we've calculated. If not,
-    // then either the caller needs to avoid getting out of sync or this method
-    // needs to be extended to keep more bpi/bpm history.
-    assert(pos >= intervalTime);
-    assert(pos < intervalTime + intervalDuration);
-
-    return intervalTime + intervalDuration - pos;
 }
 
 void Metronome::nextBeat()
