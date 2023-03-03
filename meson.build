@@ -12,13 +12,17 @@ project('wahjam2', 'cpp',
 
 cxx = meson.get_compiler('cpp')
 
-# Qt6Keychain does not having working qmake detection or pkg-config support.
-# Find it manually.
-qt6keychain = cxx.find_library(
-  'qt6keychain',
-  has_headers : ['qt6keychain/keychain.h'],
-  required : false,
-)
+# qtkeychain installs CMake files
+qt6keychain = dependency('qt6keychain', method : 'cmake')
+if not qt6keychain.found()
+  # Qt6Keychain does not having working qmake detection or pkg-config support.
+  # Fall back to manual detection if CMake didn't work.
+  qt6keychain = cxx.find_library(
+    'qt6keychain',
+    has_headers : ['qt6keychain/keychain.h'],
+    required : false,
+  )
+endif
 
 conf_data = configuration_data()
 conf_data.set_quoted('APPNAME', 'Wahjam2')
