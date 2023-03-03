@@ -7,6 +7,7 @@ import 'globals.js' as Globals
 
 Item {
     id: column
+    anchors.fill: parent
 
     function entered() {
         lobby.refresh()
@@ -16,8 +17,9 @@ Item {
         id: bar
         Material.accent: Material.Red
         Material.background: Material.Yellow
-        y: 0
-        width: parent.width
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
         currentIndex: 0
 
         TabButton {

@@ -2,6 +2,7 @@
 import QtQuick.Layouts 1.3
 
 StackLayout {
+    anchors.fill: parent
     id: stack
 
     LoginScreen {

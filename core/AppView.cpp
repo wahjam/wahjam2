@@ -22,7 +22,6 @@ AppView::AppView(const QString &format, const QUrl &url, QWindow *parent)
         [this] (QQuickView::Status) { showViewErrors(this); });
 
     setTitle(APPNAME);
-    setResizeMode(QQuickView::SizeRootObjectToView);
     setMinimumSize(QSize{800, 600});
 
     // TODO make SSL verification a boolean setting
