@@ -11,13 +11,15 @@ Metronome::Metronome(AppView *appView_, QObject *parent)
       accentFilename_{":/data/accent.ogg"},
       clickFilename_{":/data/click.ogg"},
       beat_{1}, bpm_{120}, bpi_{16}, nextBpm{120}, nextBpi{16},
+      currentIntervalTime_{0},
       nextIntervalTime_{0}, nextBeatSampleTime{0},
       writeIntervalPos{0}, writeSampleTime{0},
       monitor{true}
 {
     nextBeatTimer.setSingleShot(true);
+    nextBeatTimer.setTimerType(Qt::PreciseTimer);
     connect(&nextBeatTimer, &QTimer::timeout,
-            this, &Metronome::nextBeat);
+            this, &Metronome::checkNextBeat);
 }
 
 Metronome::~Metronome()
@@ -49,8 +51,7 @@ void Metronome::setClickFilename(const QString &filename)
 
 SampleTime Metronome::currentIntervalTime() const
 {
-    int sampleRate = appView->audioProcessor()->getSampleRate();
-    return nextIntervalTime_ - (bpi_ * 60.f / bpm_ * sampleRate);
+    return currentIntervalTime_;
 }
 
 SampleTime Metronome::nextIntervalTime() const
@@ -60,15 +61,14 @@ SampleTime Metronome::nextIntervalTime() const
 
 size_t Metronome::remainingIntervalTime(SampleTime pos) const
 {
-    int sampleRate = appView->audioProcessor()->getSampleRate();
+    // We don't keep a history of past intervals
+    assert(pos >= currentIntervalTime_);
 
     if (pos < nextIntervalTime_) {
-        // We don't keep bpi/bpm history of earlier intervals
-        assert(pos >= (SampleTime)(nextIntervalTime_ - (bpi_ * 60.f / bpm_ * sampleRate)));
-
         return nextIntervalTime_ - pos;
     } else {
-        SampleTime end = nextIntervalTime_ + (nextBpi * 60.f / nextBpm * sampleRate);
+        int sampleRate = appView->audioProcessor()->getSampleRate();
+        SampleTime end = nextIntervalTime_ + (nextBpi * 60. / nextBpm * sampleRate);
 
         // We don't know future interval bpi/bpm
         assert(pos <= end);
@@ -90,8 +90,11 @@ void Metronome::nextBeat()
         emitBpiChanged = bpi_ != nextBpi;
         bpm_ = nextBpm;
         bpi_ = nextBpi;
-        nextIntervalTime_ += bpi_ * 60.f / bpm_ * sampleRate;
+        currentIntervalTime_ = nextIntervalTime_;
+        nextIntervalTime_ += bpi_ * 60. / bpm_ * sampleRate;
     }
+
+    nextBeatSampleTime += 60. / bpm_ * sampleRate;
 
     if (emitBpmChanged) {
         emit bpmChanged(bpm_);
@@ -101,15 +104,22 @@ void Metronome::nextBeat()
     }
     qDebug("beatChanged %d/%d", beat_, bpi_);
     emit beatChanged(beat_);
+}
+
+void Metronome::checkNextBeat()
+{
+    while (nextBeatSampleTime <= appView->currentSampleTime()) {
+        nextBeat();
+    }
 
     // QTimer only has millisecond accuracy so sync against sample time to
     // avoid accumulating errors.
-    SampleTime samplesPerBeat = 60.f / bpm_ * sampleRate;
+    int sampleRate = appView->audioProcessor()->getSampleRate();
+    SampleTime samplesPerBeat = 60. / bpm_ * sampleRate;
     auto t = appView->currentSampleTime();
     auto samples = nextBeatSampleTime + samplesPerBeat - t;
     auto msec = samplesToMsec(sampleRate, samples);
     nextBeatTimer.start(msec);
-    nextBeatSampleTime += samplesPerBeat;
 }
 
 void Metronome::setNextBpmBpi(int bpm, int bpi)
@@ -175,13 +185,13 @@ void Metronome::start()
 
     writeIntervalPos = 0;
 
-    // Kick off counting using nextBeat()
+    // Kick off counting using checkNextBeat()
     beat_ = nextBpi;
     bpm_ = nextBpm;
     bpi_ = nextBpi;
     nextIntervalTime_ = appView->currentSampleTime();
     nextBeatSampleTime = nextIntervalTime_;
-    nextBeat();
+    checkNextBeat();
 
     appView->audioProcessor()->addPlaybackStream(stream);
     processAudioStreams();
@@ -219,8 +229,8 @@ void Metronome::processAudioStreams()
      * bpi_ eventually so further audio samples will be rendered correctly.
      */
     int sampleRate = appView->audioProcessor()->getSampleRate();
-    SampleTime samplesPerBeat = 60.f / bpm_ * sampleRate;
-    SampleTime samplesPerInterval = bpi_ * samplesPerBeat;
+    SampleTime samplesPerInterval = bpi_ * 60. / bpm_ * sampleRate;
+    SampleTime samplesPerBeat = 60. / bpm_ * sampleRate;
     size_t nsamples = stream->numSamplesWritable();
     std::vector<float> buf(nsamples);
     size_t offset = writeIntervalPos % samplesPerBeat;

@@ -69,6 +69,7 @@ private:
     int bpi_;
     int nextBpm; // takes effect next interval
     int nextBpi;
+    SampleTime currentIntervalTime_; // first sample of the next interval
     SampleTime nextIntervalTime_; // first sample of the next interval
     SampleTime nextBeatSampleTime; // for syncing QTimer to audio stream
     SampleTime writeIntervalPos; // number of samples from start of interval
@@ -76,7 +77,8 @@ private:
     bool monitor;
 
     void loadSamples();
+    void nextBeat();
 
 private slots:
-    void nextBeat();
+    void checkNextBeat();
 };
