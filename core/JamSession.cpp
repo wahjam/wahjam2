@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "JamSession.h"
+#include "screensleep.h"
 
 JamSession::JamSession(AppView *appView_, QObject *parent)
     : QObject{parent}, appView{appView_}, state_{JamSession::Unconnected},
@@ -169,6 +170,8 @@ void JamSession::disconnectFromServer()
 
 void JamSession::connConnected()
 {
+    screenPreventSleep();
+
     QList<JamConnection::ChannelInfo> channelInfo;
     for (auto chan : qAsConst(localChannels_)) {
         channelInfo.append({chan->name(), 0, 0, 0});
@@ -191,6 +194,9 @@ void JamSession::connDisconnected()
     server_.clear();
     remoteIntervals.clear();
     deleteRemoteUsers();
+
+    screenAllowSleep();
+
     setState(JamSession::Unconnected);
 }
 

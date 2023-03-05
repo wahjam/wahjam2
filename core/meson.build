@@ -16,7 +16,7 @@ moc_headers = files(
   'SessionListModel.h',
 )
 
-sources = files(
+sources = [files(
   'AppView.cpp',
   'global.cpp',
   'JamApiManager.cpp',
@@ -32,7 +32,15 @@ sources = files(
   'RemoteUser.cpp',
   'Resampler.cpp',
   'SessionListModel.cpp',
-)
+)]
+
+if target_machine.system() == 'darwin'
+    sources += [files('screensleep_mac.cpp')]
+elif target_machine.system() == 'windows'
+    sources += [files('screensleep_win32.cpp')]
+else
+    sources += [files('screensleep_stub.cpp')]
+endif
 
 libcore = static_library('core',
                          sources,
