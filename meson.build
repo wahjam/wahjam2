@@ -42,7 +42,7 @@ dependencies = [
   dependency('ogg'),
   dependency('qt6', modules : [
     'Core', 'Gui', 'Network', 'Quick', 'QuickControls2', 'Qml'
-  ]),
+  ], main : true),
   dependency('samplerate'),
   dependency('threads'),
   dependency('vorbis'),
