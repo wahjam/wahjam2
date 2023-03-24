@@ -36,6 +36,7 @@ sources = [files(
 
 if target_machine.system() == 'darwin'
     sources += [files('screensleep_mac.cpp')]
+    dependencies += [dependency('appleframeworks', modules: ['Foundation', 'IOKit'])]
 elif target_machine.system() == 'windows'
     sources += [files('screensleep_win32.cpp')]
 else
