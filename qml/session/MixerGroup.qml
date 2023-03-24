@@ -2,8 +2,8 @@
 /*
  * MixerGroup - A container for related mixer channels
  */
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick
+import QtQuick.Controls
 
 Column {
     default property alias content: channels.children

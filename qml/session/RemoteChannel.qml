@@ -2,8 +2,8 @@
 /*
  * RemoteChannel - Remote audio channel control for use within a MixerGroup
  */
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick
+import QtQuick.Controls
 
 Row {
     // The RemoteChannel C++ object

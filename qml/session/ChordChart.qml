@@ -3,9 +3,9 @@
  * ChordChart - chord chart and beat display
  */
 
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import org.wahjam.client 1.0
+import QtQuick
+import QtQuick.Controls
+import org.wahjam.client
 
 Item {
     Label {

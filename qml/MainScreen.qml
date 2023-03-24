@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-import QtQuick 2.3
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.2
-import QtQuick.Controls.Material 2.14
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Controls.Material
 import 'globals.js' as Globals
 
 Item {

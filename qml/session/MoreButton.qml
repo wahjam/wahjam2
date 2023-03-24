@@ -3,8 +3,8 @@
  * MoreButton - A button toggle additional controls (typically a panel with
  * advanced settings)
  */
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick
+import QtQuick.Controls
 import '../globals.js' as Globals
 
 Button {

@@ -4,8 +4,8 @@
  *
  * Similar to QtQuick.Controls ProgressBar, except vertical.
  */
-import QtQuick 2.14
-import QtQuick.Controls.Material 2.14
+import QtQuick
+import QtQuick.Controls.Material
 
 Rectangle {
     property real value: 0

@@ -2,11 +2,11 @@
 /*
  * PortAudio settings UI
  */
-import QtQuick 2.14
-import QtQuick.Controls 2.14
-import QtQuick.Layouts 1.14
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Qt.labs.settings 1.0
-import org.wahjam.client 1.0
+import org.wahjam.client
 
 GridLayout {
     columns: 2

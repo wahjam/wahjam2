@@ -2,7 +2,7 @@
 /*
  * RemoteUser - Remote user mixer group
  */
-import QtQuick 2.14
+import QtQuick
 
 MixerGroup {
     // The RemoteUser C++ object

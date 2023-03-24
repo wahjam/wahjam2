@@ -3,11 +3,11 @@
  * Lobby - jam session listing
  */
 
-import QtQuick 2.12
-import QtQuick.Controls 2.14
-import QtQuick.Layouts 1.14
-import QtQuick.Controls.Material 2.12
-import org.wahjam.client 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Controls.Material
+import org.wahjam.client
 import 'globals.js' as Globals
 
 Pane {

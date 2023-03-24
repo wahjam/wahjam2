@@ -2,7 +2,7 @@
 /*
  * Settings UI components specific to the VST plugin
  */
-import QtQuick 2.14
+import QtQuick
 
 Column {
 }

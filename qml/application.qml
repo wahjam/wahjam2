@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import QtQuick.Layouts 1.3
+import QtQuick.Layouts
 
 StackLayout {
     anchors.fill: parent

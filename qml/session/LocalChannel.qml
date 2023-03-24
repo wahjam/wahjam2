@@ -2,8 +2,8 @@
 /*
  * LocalChannel - Local audio channel control for use within a MixerGroup
  */
-import QtQuick 2.14
-import QtQuick.Controls 2.14
+import QtQuick
+import QtQuick.Controls
 import '../globals.js' as Globals
 
 Row {
