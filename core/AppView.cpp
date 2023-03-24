@@ -102,10 +102,7 @@ void AppView::stopProcessAudioStreamsTimer()
 
 SampleTime AppView::currentSampleTime() const
 {
-    const SampleTime nsecsPerSecond = 1000000000;
-    return audioRunningTimer.nsecsElapsed() *
-           processor.getSampleRate() /
-           nsecsPerSecond;
+    return processor.getNextSampleTime();
 }
 
 // May be called from another thread
