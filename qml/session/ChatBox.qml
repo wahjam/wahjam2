@@ -57,7 +57,28 @@ Item {
                 }
             }
 
+            // This is a hack because calling ListView.positionViewAtEnd()
+            // in ListView.onCountChanged or the delegate's ListView.onAdd
+            // signal handlers scrolls to the second-to-last list item. By
+            // the time this timer triggers, ListView.positionViewAtEnd()
+            // really scrolls to the last item in the list.
+            Timer {
+                id: autoScrollTimer
+                interval: 20
+                onTriggered: {
+                    messageList.positionViewAtEnd()
+                }
+            }
+
+            onCountChanged: {
+                // Autoscroll if the scroll bar is at the bottom
+                if (verticalScrollBar.position + verticalScrollBar.size >= 1.0) {
+                    autoScrollTimer.start()
+                }
+            }
+
             ScrollBar.vertical: ScrollBar {
+                id: verticalScrollBar
                 policy: ScrollBar.AlwaysOn
             }
         }
