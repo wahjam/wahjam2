@@ -7,7 +7,6 @@ import 'globals.js' as Globals
 
 Item {
     id: column
-    anchors.fill: parent
 
     function entered() {
         lobby.refresh()
