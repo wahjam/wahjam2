@@ -513,30 +513,20 @@ bool PortAudioEngine::fillStreamParameters(PaStreamParameters *inputParams,
             params.suggestedLatency =
                 qMax(latency, info->defaultLowInputLatency);
 
-            if (inputRouting_.size() != params.channelCount) {
-                qCritical("Expected %d input channel routes, got %d",
-                          params.channelCount,
-                          static_cast<int>(inputRouting_.size()));
-                return false;
+            if (inputRouting_.size() == params.channelCount) {
+                *inputParams = params;
+                foundInput = true;
             }
-
-            *inputParams = params;
-            foundInput = true;
         }
         if (outputDevice_ == info->name && outputParams != nullptr) {
             params.channelCount = info->maxOutputChannels;
             params.suggestedLatency =
                 qMax(latency, info->defaultLowOutputLatency);
 
-            if (outputRouting_.size() != params.channelCount) {
-                qCritical("Expected %d output channel routes, got %d",
-                          params.channelCount,
-                          static_cast<int>(outputRouting_.size()));
-                return false;
+            if (outputRouting_.size() == params.channelCount) {
+                *outputParams = params;
+                foundOutput = true;
             }
-
-            *outputParams = params;
-            foundOutput = true;
         }
     }
 
