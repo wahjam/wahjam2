@@ -24,6 +24,8 @@ class JamSession : public QObject, public IIntervalTime
     Q_PROPERTY(QVector<RemoteUser*> remoteUsers READ remoteUsers NOTIFY remoteUsersChanged)
 
 public:
+    // Remember to update qml/session/ChordChart.qml if these enum constants
+    // change.
     enum State {
         Unconnected,
         Connecting,

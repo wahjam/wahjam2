@@ -10,8 +10,14 @@ import org.wahjam.client
 Item {
     Label {
         anchors.centerIn: parent
-        text: Client.session.metronome.beat + '/' +
-              Client.session.metronome.bpi + ' ' +
-              Client.session.metronome.bpm + ' BPM'
+
+        // See core/JamSession.h for State enum values
+        text: Client.session.state == 0 ? 'Disconnected' :
+              Client.session.state == 1 ? 'Connecting' :
+              Client.session.state == 2 ?
+              (Client.session.metronome.beat + '/' +
+               Client.session.metronome.bpi + ' ' +
+               Client.session.metronome.bpm + ' BPM') :
+              'Disconnecting'
     }
 }
