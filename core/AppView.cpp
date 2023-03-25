@@ -15,6 +15,9 @@ static void showViewErrors(QQuickView *view)
 AppView::AppView(const QString &format, const QUrl &url, QWindow *parent)
     : QQuickView{parent}, transportResetPending{false}
 {
+    // Minimize timer skew because we need to process audio samples regularly
+    processAudioStreamsTimer.setTimerType(Qt::PreciseTimer);
+
     qmlGlobals_ = new QmlGlobals{this, format};
 
     // Install Quick error logger
