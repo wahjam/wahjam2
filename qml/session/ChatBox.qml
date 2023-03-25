@@ -25,6 +25,12 @@ Item {
         Client.session.topicChanged.connect((who, newTopic) => {
             console.log('jamSession topic changed by ' + (who || "server") + ': ' + newTopic)
         })
+        Client.session.remoteUserJoined.connect((who) => {
+            chatMessages.append({username: "SERVER", message: `${who} has joined`})
+        })
+        Client.session.remoteUserLeft.connect((who) => {
+            chatMessages.append({username: "SERVER", message: `${who} has left`})
+        })
     }
 
     ListModel {

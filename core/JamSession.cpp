@@ -261,10 +261,13 @@ void JamSession::sendChatPrivMsg(const QString &username, const QString &msg)
 void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &changes)
 {
     bool emitRemoteUsersChanged = false;
+    std::vector<QString> usersLeft;
+    std::vector<QString> usersJoined;
 
     for (auto userInfo : changes) {
         if (!remoteUsers_.contains(userInfo.username)) {
             emitRemoteUsersChanged = true;
+            usersJoined.push_back(userInfo.username);
 
             remoteUsers_[userInfo.username] =
                 new RemoteUser{userInfo.username, appView};
@@ -294,12 +297,19 @@ void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &chang
         }
     }
     for (RemoteUser *remoteUser : qAsConst(usersToRemove)) {
+        usersLeft.push_back(remoteUser->username());
         remoteUsers_.remove(remoteUser->username());
         emitRemoteUsersChanged = true;
     }
 
     if (emitRemoteUsersChanged) {
         emit remoteUsersChanged();
+    }
+    for (const QString& who : usersLeft) {
+        emit remoteUserLeft(who);
+    }
+    for (const QString& who : usersJoined) {
+        emit remoteUserJoined(who);
     }
 
     for (RemoteUser *remoteUser : qAsConst(usersToRemove)) {

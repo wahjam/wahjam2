@@ -86,6 +86,10 @@ signals:
     // When a remote user is added or removed
     void remoteUsersChanged();
 
+    // When a user joins or leaves
+    void remoteUserJoined(const QString &who);
+    void remoteUserLeft(const QString &who);
+
     // For error reporting, stateChanged() is emitted for actual state change
     void error(const QString &msg);
 
