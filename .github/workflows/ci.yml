@@ -1,43 +1,44 @@
 name: ci
 on: [push, pull_request]
 jobs:
-  ubuntu-20_04:
-    runs-on: ubuntu-20.04
+  ubuntu-22_04:
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
       - run: sudo apt-get install -qy clang libsamplerate0-dev portaudio19-dev libvorbis-dev
-      - uses: jurplel/install-qt-action@v2
+      - uses: jurplel/install-qt-action@v3
         with:
-          version: 6.2.4
+          version: 6.4.3
       - uses: BSFishy/meson-build@v1.0.3
         with:
           action: test
-          meson-version: 0.62.0
+          meson-version: 1.0.1
         env:
           CXX: clang++
-          PATH: /home/runner/work/wahjam2/Qt/6.2.4/gcc_64/libexec:/usr/bin:/bin
-      - uses: actions/upload-artifact@v2
+          PATH: /home/runner/work/wahjam2/Qt/6.4.3/gcc_64/libexec:/usr/bin:/bin
+      - uses: actions/upload-artifact@v3
         with:
           name: testlog-ubuntu.txt
           path: build/meson-logs/testlog.txt
         if: ${{ always() }}
 
-  macos-10_15:
-    runs-on: macos-10.15
+  macos-12:
+    runs-on: macos-12
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11.2'
       - run: brew install libsamplerate qt6 qtkeychain portaudio libvorbis
-      - run: ls -l /usr/local/Cellar
-      - uses: BSFishy/meson-build@v1.0.1
+      - uses: BSFishy/meson-build@v1.0.3
         with:
           action: test
-          meson-version: 0.62.0
+          meson-version: 1.0.1
         env:
           PKG_CONFIG_PATH: /usr/local/opt/qt@6/lib/pkgconfig
-          PATH: /usr/local/Cellar/qt/6.2.3_1/share/qt/libexec:/Users/runner/hostedtoolcache/Python/3.10.4/x64/bin:/Users/runner/hostedtoolcache/Python/3.10.4/x64:/usr/local/lib/ruby/gems/2.7.0/bin:/usr/local/opt/ruby@2.7/bin:/usr/local/opt/pipx_bin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/runner/hostedtoolcache/stack/2.7.5/x64
-      - uses: actions/upload-artifact@v2
+          PATH: /usr/local/opt/pipx_bin:/Users/runner/.cargo/bin:/usr/local/opt/curl/bin:/usr/local/bin:/usr/local/sbin:/Users/runner/bin:/Users/runner/.yarn/bin:/usr/bin:/bin:/usr/sbin:/sbin
+      - uses: actions/upload-artifact@v3
         with:
           name: testlog-macos.txt
           path: build/meson-logs/testlog.txt
