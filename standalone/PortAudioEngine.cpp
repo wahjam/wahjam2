@@ -504,14 +504,12 @@ bool PortAudioEngine::fillStreamParameters(PaStreamParameters *inputParams,
             i,
             0, // filled in below
             paFloat32 | paNonInterleaved,
-            0, // filled in below
+            latency,
             nullptr,
         };
 
         if (inputDevice_ == info->name && inputParams != nullptr) {
             params.channelCount = info->maxInputChannels;
-            params.suggestedLatency =
-                qMax(latency, info->defaultLowInputLatency);
 
             if (inputRouting_.size() == params.channelCount) {
                 *inputParams = params;
@@ -520,8 +518,6 @@ bool PortAudioEngine::fillStreamParameters(PaStreamParameters *inputParams,
         }
         if (outputDevice_ == info->name && outputParams != nullptr) {
             params.channelCount = info->maxOutputChannels;
-            params.suggestedLatency =
-                qMax(latency, info->defaultLowOutputLatency);
 
             if (outputRouting_.size() == params.channelCount) {
                 *outputParams = params;
@@ -604,6 +600,7 @@ bool PortAudioEngine::start()
     }
 
     auto streamInfo = Pa_GetStreamInfo(stream);
+    int sampleBufSize = bufferSize_;
     if (streamInfo) {
         qDebug("PortAudio stream %p opened with sample rate %g Hz, input latency %g secs, output latency %g secs",
                stream,
@@ -615,7 +612,7 @@ bool PortAudioEngine::start()
         sampleRate_ = streamInfo->sampleRate;
         int newBufferSize = qMax(sampleRate_ * streamInfo->inputLatency,
                                  sampleRate_ * streamInfo->outputLatency);
-        bufferSize_ = qMax(bufferSize_, newBufferSize);
+        sampleBufSize = qMax(bufferSize_, newBufferSize);
     }
 
     err = Pa_SetStreamFinishedCallback(stream, streamFinishedCallback);
@@ -630,8 +627,8 @@ bool PortAudioEngine::start()
     emit runningChanged(true);
 
     // Allocate buffers with plenty of space
-    sampleBuf[CHANNEL_LEFT].resize(bufferSize_ * 2);
-    sampleBuf[CHANNEL_RIGHT].resize(bufferSize_ * 2);
+    sampleBuf[CHANNEL_LEFT].resize(sampleBufSize * 2);
+    sampleBuf[CHANNEL_RIGHT].resize(sampleBufSize * 2);
 
     // Restart sample clock
     now = 0;
