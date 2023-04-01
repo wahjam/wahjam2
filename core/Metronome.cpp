@@ -115,9 +115,8 @@ void Metronome::checkNextBeat()
     // QTimer only has millisecond accuracy so sync against sample time to
     // avoid accumulating errors.
     int sampleRate = appView->audioProcessor()->getSampleRate();
-    SampleTime samplesPerBeat = 60. / bpm_ * sampleRate;
     auto t = appView->currentSampleTime();
-    auto samples = nextBeatSampleTime + samplesPerBeat - t;
+    auto samples = t > nextBeatSampleTime ? 0 : nextBeatSampleTime - t;
     auto msec = samplesToMsec(sampleRate, samples);
     nextBeatTimer.start(msec);
 }
