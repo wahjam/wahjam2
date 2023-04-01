@@ -18,4 +18,5 @@ executable(meson.project_name(),
 	   ],
 	   include_directories : inc,
 	   link_with : [libaudio, libcore],
-       install : true)
+       install : true,
+       win_subsystem : 'windows')
