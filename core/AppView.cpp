@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include <inttypes.h>
 #include <QQmlError>
+#include <QSettings>
 #include "config.h"
 #include "AppView.h"
 #include "QmlGlobals.h"
@@ -10,6 +11,22 @@ static void showViewErrors(QQuickView *view)
     for (const QQmlError &error : view->errors()) {
         qCritical("%s", error.toString().toLatin1().constData());
     }
+}
+
+void AppView::setupSSLVerification()
+{
+    QSettings settings;
+
+    settings.beginGroup("ssl");
+
+    if (settings.value("verify", true).toBool()) {
+        return;
+    }
+
+    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+    qWarning("SSL verification disabled");
+    sslConfig.setPeerVerifyMode(QSslSocket::QueryPeer);
+    QSslConfiguration::setDefaultConfiguration(sslConfig);
 }
 
 AppView::AppView(const QString &format, const QUrl &url, QWindow *parent)
@@ -27,11 +44,7 @@ AppView::AppView(const QString &format, const QUrl &url, QWindow *parent)
     setTitle(APPNAME);
     setMinimumSize(QSize{800, 600});
 
-    // TODO make SSL verification a boolean setting
-    qWarning("SSL verification disabled for development");
-    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
-    sslConfig.setPeerVerifyMode(QSslSocket::QueryPeer);
-    QSslConfiguration::setDefaultConfiguration(sslConfig);
+    setupSSLVerification();
 
     // Now load the QML
     setSource(url);

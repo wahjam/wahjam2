@@ -72,4 +72,6 @@ private:
     qint64 lastProcessAudioStreamsTick;
 
     QmlGlobals *qmlGlobals_;
+
+    void setupSSLVerification();
 };
