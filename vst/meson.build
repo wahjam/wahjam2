@@ -7,7 +7,7 @@ sources = files(
   'VstPlugin.cpp'
 )
 
-shared_library(meson.project_name(),
+shared_library(get_option('appname'),
                sources,
 	       qt6.preprocess(moc_headers : moc_headers),
 	       resources,

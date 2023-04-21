@@ -1,0 +1,4 @@
+# These can be customized for branding
+option('appname', type : 'string', value : 'wahjam2')
+option('orgname', type : 'string', value : 'Wahjam Project')
+option('orgdomain', type : 'string', value : 'wahjam.org')

@@ -8,7 +8,7 @@ sources = files(
   'PortAudioEngine.cpp'
 )
 
-executable(meson.project_name(),
+executable(get_option('appname'),
            sources,
 	   qt6.preprocess(moc_headers : moc_headers),
 	   resources,

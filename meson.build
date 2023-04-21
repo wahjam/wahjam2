@@ -8,7 +8,7 @@ project('wahjam2', 'cpp',
           'werror=true'
         ],
         license : 'Apache-2.0',
-        version : '0.0.1')
+        version : files('VERSION'))
 
 cxx = meson.get_compiler('cpp')
 
@@ -25,9 +25,9 @@ if not qt6keychain.found()
 endif
 
 conf_data = configuration_data()
-conf_data.set_quoted('APPNAME', 'Wahjam2')
-conf_data.set_quoted('ORGNAME', 'Wahjam Project')
-conf_data.set_quoted('ORGDOMAIN', 'wahjam.org')
+conf_data.set_quoted('APPNAME', get_option('appname'))
+conf_data.set_quoted('ORGNAME', get_option('orgname'))
+conf_data.set_quoted('ORGDOMAIN', get_option('orgdomain'))
 conf_data.set_quoted('VERSION', meson.project_version())
 conf_data.set('HAVE_PA_JACK_H', cxx.has_header('pa_jack.h'))
 conf_data.set('HAVE_QT6KEYCHAIN_H', qt6keychain.found())
