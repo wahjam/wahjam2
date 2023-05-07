@@ -1,4 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
+#pragma once
+
+#include <QUrl>
+#include "global.h"
 #include "AppView.h"
 #include "JamApiManager.h"
 #include "JamSession.h"
@@ -15,6 +19,8 @@ class QmlGlobals : public QObject
     // The format (standalone, VST plugin, etc)
     Q_PROPERTY(QString format READ format)
 
+    Q_PROPERTY(QUrl logFileUrl READ logFileUrl)
+
     Q_PROPERTY(JamSession *session READ session NOTIFY sessionChanged)
 
     Q_PROPERTY(float masterPeakVolume READ masterPeakVolume NOTIFY masterPeakVolumeChanged)
@@ -30,6 +36,11 @@ public:
     QString format() const
     {
         return format_;
+    }
+
+    QUrl logFileUrl() const
+    {
+        return QUrl::fromLocalFile(logFilePath);
     }
 
     JamSession *session()

@@ -11,6 +11,8 @@
 
 static FILE *logfp = stderr;
 
+QString logFilePath;
+
 static void qtMessageHandler(QtMsgType type,
                              const QMessageLogContext &context,
                              const QString &msg)
@@ -69,8 +71,8 @@ void globalInit()
         abort();
     }
 
-    const QString log_txt{dataDir.filePath("log.txt")};
-    logfp = fopen(log_txt.toLocal8Bit().constData(), "w");
+    logFilePath = dataDir.filePath("log.txt");
+    logfp = fopen(logFilePath.toLocal8Bit().constData(), "w");
     if (!logfp) {
         logfp = stderr;
     }

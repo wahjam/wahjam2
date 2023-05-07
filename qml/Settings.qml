@@ -20,8 +20,17 @@ Pane {
             text: Qt.application.displayName + ' ' + Qt.application.version
         }
         Label {
-            text: '<a href="https://' + Qt.application.domain + '/">https://' + Qt.application.domain + '/'
-            onLinkActivated: Qt.openUrlExternally(link)
+            text: `<a href="https://${Qt.application.domain}/">Website</a>`
+            onLinkActivated: (link) => Qt.openUrlExternally(link)
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.Arrowcursor;
+                acceptedButtons: Qt.NoButton
+            }
+        }
+        Label {
+            text: `<a href="${Client.logFileUrl}">Show log...</a>`
+            onLinkActivated: (link) => Qt.openUrlExternally(link)
             MouseArea {
                 anchors.fill: parent
                 cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.Arrowcursor;
