@@ -5,6 +5,9 @@
 !ifndef PROGRAM_NAME
   !define PROGRAM_NAME wahjam2
 !endif
+!ifndef ORG_NAME
+  !define ORG_NAME "Wahjam Project"
+!endif
 !ifndef EXECUTABLE
   !define EXECUTABLE "${PROGRAM_NAME}.exe"
 !endif
@@ -21,9 +24,9 @@
 ; Install for current user without User Account Control elevation
 RequestExecutionLevel user
 
-OutFile ${PROGRAM_NAME}-${VERSION}-installer.exe
+OutFile "${BUILD_DIR}\${PROGRAM_NAME}-${VERSION}-installer.exe"
 Name ${PROGRAM_NAME}
-InstallDir "$LOCALAPPDATA\${PROGRAM_NAME}"
+InstallDir "$LOCALAPPDATA\${ORG_NAME}\${PROGRAM_NAME}"
 SetCompressor /SOLID lzma
 LicenseData license.txt
 
@@ -65,23 +68,22 @@ Section Uninstall
   Delete "$DESKTOP\${PROGRAM_NAME}.lnk"
 
   DeleteRegKey HKCU "${REG_UNINSTALL}"
-  DeleteRegKey HKCU "Software\${PROGRAM_NAME}\${PROGRAM_NAME}"
-; TODO Should be "Software\Wahjam Project\Wahjam2"
-  DeleteRegKey /ifempty HKCU "Software\${PROGRAM_NAME}"
+  DeleteRegKey HKCU "Software\${ORG_NAME}\${PROGRAM_NAME}"
+  DeleteRegKey /ifempty HKCU "Software\${ORG_NAME}"
   Delete "$SMPROGRAMS\${PROGRAM_NAME}.lnk"
 
   SetOutPath $INSTDIR
   Delete license.txt
+  Delete log.txt
   Delete "*.exe"
   Delete "*.dll"
   RMDir /r "$INSTDIR\cache"
   RMDir /r "$INSTDIR\plugins"
   RMDir /r "$INSTDIR\qml"
   Delete uninstall.exe
-  Delete "${PROGRAM_NAME}\log.txt"
-  RMDir "$INSTDIR\${PROGRAM_NAME}"
   SetOutPath $TEMP
   RMDir $INSTDIR
+  RMDir "$INSTDIR\.."
 SectionEnd
 
 Function .onInit
