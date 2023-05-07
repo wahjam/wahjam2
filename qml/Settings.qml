@@ -7,7 +7,10 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import org.wahjam.client
 
-Pane {
+ScrollView {
+    padding: 12
+    ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+
     ColumnLayout {
         Loader {
             id: formatSpecificSettings
