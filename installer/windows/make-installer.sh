@@ -3,28 +3,30 @@
 #
 # Create a Windows installer.
 #
-# If a Software Publisher File (spc) named "<appname>.spc" and a Private Key
-# File (pvk) named "<appname>.pvk" are located in the same directory as this
-# script, then code signing is performed. The private key file password must be
-# in an environment variable named PVK_PASSWORD.
+# If a PKCS#12 file named "<appname>.p12" is located in the same directory as
+# this script, then code signing is performed. The private key file password
+# must be in an environment variable named CODE_SIGNING_PASSWORD.
 #
 # Usage: make-windows-installer.sh <build-dir>
 
 set -e
 
 # Do not leak the password environment variable to subprocesses
-export -n PVK_PASSWORD
+export -n CODE_SIGNING_PASSWORD
 
 : ${CC:=x86_64-w64-mingw32.shared-gcc}
 : ${QMAKE:=x86_64-w64-mingw32.shared-qt6-qmake}
-: ${MESON:=x86_64-w64-mingw32.shared-meson}
+
+# mxe has a meson wrapper that only runs the 'setup' subcommand. Bypass it to
+# run other subcommands.
+: ${REAL_MESON:=/mxe/usr/x86_64-pc-linux-gnu/bin/meson}
 
 meson_projectinfo() {
-    "$MESON" introspect --projectinfo "$build_dir" | python -c "import json; import sys; print(json.load(sys.stdin)['$1'])"
+    "$REAL_MESON" introspect --projectinfo "$build_dir" | python -c "import json; import sys; print(json.load(sys.stdin)['$1'])"
 }
 
 meson_buildoption() {
-    "$MESON" introspect --buildoptions "$build_dir" | python -c "import json; import sys; print(list(filter(lambda x: x['name'] == '$1', json.load(sys.stdin)))[0]['value'])"
+    "$REAL_MESON" introspect --buildoptions "$build_dir" | python -c "import json; import sys; print(list(filter(lambda x: x['name'] == '$1', json.load(sys.stdin)))[0]['value'])"
 }
 
 build_dir="$1"
@@ -32,11 +34,11 @@ install_dir="$build_dir/install"
 
 appname=$(meson_buildoption appname)
 version=$(meson_projectinfo version)
+orgname=$(meson_buildoption orgname)
 orgdomain=$(meson_buildoption orgdomain)
 
 script_dir=$(dirname $0)
-spc_file="$script_dir/$appname.spc"
-pvk_file="$script_dir/$appname.pvk"
+pkcs_file="$script_dir/$appname.p12"
 
 # System DLLs are installed here
 BIN_DIR=$($CC --print-sysroot)/bin
@@ -133,21 +135,23 @@ copy_qt_plugins() {
 sign() {
     file="$1"
 
-    if [ -z "$PVK_PASSWORD" ]; then
-        echo "No private key file password set in PVK_PASSWORD environment variable."
+    if [ -z "$CODE_SIGNING_PASSWORD" ]; then
+        echo "The CODE_SIGNING_PASSWORD environment variable must be set."
         return 1
     fi
 
     echo
     echo "Signing $file..."
-    signcode -spc "$spc_file" \
-        -v "$pvk_file" \
-        -a sha256 \
-        '-$' commercial \
-        -n "$appname" \
-        -i "https://$orgdomain/" \
-        -t http://timestamp.digicert.com \
-        "$file" <<<"$PVK_PASSWORD"
+    mv "$file" "$file.bak"
+    osslsigncode sign \
+	    -pkcs12 "$pkcs_file" \
+	    -pass "$CODE_SIGNING_PASSWORD" \
+	    -n "$appname" \
+	    -i "https://$orgdomain/" \
+	    -t http://timestamp.digicert.com \
+	    -in "$file.bak" \
+	    -out "$file"
+    rm "$file.bak"
 }
 
 rm -rf "$install_dir"
@@ -169,7 +173,7 @@ run rm -rf "$install_dir/qml/QtQuick/Controls/Fusion"
 run rm -rf "$install_dir/qml/QtQuick/Controls/Imagine"
 run rm -rf "$install_dir/qml/QtQuick/Controls/Universal"
 
-if [ -f "$spc_file" -a -f "$pvk_file" ]; then
+if [ -f "$pkcs_file" ]; then
     for f in $(find "$install_dir" -name \*.dll -o -name \*.exe); do
         sign "$f"
     done
@@ -183,10 +187,10 @@ fi
 # zip -9 -r "$zipfile" "$appname/"
 # rm -f "$appname"
 
-makensis -DPROGRAM_NAME="$appname" -DVERSION="$version" "$script_dir/installer.nsi" || true
+makensis -DPROGRAM_NAME="$appname" -DORG_NAME="$orgname" -DVERSION="$version" "$script_dir/installer.nsi" || true
 
-if [ -f "$spc_file" -a -f "$pvk_file" ]; then
-    sign "qtclient/installer/windows/$appname-installer.exe"
+if [ -f "$pkcs_file" ]; then
+    sign "$build_dir/$appname-$version-installer.exe"
 else
     echo "No code signing certificate found. Not signing executable."
 fi
