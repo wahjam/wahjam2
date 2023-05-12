@@ -7,12 +7,12 @@ sources = files(
   'VstPlugin.cpp'
 )
 
-shared_library(get_option('appname'),
+shared_library(appname,
                sources,
-	       qt6.preprocess(moc_headers : moc_headers),
-	       resources,
-	       dependencies : dependencies,
-	       include_directories : inc,
-	       link_with : [libaudio, libcore],
-	       name_prefix : '',
-           install : true)
+               qt6.preprocess(moc_headers : moc_headers),
+               resources,
+               dependencies : dependencies,
+               include_directories : inc,
+               link_with : [libaudio, libcore],
+               name_prefix : '',
+               install : true)

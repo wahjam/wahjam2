@@ -10,6 +10,8 @@ project('wahjam2', 'cpp',
         license : 'Apache-2.0',
         version : files('VERSION'))
 
+fs = import('fs')
+
 cxx = meson.get_compiler('cpp')
 
 # qtkeychain installs CMake files
@@ -24,14 +26,15 @@ if not qt6keychain.found()
   )
 endif
 
+appname = get_option('appname')
+
 conf_data = configuration_data()
-conf_data.set_quoted('APPNAME', get_option('appname'))
+conf_data.set_quoted('APPNAME', appname)
 conf_data.set_quoted('ORGNAME', get_option('orgname'))
 conf_data.set_quoted('ORGDOMAIN', get_option('orgdomain'))
 conf_data.set_quoted('VERSION', meson.project_version())
 conf_data.set('HAVE_PA_JACK_H', cxx.has_header('pa_jack.h'))
 conf_data.set('HAVE_QT6KEYCHAIN_H', qt6keychain.found())
-
 configure_file(output : 'config.h', configuration : conf_data)
 
 inc = include_directories('.')
@@ -53,6 +56,7 @@ dependencies = [
 
 resources = qt6.preprocess(qresources : 'resources.qrc')
 
+subdir('installer/' + target_machine.system())
 subdir('audio')
 subdir('core')
 subdir('standalone')
