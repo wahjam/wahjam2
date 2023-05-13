@@ -27,11 +27,19 @@ if not qt6keychain.found()
 endif
 
 appname = get_option('appname')
+orgdomain = get_option('orgdomain')
+
+# Build a reversed orgdomain (wahjam.org -> org.wahjam)
+components = orgdomain.split('.')
+if components.length() != 2
+    error('orgdomain', orgdomain, 'does not have 2 components')
+endif
+reversed_orgdomain = '@0@.@1@'.format(components[1], components[0])
 
 conf_data = configuration_data()
 conf_data.set_quoted('APPNAME', appname)
 conf_data.set_quoted('ORGNAME', get_option('orgname'))
-conf_data.set_quoted('ORGDOMAIN', get_option('orgdomain'))
+conf_data.set_quoted('ORGDOMAIN', orgdomain)
 conf_data.set_quoted('VERSION', meson.project_version())
 conf_data.set('HAVE_PA_JACK_H', cxx.has_header('pa_jack.h'))
 conf_data.set('HAVE_QT6KEYCHAIN_H', qt6keychain.found())
