@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+<dict>
+        <key>NSPrincipalClass</key>
+        <string>NSApplication</string>
+        <key>CFBundleIconFile</key>
+        <string>appicon.icns</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>CFBundleGetInfoString</key>
+        <string>@VERSION@</string>
+        <key>CFBundleShortVersionString</key>
+        <string>@VERSION@</string>
+        <key>CFBundleExecutable</key>
+        <string>@APPNAME@</string>
+        <key>CFBundleIdentifier</key>
+        <string>@BUNDLEIDENTIFIER@</string>
+        <key>CFBundleDisplayName</key>
+        <string>@APPNAME@</string>
+        <key>CFBundleName</key>
+        <string>@APPNAME@</string>
+        <key>NSMicrophoneUsageDescription</key>
+        <string>This app requires microphone access to record audio for jam sessions.</string>
+</dict>
+</plist>
