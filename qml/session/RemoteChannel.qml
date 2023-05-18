@@ -14,6 +14,10 @@ Row {
             horizontalAlignment: Text.AlignHCenter
             text: channel.name
         }
+        Image {
+            visible: !channel.remoteSending
+            source: 'qrc:/icons/wifi_tethering_off_black_24dp.svg'
+        }
         VerticalBar {
             anchors.horizontalCenter: parent.horizontalCenter
             enabled: channel.monitorEnabled
