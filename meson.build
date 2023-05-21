@@ -8,7 +8,7 @@ project('wahjam2', 'cpp',
           'werror=true'
         ],
         license : 'Apache-2.0',
-        version : files('VERSION'))
+        version : '0.0.1')
 
 fs = import('fs')
 
