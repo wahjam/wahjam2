@@ -6,6 +6,9 @@ if fs.is_dir(appname)
     conf_data.set('VERSION', meson.project_version())
     conf_data.set('BUNDLEIDENTIFIER', reversed_orgdomain + '.' + appname)
 
-    configure_file(output : 'Info.plist', configuration : conf_data,
-                   install_dir : 'Contents', install : true)
+    configure_file(input : 'Info.plist.in',
+                   output : 'Info.plist',
+                   configuration : conf_data,
+                   install_dir : 'Contents',
+                   install : true)
 endif
