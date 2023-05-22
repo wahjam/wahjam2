@@ -15,4 +15,4 @@ shared_library(appname,
                include_directories : inc,
                link_with : [libaudio, libcore],
                name_prefix : '',
-               install : true)
+               install : false)
