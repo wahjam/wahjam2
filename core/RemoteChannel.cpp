@@ -77,6 +77,22 @@ float RemoteChannel::peakVolume() const
             playbackStreams[CHANNEL_RIGHT]->getPeakVolume()) / 2.f;
 }
 
+float RemoteChannel::gain() const
+{
+    return playbackStreams[CHANNEL_LEFT]->getGain();
+}
+
+void RemoteChannel::setGain(float gain_)
+{
+    if (gain_ == gain()) {
+        return;
+    }
+
+    playbackStreams[CHANNEL_LEFT]->setGain(gain_);
+    playbackStreams[CHANNEL_RIGHT]->setGain(gain_);
+    emit gainChanged();
+}
+
 // Play nsamples of silence
 void RemoteChannel::fillWithSilence(size_t nsamples)
 {

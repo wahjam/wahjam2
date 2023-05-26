@@ -18,12 +18,24 @@ Row {
             visible: !channel.remoteSending
             source: 'qrc:/icons/wifi_tethering_off_black_24dp.svg'
         }
-        VerticalBar {
+        Slider {
             anchors.horizontalCenter: parent.horizontalCenter
-            enabled: channel.monitorEnabled
+            orientation: Qt.Vertical
             from: 0
-            to: 1
-            value: channel.peakVolume
+            to: 1.5
+            value: channel.gain
+            width: 20
+            height: 120
+
+            onMoved: channel.gain = value
+
+            background: VerticalBar {
+                anchors.horizontalCenter: parent.horizontalCenter
+                enabled: channel.monitorEnabled
+                from: 0
+                to: 1
+                value: channel.peakVolume
+            }
         }
         MuteButton {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -32,14 +44,19 @@ Row {
                 channel.monitorEnabled = !channel.monitorEnabled
             }
         }
+/* TODO implement solo
         SoloButton {
             anchors.horizontalCenter: parent.horizontalCenter
         }
+*/
+/* Enable this when more controls are needed
         MoreButton {
             anchors.horizontalCenter: parent.horizontalCenter
             target: sidePanel
         }
+*/
     }
+/*
     Column {
         id: sidePanel
 
@@ -54,4 +71,5 @@ Row {
             value: 0
         }
     }
+*/
 }

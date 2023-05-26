@@ -13,8 +13,8 @@ class RemoteChannel : public QObject
     Q_OBJECT
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     // TODO mono or stereo?
-    // TODO gain?
     Q_PROPERTY(float pan READ pan WRITE setPan)
+    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
     Q_PROPERTY(bool monitorEnabled READ monitorEnabled WRITE setMonitorEnabled NOTIFY monitorEnabledChanged)
 
     // Playback stream is out of remote audio samples
@@ -41,6 +41,8 @@ public:
     bool underflow() const;
     bool remoteSending() const;
     float peakVolume() const;
+    float gain() const;
+    void setGain(float gain_);
 
 signals:
     void nameChanged(const QString &newName);
@@ -48,6 +50,7 @@ signals:
     void underflowChanged(bool newValue);
     void remoteSendingChanged(bool newValue);
     void peakVolumeChanged();
+    void gainChanged();
 
 public slots:
     void processAudioStreams();
