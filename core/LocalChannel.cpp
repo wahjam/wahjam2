@@ -65,6 +65,22 @@ float LocalChannel::peakVolume() const
             captureStreams[CHANNEL_RIGHT]->getPeakVolume()) / 2.f;
 }
 
+float LocalChannel::gain() const
+{
+    return captureStreams[CHANNEL_LEFT]->getGain();
+}
+
+void LocalChannel::setGain(float gain_)
+{
+    if (gain_ == gain()) {
+        return;
+    }
+
+    captureStreams[CHANNEL_LEFT]->setGain(gain_);
+    captureStreams[CHANNEL_RIGHT]->setGain(gain_);
+    emit gainChanged();
+}
+
 void LocalChannel::start()
 {
     started = true;
@@ -134,8 +150,8 @@ void LocalChannel::processAudioStreams()
     n = captureStreams[CHANNEL_RIGHT]->read(nextCaptureTime, right.data(), readable);
     assert(n == readable);
     float pan = 0.5f; // linear stereo pan
-    mixSamples(left.data(), samples.data(), readable, pan);
-    mixSamples(right.data(), samples.data(), readable, pan);
+    mixSamples(left.data(), samples.data(), readable, pan * gain());
+    mixSamples(right.data(), samples.data(), readable, pan * gain());
 
     for (size_t i = 0; i < readable; i += n) {
         n = qMin(readable - i, remainingIntervalTime); // only process up to next interval

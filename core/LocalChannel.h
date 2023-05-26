@@ -18,7 +18,8 @@ class LocalChannel : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(bool send READ send WRITE setSend NOTIFY sendChanged)
     Q_PROPERTY(float peakVolume READ peakVolume NOTIFY peakVolumeChanged)
-    // TODO pan, gain
+    Q_PROPERTY(float gain READ gain WRITE setGain NOTIFY gainChanged)
+    // TODO pan
 
 public:
     // Does not take ownership of captureLeft and captureRight
@@ -35,6 +36,8 @@ public:
     bool send() const;
     void setSend(bool enable);
     float peakVolume() const;
+    float gain() const;
+    void setGain(float gain_);
 
     // Begin uploading data from the capture streams
     void start();
@@ -56,6 +59,7 @@ signals:
     void sendChanged();
     void nameChanged();
     void peakVolumeChanged();
+    void gainChanged();
 
 private:
     AudioProcessor *processor;

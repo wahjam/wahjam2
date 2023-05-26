@@ -15,23 +15,38 @@ Row {
             horizontalAlignment: Text.AlignHCenter
             text: channel.name
         }
-        VerticalBar {
+        Slider {
             anchors.horizontalCenter: parent.horizontalCenter
+            orientation: Qt.Vertical
             from: 0
-            to: 1
-            value: channel.peakVolume
+            to: 1.5
+            value: channel.gain
+            width: 20
+            height: 120
+
+            onMoved: channel.gain = value
+
+            background: VerticalBar {
+                anchors.horizontalCenter: parent.horizontalCenter
+                from: 0
+                to: 1
+                value: channel.peakVolume
+            }
         }
         SendButton {
             anchors.horizontalCenter: parent.horizontalCenter
             checked: !channel.send
             onClicked: channel.send = !channel.send
         }
+/* Enable this when more channel controls are needed
         MoreButton {
             anchors.horizontalCenter: parent.horizontalCenter
             target: sidePanel
             toolTipText: qsTr('More channel controls')
         }
+*/
     }
+/*
     Column {
         id: sidePanel
 
@@ -62,4 +77,5 @@ Row {
             ToolTip.timeout: Globals.toolTipTimeout
         }
     }
+*/
 }
