@@ -23,6 +23,20 @@ jobs:
           path: build/meson-logs/testlog.txt
         if: ${{ always() }}
 
+  windows-cross-compile:
+    runs-on: ubuntu-22.04
+    container:
+      image: ghcr.io/wahjam/wahjam2-windows-build:latest
+      options: --user root # so actions work
+    steps:
+      - uses: actions/checkout@v3
+      - run: export MESON=x86_64-w64-mingw32.shared-meson QMAKE=/mxe/usr/x86_64-w64-mingw32.shared/qt6/bin/qmake NINJA=/mxe/usr/x86_64-pc-linux-gnu/bin/ninja PATH=/mxe/usr/bin:/mxe/usr/x86_64-pc-linux-gnu/qt6/libexec:$PATH && $MESON -Dbuildtype=release build && cd build && $NINJA test
+      - uses: actions/upload-artifact@v3
+        with:
+          name: testlog-windows-cross-compile.txt
+          path: build/meson-logs/testlog.txt
+        if: ${{ always() }}
+
   macos-12:
     runs-on: macos-12
     steps:
