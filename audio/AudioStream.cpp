@@ -3,11 +3,6 @@
 #include <algorithm>
 #include "AudioStream.h"
 
-enum
-{
-    SMALL_BLOCK_SIZE = 64 /* samples */,
-};
-
 AudioStream::AudioStream(AudioStream::Type type_, size_t sampleBufferSize_)
     : type{type_}, sampleBuffer{nullptr}, gain{1.f}, peakVolume{0.f},
       peakVolumeDecay{0.f}, pan{0.f}, monitor{true}
@@ -23,7 +18,7 @@ AudioStream::~AudioStream()
 void AudioStream::setSampleBufferSize(size_t nsamples)
 {
     wasReset = true;
-    ring.setSize((nsamples + SMALL_BLOCK_SIZE - 1) / SMALL_BLOCK_SIZE);
+    ring.setSize(nsamples);
     delete [] sampleBuffer;
     sampleBuffer = new float[nsamples];
     sampleBufferSize = nsamples;
