@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QLoggingCategory>
 #include <QStandardPaths>
+#include <QSvgRenderer>
 #include <QSysInfo>
 
 #include "config.h"
@@ -84,6 +85,9 @@ void globalInit()
     qDebug("Qt %s", qVersion());
     qDebug("OS: %s", QSysInfo::prettyProductName().toLatin1().constData());
     qDebug("CPU: %s", QSysInfo::currentCpuArchitecture().toLatin1().constData());
+
+    // Unused but the symbol dependency forces the Qt Svg module to be linked
+    QSvgRenderer renderer;
 }
 
 void globalCleanup()

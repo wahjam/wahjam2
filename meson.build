@@ -52,7 +52,7 @@ qt6 = import('qt6')
 dependencies = [
   dependency('ogg'),
   dependency('qt6', modules : [
-    'Core', 'Gui', 'Network', 'Quick', 'QuickControls2', 'Qml'
+    'Core', 'Gui', 'Network', 'Quick', 'QuickControls2', 'Qml', 'Svg'
   ], main : true),
   dependency('samplerate'),
   dependency('threads'),
