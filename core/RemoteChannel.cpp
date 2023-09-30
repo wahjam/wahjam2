@@ -142,15 +142,14 @@ bool RemoteChannel::fillPlaybackStreams()
         size_t fill = n;
         n = fillFromInterval(fill);
 
-        // Remove interval when finished or upon underflow
-        if (n < fill) {
-            bool underflow = !intervals.first()->isSilence() &&
-                             !intervals.first()->appendingFinished();
-            if (underflow) {
-                // TODO signal underflow
-                intervalStartTime = nextPlaybackTime + remaining;
-            }
+        bool underflow = n < fill;
+        if (underflow) {
+            // TODO signal underflow
+            intervalStartTime = nextPlaybackTime + remaining;
+        }
 
+        bool finishedInterval = n == remaining;
+        if (finishedInterval || underflow) {
             intervals.removeFirst();
 
             if (intervals.isEmpty()) {
