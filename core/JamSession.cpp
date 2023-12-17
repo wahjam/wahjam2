@@ -61,7 +61,7 @@ const QVector<RemoteUser*> JamSession::remoteUsers() const
     keys.sort();
 
     QVector<RemoteUser*> result;
-    for (auto key : qAsConst(keys)) {
+    for (auto key : std::as_const(keys)) {
         result.append(remoteUsers_[key]);
     }
     return result;
@@ -72,7 +72,7 @@ void JamSession::deleteRemoteUsers()
     auto tmp = remoteUsers_;
     remoteUsers_.clear();
     emit remoteUsersChanged();
-    for (auto remoteUser : qAsConst(tmp)) {
+    for (auto remoteUser : std::as_const(tmp)) {
         delete remoteUser;
     }
 }
@@ -158,7 +158,7 @@ void JamSession::disconnectFromServer()
     qDebug("Disconnecting from server %s...",
            server_.toLatin1().constData());
 
-    for (auto chan : qAsConst(localChannels_)) {
+    for (auto chan : std::as_const(localChannels_)) {
         chan->stop();
     }
 
@@ -173,7 +173,7 @@ void JamSession::connConnected()
     screenPreventSleep();
 
     QList<JamConnection::ChannelInfo> channelInfo;
-    for (auto chan : qAsConst(localChannels_)) {
+    for (auto chan : std::as_const(localChannels_)) {
         channelInfo.append({chan->name(), 0, 0, 0});
     }
     if (!channelInfo.isEmpty()) {
@@ -185,7 +185,7 @@ void JamSession::connConnected()
 
 void JamSession::connDisconnected()
 {
-    for (auto chan : qAsConst(localChannels_)) {
+    for (auto chan : std::as_const(localChannels_)) {
         chan->stop();
     }
 
@@ -243,7 +243,7 @@ void JamSession::connConfigChanged(int bpm, int bpi)
 
     metronome_.start();
 
-    for (auto chan : qAsConst(localChannels_)) {
+    for (auto chan : std::as_const(localChannels_)) {
         chan->start();
     }
 }
@@ -291,12 +291,12 @@ void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &chang
 
     // Delete remote users with no channels
     QVector<RemoteUser*> usersToRemove;
-    for (RemoteUser *remoteUser : qAsConst(remoteUsers_)) {
+    for (RemoteUser *remoteUser : std::as_const(remoteUsers_)) {
         if (remoteUser->numActiveChannels() == 0) {
             usersToRemove.append(remoteUser);
         }
     }
-    for (RemoteUser *remoteUser : qAsConst(usersToRemove)) {
+    for (RemoteUser *remoteUser : std::as_const(usersToRemove)) {
         usersLeft.push_back(remoteUser->username());
         remoteUsers_.remove(remoteUser->username());
         emitRemoteUsersChanged = true;
@@ -312,14 +312,14 @@ void JamSession::connUserInfoChanged(const QList<JamConnection::UserInfo> &chang
         emit remoteUserJoined(who);
     }
 
-    for (RemoteUser *remoteUser : qAsConst(usersToRemove)) {
+    for (RemoteUser *remoteUser : std::as_const(usersToRemove)) {
         QString username = remoteUser->username();
         qDebug("Deleting user \"%s\"", username.toLatin1().constData());
 
         delete remoteUser;
 
         QVector<QUuid> intervalsToRemove;
-        for (auto remoteInterval : qAsConst(remoteIntervals)) {
+        for (auto remoteInterval : std::as_const(remoteIntervals)) {
             if (remoteInterval->username() == username) {
                 intervalsToRemove.append(remoteInterval->guid());
             }

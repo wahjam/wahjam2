@@ -10,7 +10,7 @@ RemoteUser::RemoteUser(const QString &username,
 
 RemoteUser::~RemoteUser()
 {
-    for (auto channel : qAsConst(channels_)) {
+    for (auto channel : std::as_const(channels_)) {
         delete channel;
     }
     channels_.clear();
@@ -24,7 +24,7 @@ QString RemoteUser::username() const
 int RemoteUser::numActiveChannels() const
 {
     int num = 0;
-    for (auto channel : qAsConst(channels_)) {
+    for (auto channel : std::as_const(channels_)) {
         if (channel) {
             num++;
         }
