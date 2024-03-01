@@ -631,8 +631,8 @@ bool PortAudioEngine::start()
     emit runningChanged(true);
 
     // Allocate buffers with plenty of space
-    sampleBuf[CHANNEL_LEFT].resize(sampleBufSize * 2);
-    sampleBuf[CHANNEL_RIGHT].resize(sampleBufSize * 2);
+    sampleBuf[CHANNEL_LEFT].resize(qMax(sampleBufSize * 2, 2048));
+    sampleBuf[CHANNEL_RIGHT].resize(qMax(sampleBufSize * 2, 2048));
 
     // Restart sample clock
     now = 0;
