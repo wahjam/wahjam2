@@ -143,9 +143,13 @@ void PortAudioEngine::logDeviceInfo() const
 
 void setDefaultInputRouting(int numChannels, QList<ChannelRoute> *routing)
 {
-    // There is no way of knowing whether inputs are mono or left/right
     for (int i = 0; i < numChannels; i++) {
-        routing->append(ChannelRoute::BOTH);
+        if (i == 0) {
+            // There is no way of knowing whether inputs are mono or left/right
+            routing->append(ChannelRoute::BOTH);
+        } else {
+            routing->append(ChannelRoute::OFF);
+        }
     }
 }
 
