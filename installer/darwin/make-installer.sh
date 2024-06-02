@@ -114,6 +114,7 @@ cd "$src_dir"
 rm -rf "$build_dir"
 rm -rf "$app_dir"
 rm -f "$dmg_file"
+CFLAGS="-arch x86_64 -arch arm64" CXXFLAGS="-arch x86_64 -arch arm64" LDFLAGS="-arch x86_64 -arch arm64" \
 meson setup --prefix "$app_dir" \
             --bindir=Contents/MacOS \
             -D appname="$appname" \
