@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 project('wahjam2', 'cpp',
         default_options : [
-          'cpp_args=-Wall -Werror=format-security -Wno-unused-parameter',
           'cpp_std=gnu++17',
           'optimization=2',
           'warning_level=3',
@@ -9,6 +8,8 @@ project('wahjam2', 'cpp',
         ],
         license : 'Apache-2.0',
         version : '0.0.1')
+add_project_arguments('-Werror=format-security', '-Wno-unused-parameter',
+                      language : ['cpp'])
 
 fs = import('fs')
 
