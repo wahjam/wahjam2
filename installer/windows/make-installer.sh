@@ -56,9 +56,9 @@ system_dlls=(
     libglib-2.0-0.dll
     libharfbuzz-0.dll
     libiconv-2.dll
-    icudt66.dll
-    icuin66.dll
-    icuuc66.dll
+    icudt74.dll
+    icuin74.dll
+    icuuc74.dll
     libintl-8.dll
     libjpeg-9.dll
     libogg-0.dll
