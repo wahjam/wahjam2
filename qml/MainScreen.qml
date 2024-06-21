@@ -7,6 +7,7 @@ import 'globals.js' as Globals
 
 Item {
     id: column
+    signal showLicenseScreen
 
     function entered() {
         lobby.refresh()
@@ -58,6 +59,9 @@ Item {
         }
         Settings {
             id: setupTab
+            onShowLicenseScreen: {
+                column.showLicenseScreen()
+            }
         }
     }
 }

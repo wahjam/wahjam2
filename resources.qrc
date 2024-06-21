@@ -19,6 +19,7 @@
     <file>qtquickcontrols2.conf</file>
     <file>qml/application.qml</file>
     <file>qml/globals.js</file>
+    <file>qml/LicenseScreen.qml</file>
     <file>qml/Lobby.qml</file>
     <file>qml/LoginScreen.qml</file>
     <file>qml/MainScreen.qml</file>

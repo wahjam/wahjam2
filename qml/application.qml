@@ -14,5 +14,15 @@ StackLayout {
 
     MainScreen {
         id: mainScreen
+        onShowLicenseScreen: {
+            stack.currentIndex = 2
+        }
+    }
+
+    LicenseScreen {
+        id: licenseScreen
+        onDone: {
+            stack.currentIndex = 1
+        }
     }
 }

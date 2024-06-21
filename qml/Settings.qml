@@ -8,6 +8,9 @@ import QtQuick.Layouts
 import org.wahjam.client
 
 ScrollView {
+    id: settings
+    signal showLicenseScreen
+
     padding: 12
     ScrollBar.vertical.policy: ScrollBar.AlwaysOn
 
@@ -34,6 +37,17 @@ ScrollView {
         Label {
             text: `<a href="${Client.logFileUrl}">Show log...</a>`
             onLinkActivated: (link) => Qt.openUrlExternally(link)
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.Arrowcursor;
+                acceptedButtons: Qt.NoButton
+            }
+        }
+        Label {
+            text: `<a href="about:blank">Show software license information...</a>`
+            onLinkActivated: {
+                settings.showLicenseScreen()
+            }
             MouseArea {
                 anchors.fill: parent
                 cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.Arrowcursor;
