@@ -50,6 +50,8 @@ QT_INSTALL_QML=$($QMAKE -query QT_INSTALL_QML)
 
 # Library dependencies can be found with "objdump -x <FILE> | grep 'DLL Name'"
 system_dlls=(
+    libbrotlicommon.dll
+    libbrotlidec.dll
     libbz2.dll
     libfreetype-6.dll
     libgcc_s_seh-1.dll
